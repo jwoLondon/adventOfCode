@@ -54,7 +54,7 @@
 
 module D02_2017 exposing (..)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat, select, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat, selectLargest, toInt)
 import Regex exposing (regex)
 
 
@@ -99,7 +99,7 @@ divis nums =
                 _ ->
                     Nothing
     in
-    select nums
+    selectLargest nums
         |> List.filterMap divPairs
         |> List.map (\( a, b ) -> a // b)
         |> List.sum

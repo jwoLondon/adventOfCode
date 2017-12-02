@@ -96,6 +96,21 @@ select xs =
             ( x, xs ) :: List.map (\( y, ys ) -> ( y, x :: ys )) (select xs)
 
 
+{-| Return all combinations in the form of (element, rest of the list) where element
+is larger than all items in the rest of list.
+select [1,2,3,4] == [(1,[]),(2,[1]),(3,[1,2]),(4,[1,2,3])]
+-}
+selectLargest : List comparable -> List ( comparable, List comparable )
+selectLargest xs =
+    case xs of
+        [] ->
+            []
+
+        x :: xs ->
+            ( x, List.filter (\y -> y < x) xs )
+                :: List.map (\( y, ys ) -> ( y, x :: ys )) (selectLargest xs)
+
+
 {-| Provides a list of all the factors of a given number.
 -}
 factors : Int -> List Int
