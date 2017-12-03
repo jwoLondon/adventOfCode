@@ -130,20 +130,17 @@ locationToSpiral ( x, y ) =
         ring =
             max (abs x) (abs y)
 
-        arm =
-            2 * ring
-
         corner =
-            (arm + 1) * (arm + 1)
+            (2 * ring + 1) * (2 * ring + 1)
     in
     if y == ring then
-        corner - (ring - x)
+        corner - ring + x
     else if x == -ring then
-        corner - arm - ring + y
+        corner - 3 * ring + y
     else if y == -ring then
-        corner - 2 * arm - x - ring
+        corner - 5 * ring - x
     else
-        corner - 3 * arm - ring - y
+        corner - 7 * ring - y
 
 
 spiralToLocation : Int -> Location
@@ -152,20 +149,17 @@ spiralToLocation n =
         ring =
             ceiling ((sqrt (toFloat n) - 1) / 2)
 
-        arm =
-            2 * ring
-
         corner =
-            (arm + 1) * (arm + 1)
+            (2 * ring + 1) * (2 * ring + 1)
     in
-    if n >= corner - arm then
+    if n >= corner - 2 * ring then
         ( n - corner + ring, ring )
-    else if n >= corner - 2 * arm then
-        ( -ring, n - corner + arm + ring )
-    else if n >= corner - 3 * arm then
-        ( corner - 2 * arm - n - ring, -ring )
+    else if n >= corner - 4 * ring then
+        ( -ring, n - corner + 3 * ring )
+    else if n >= corner - 6 * ring then
+        ( corner - 5 * ring - n, -ring )
     else
-        ( ring, corner - 3 * arm - n - ring )
+        ( ring, corner - 7 * ring - n )
 
 
 manhattanDistance : ( Int, Int ) -> Int
