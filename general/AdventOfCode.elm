@@ -31,7 +31,7 @@ aoc inFilename p1 p2 =
 
 
 {-| Converts a function that takes a single string to generate output and provides
-on that accepts a multi-iine input. Used for questions where input is on a single line.
+one that accepts a multi-iine input. Used for questions where input is on a single line.
 -}
 multiLineInput : (String -> OutFormat) -> (List String -> OutFormat)
 multiLineInput f s =
