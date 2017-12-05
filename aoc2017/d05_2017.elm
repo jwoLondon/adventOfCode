@@ -52,8 +52,10 @@
 
 module D05_2017 exposing (..)
 
+-- Array.Hamt (community package Skinney/elm-array-exploration gives faster Array implementation)
+
 import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
-import Array exposing (Array)
+import Array.Hamt as Array exposing (Array)
 
 
 main : Program Never Model Msg
