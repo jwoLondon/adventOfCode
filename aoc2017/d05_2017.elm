@@ -90,13 +90,13 @@ numSteps updater input =
 
 
 jump : (Int -> Int) -> ( Int, Jumps, Int ) -> ( Int, Jumps, Int )
-jump update ( pos, jumps, steps ) =
+jump updater ( pos, jumps, steps ) =
     case Array.get pos jumps of
         Nothing ->
             ( pos, jumps, steps )
 
         Just jmp ->
-            jump update ( pos + jmp, Array.set pos (update jmp) jumps, steps + 1 )
+            jump updater ( pos + jmp, Array.set pos (updater jmp) jumps, steps + 1 )
 
 
 updateJumps1 : Int -> Int
