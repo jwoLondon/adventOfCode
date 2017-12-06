@@ -80,9 +80,9 @@ transpose =
                 tails =
                     List.filterMap List.tail ll
             in
-                if List.length heads == List.length ll then
-                    heads :: (transposeLists tails)
-                else
-                    []
+            if List.length heads == List.length ll then
+                heads :: transposeLists tails
+            else
+                []
     in
-        Matrix.toList >> transposeLists >> Matrix.fromList
+    Matrix.toList >> transposeLists >> Matrix.fromList
