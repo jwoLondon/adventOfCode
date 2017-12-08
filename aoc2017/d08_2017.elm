@@ -45,7 +45,7 @@ import Dict exposing (Dict)
 import Regex exposing (regex)
 
 
-type alias Operation =
+type alias Expression =
     { reg : String
     , delta : Int
     , cReg : String
@@ -73,7 +73,7 @@ main =
 part1 : List String -> Int
 part1 =
     List.map parseLine
-        >> List.foldl apply Dict.empty
+        >> List.foldl applyInstruction Dict.empty
         >> Dict.remove maxReg
         >> Dict.values
         >> List.maximum
@@ -83,12 +83,12 @@ part1 =
 part2 : List String -> Int
 part2 =
     List.map parseLine
-        >> List.foldl apply Dict.empty
+        >> List.foldl applyInstruction Dict.empty
         >> getReg maxReg
 
 
-apply : Operation -> Registers -> Registers
-apply op registers =
+applyInstruction : Expression -> Registers -> Registers
+applyInstruction op registers =
     if op.cOp (getReg op.cReg registers) op.cVal then
         let
             newVal =
@@ -101,20 +101,14 @@ apply op registers =
 
 
 getReg : String -> Registers -> Int
-getReg reg registers =
-    case Dict.get reg registers of
-        Just val ->
-            val
-
-        Nothing ->
-            0
+getReg reg =
+    Dict.get reg >> Maybe.withDefault 0
 
 
-parseLine : String -> Operation
+parseLine : String -> Expression
 parseLine =
     let
-        toOperation : List String -> Operation
-        toOperation tokens =
+        toExpression tokens =
             case tokens of
                 reg :: deltaOp :: delta :: cReg :: compOp :: compVal :: [] ->
                     let
@@ -147,12 +141,12 @@ parseLine =
                                 _ ->
                                     (==) |> Debug.log "Bad comparison op"
                     in
-                    Operation reg deltaVal cReg cOp (toInt compVal)
+                    Expression reg deltaVal cReg cOp (toInt compVal)
 
                 _ ->
-                    Operation "" 0 "" (==) 0 |> Debug.log "Bad input"
+                    Expression "" 0 "" (==) 0 |> Debug.log "Bad input"
     in
     Regex.find Regex.All (Regex.regex "(\\w+) (inc|dec) (-?\\d+) if (\\w+) ([<>=!]+) (-?\\d+)")
         >> List.concatMap .submatches
         >> List.filterMap identity
-        >> toOperation
+        >> toExpression

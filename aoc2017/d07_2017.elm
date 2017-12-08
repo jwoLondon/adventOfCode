@@ -137,19 +137,57 @@ part2 input =
 
         getChildren name =
             Dict.get name childrenLookup |> Maybe.withDefault []
-
-        buildTree name =
-            Node name (getWeight name) (List.map buildTree (getChildren name))
     in
     input
         |> part1
-        |> buildTree
+        |> buildTree getWeight getChildren
         |> unbalancedProg
         |> correctWeight
 
 
+buildTree : (String -> Int) -> (String -> List String) -> String -> Prog
+buildTree att children name =
+    Node name (att name) (List.map (buildTree att children) (children name))
+
+
+unbalancedProg : Prog -> Maybe ( List Int, List Int )
+unbalancedProg prog =
+    let
+        (Node _ _ children) =
+            prog
+
+        totalWeight (Node _ weight children) =
+            weight + (List.map totalWeight children |> List.sum)
+
+        cWeights =
+            List.map totalWeight children
+
+        identical ws =
+            case ws of
+                hd :: tl ->
+                    List.all (\w -> w == hd) tl
+
+                _ ->
+                    True
+    in
+    if identical cWeights then
+        Nothing
+    else if List.filterMap unbalancedProg children == [] then
+        Just ( cWeights, List.map (\(Node _ w _) -> w) children )
+    else
+        List.filterMap unbalancedProg children
+            |> List.head
+
+
 correctWeight : Maybe ( List Int, List Int ) -> Int
 correctWeight unbalanced =
+    let
+        outlierDiff x xs =
+            if (List.filter (\n -> n == x) xs |> List.length) == 1 then
+                ((List.sum xs - x) // (List.length xs - 1)) - x
+            else
+                0
+    in
     case unbalanced of
         Just wsPair ->
             List.map2 (,) (Tuple.first wsPair) (Tuple.second wsPair)
@@ -161,52 +199,6 @@ correctWeight unbalanced =
 
         Nothing ->
             0
-
-
-outlierDiff : Int -> List Int -> Int
-outlierDiff x xs =
-    if (List.filter (\n -> n == x) xs |> List.length) == 1 then
-        ((List.sum xs - x) // (List.length xs - 1)) - x
-    else
-        0
-
-
-unbalancedProg : Prog -> Maybe ( List Int, List Int )
-unbalancedProg prog =
-    let
-        cWeights =
-            childWeights prog
-
-        (Node _ _ children) =
-            prog
-    in
-    if identical cWeights then
-        Nothing
-    else if List.filterMap unbalancedProg children == [] then
-        Just ( cWeights, List.map (\(Node _ w _) -> w) children )
-    else
-        List.filterMap unbalancedProg children
-            |> List.head
-
-
-identical : List Int -> Bool
-identical ws =
-    case ws of
-        hd :: tl ->
-            List.all (\w -> w == hd) tl
-
-        _ ->
-            True
-
-
-childWeights : Prog -> List Int
-childWeights (Node _ _ children) =
-    List.map totalWeight children
-
-
-totalWeight : Prog -> Int
-totalWeight (Node _ weight children) =
-    weight + (List.map totalWeight children |> List.sum)
 
 
 parseForWeight : String -> ( String, Int )
