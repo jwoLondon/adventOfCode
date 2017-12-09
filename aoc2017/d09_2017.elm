@@ -89,9 +89,15 @@ main =
         (part2 >> outFormat |> multiLineInput)
 
 
+type Mode
+    = CancelGarbage
+    | CancelGroup
+    | Garbage
+    | Group
+
+
 type alias FSM =
-    { isCancel : Bool
-    , isGarbage : Bool
+    { state : Mode
     , garbageCount : Int
     , groupCount : Int
     , groupLevel : Int
@@ -104,7 +110,7 @@ part1 input =
     let
         fsm =
             String.toList input
-                |> List.foldl transition (FSM False False 0 0 0 0)
+                |> List.foldl transition (FSM Group 0 0 0 0)
     in
     fsm.groupScore
 
@@ -114,27 +120,36 @@ part2 input =
     let
         fsm =
             String.toList input
-                |> List.foldl transition (FSM False False 0 0 0 0)
+                |> List.foldl transition (FSM Group 0 0 0 0)
     in
     fsm.garbageCount
 
 
 transition : Char -> FSM -> FSM
-transition char pState =
-    if pState.isCancel then
-        { pState | isCancel = False }
-    else if char == '!' then
-        { pState | isCancel = True }
-    else if pState.isGarbage then
-        if char == '>' then
-            { pState | isGarbage = False }
-        else
-            { pState | garbageCount = pState.garbageCount + 1 }
-    else if char == '<' then
-        { pState | isGarbage = True }
-    else if char == '{' then
-        { pState | groupCount = pState.groupCount + 1, groupLevel = pState.groupLevel + 1, groupScore = pState.groupScore + pState.groupLevel + 1 }
-    else if char == '}' then
-        { pState | groupLevel = pState.groupLevel - 1 }
-    else
-        pState
+transition char fsm =
+    case fsm.state of
+        CancelGarbage ->
+            { fsm | state = Garbage }
+
+        CancelGroup ->
+            { fsm | state = Group }
+
+        Garbage ->
+            if char == '!' then
+                { fsm | state = CancelGarbage }
+            else if char == '>' then
+                { fsm | state = Group }
+            else
+                { fsm | garbageCount = fsm.garbageCount + 1 }
+
+        Group ->
+            if char == '!' then
+                { fsm | state = CancelGroup }
+            else if char == '<' then
+                { fsm | state = Garbage }
+            else if char == '{' then
+                { fsm | groupCount = fsm.groupCount + 1, groupLevel = fsm.groupLevel + 1, groupScore = fsm.groupScore + fsm.groupLevel + 1 }
+            else if char == '}' then
+                { fsm | groupLevel = fsm.groupLevel - 1 }
+            else
+                fsm
