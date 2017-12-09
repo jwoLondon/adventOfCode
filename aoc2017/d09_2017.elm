@@ -148,7 +148,11 @@ transition char fsm =
             else if char == '<' then
                 { fsm | state = Garbage }
             else if char == '{' then
-                { fsm | groupCount = fsm.groupCount + 1, groupLevel = fsm.groupLevel + 1, groupScore = fsm.groupScore + fsm.groupLevel + 1 }
+                { fsm
+                    | groupCount = fsm.groupCount + 1
+                    , groupLevel = fsm.groupLevel + 1
+                    , groupScore = fsm.groupScore + fsm.groupLevel + 1
+                }
             else if char == '}' then
                 { fsm | groupLevel = fsm.groupLevel - 1 }
             else
