@@ -89,145 +89,52 @@ main =
         (part2 >> outFormat |> multiLineInput)
 
 
-type alias ParseState =
+type alias FSM =
     { isCancel : Bool
     , isGarbage : Bool
     , garbageCount : Int
     , groupCount : Int
     , groupLevel : Int
     , groupScore : Int
-    , inStr : List Char
-    , outStr : List Char
     }
 
 
 part1 : String -> Int
 part1 input =
     let
-        processed =
-            ParseState False False 0 0 0 0 (String.toList input) []
-                |> stripCancel
-                |> reset
-                |> stripGarbage
-                |> reset
-                |> score
+        fsm =
+            String.toList input
+                |> List.foldl transition (FSM False False 0 0 0 0)
     in
-    processed.groupScore
+    fsm.groupScore
 
 
 part2 : String -> Int
 part2 input =
     let
-        processed =
-            ParseState False False 0 0 0 0 (String.toList input) []
-                |> stripCancel
-                |> reset
-                |> stripGarbage
+        fsm =
+            String.toList input
+                |> List.foldl transition (FSM False False 0 0 0 0)
     in
-    processed.garbageCount
+    fsm.garbageCount
 
 
-score : ParseState -> ParseState
-score pState =
-    case pState.inStr of
-        [] ->
-            pState
-
-        hd :: tl ->
-            if hd == '{' then
-                score
-                    { pState
-                        | groupCount = pState.groupCount + 1
-                        , groupLevel = pState.groupLevel + 1
-                        , groupScore = pState.groupScore + pState.groupLevel + 1
-                        , inStr = tl
-                        , outStr = pState.outStr ++ [ hd ]
-                    }
-            else if hd == '}' then
-                score
-                    { pState
-                        | groupLevel = pState.groupLevel - 1
-                        , inStr = tl
-                        , outStr = pState.outStr ++ [ hd ]
-                    }
-            else
-                score
-                    { pState
-                        | inStr = tl
-                        , outStr = pState.outStr ++ [ hd ]
-                    }
-
-
-stripGarbage : ParseState -> ParseState
-stripGarbage pState =
-    case pState.inStr of
-        [] ->
-            pState
-
-        hd :: tl ->
-            if pState.isGarbage then
-                if hd == '>' then
-                    stripGarbage
-                        { pState
-                            | isGarbage = False
-                            , inStr = tl
-                        }
-                else
-                    stripGarbage
-                        { pState
-                            | inStr = tl
-                            , garbageCount = pState.garbageCount + 1
-                        }
-            else if hd == '<' then
-                stripGarbage
-                    { pState
-                        | isGarbage = True
-                        , inStr = tl
-                    }
-            else
-                stripGarbage
-                    { pState
-                        | inStr = tl
-                        , outStr = pState.outStr ++ [ hd ]
-                    }
-
-
-stripCancel : ParseState -> ParseState
-stripCancel pState =
-    case pState.inStr of
-        [] ->
-            pState
-
-        hd :: tl ->
-            if pState.isCancel then
-                stripCancel
-                    { pState
-                        | isCancel = False
-                        , inStr = tl
-                    }
-            else if hd == '!' then
-                stripCancel
-                    { pState
-                        | isCancel = True
-                        , inStr = tl
-                    }
-            else
-                stripCancel
-                    { pState
-                        | inStr = tl
-                        , outStr = pState.outStr ++ [ hd ]
-                    }
-
-
-reset : ParseState -> ParseState
-reset pState =
-    { pState
-        | isCancel = False
-        , isGarbage = False
-        , garbageCount = 0
-        , groupCount = 0
-        , groupLevel = 0
-        , groupScore = 0
-        , inStr = pState.outStr
-        , outStr = []
-    }
+transition : Char -> FSM -> FSM
+transition char pState =
+    if pState.isCancel then
+        { pState | isCancel = False }
+    else if char == '!' then
+        { pState | isCancel = True }
+    else if pState.isGarbage then
+        if char == '>' then
+            { pState | isGarbage = False }
+        else
+            { pState | garbageCount = pState.garbageCount + 1 }
+    else if char == '<' then
+        { pState | isGarbage = True }
+    else if char == '{' then
+        { pState | groupCount = pState.groupCount + 1, groupLevel = pState.groupLevel + 1, groupScore = pState.groupScore + pState.groupLevel + 1 }
+    else if char == '}' then
+        { pState | groupLevel = pState.groupLevel - 1 }
+    else
+        pState
