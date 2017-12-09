@@ -90,8 +90,7 @@ main =
 
 
 type Mode
-    = CancelGarbage
-    | CancelGroup
+    = Escape
     | Garbage
     | Group
 
@@ -99,7 +98,6 @@ type Mode
 type alias FSM =
     { state : Mode
     , garbageCount : Int
-    , groupCount : Int
     , groupLevel : Int
     , groupScore : Int
     }
@@ -110,7 +108,7 @@ part1 input =
     let
         fsm =
             String.toList input
-                |> List.foldl transition (FSM Group 0 0 0 0)
+                |> List.foldl transition (FSM Group 0 0 0)
     in
     fsm.groupScore
 
@@ -120,7 +118,7 @@ part2 input =
     let
         fsm =
             String.toList input
-                |> List.foldl transition (FSM Group 0 0 0 0)
+                |> List.foldl transition (FSM Group 0 0 0)
     in
     fsm.garbageCount
 
@@ -128,16 +126,13 @@ part2 input =
 transition : Char -> FSM -> FSM
 transition char fsm =
     case fsm.state of
-        CancelGarbage ->
+        Escape ->
             { fsm | state = Garbage }
-
-        CancelGroup ->
-            { fsm | state = Group }
 
         Garbage ->
             case char of
                 '!' ->
-                    { fsm | state = CancelGarbage }
+                    { fsm | state = Escape }
 
                 '>' ->
                     { fsm | state = Group }
@@ -147,16 +142,12 @@ transition char fsm =
 
         Group ->
             case char of
-                '!' ->
-                    { fsm | state = CancelGroup }
-
                 '<' ->
                     { fsm | state = Garbage }
 
                 '{' ->
                     { fsm
-                        | groupCount = fsm.groupCount + 1
-                        , groupLevel = fsm.groupLevel + 1
+                        | groupLevel = fsm.groupLevel + 1
                         , groupScore = fsm.groupScore + fsm.groupLevel + 1
                     }
 
