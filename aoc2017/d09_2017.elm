@@ -135,25 +135,33 @@ transition char fsm =
             { fsm | state = Group }
 
         Garbage ->
-            if char == '!' then
-                { fsm | state = CancelGarbage }
-            else if char == '>' then
-                { fsm | state = Group }
-            else
-                { fsm | garbageCount = fsm.garbageCount + 1 }
+            case char of
+                '!' ->
+                    { fsm | state = CancelGarbage }
+
+                '>' ->
+                    { fsm | state = Group }
+
+                _ ->
+                    { fsm | garbageCount = fsm.garbageCount + 1 }
 
         Group ->
-            if char == '!' then
-                { fsm | state = CancelGroup }
-            else if char == '<' then
-                { fsm | state = Garbage }
-            else if char == '{' then
-                { fsm
-                    | groupCount = fsm.groupCount + 1
-                    , groupLevel = fsm.groupLevel + 1
-                    , groupScore = fsm.groupScore + fsm.groupLevel + 1
-                }
-            else if char == '}' then
-                { fsm | groupLevel = fsm.groupLevel - 1 }
-            else
-                fsm
+            case char of
+                '!' ->
+                    { fsm | state = CancelGroup }
+
+                '<' ->
+                    { fsm | state = Garbage }
+
+                '{' ->
+                    { fsm
+                        | groupCount = fsm.groupCount + 1
+                        , groupLevel = fsm.groupLevel + 1
+                        , groupScore = fsm.groupScore + fsm.groupLevel + 1
+                    }
+
+                '}' ->
+                    { fsm | groupLevel = fsm.groupLevel - 1 }
+
+                _ ->
+                    fsm
