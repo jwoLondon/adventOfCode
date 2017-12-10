@@ -164,7 +164,8 @@ part1 input =
                 |> knot 0 ( 0, List.range 0 255 )
     in
     rotate -pos numList
-        |> multiplyHead
+        |> List.take 2
+        |> List.product
 
 
 part2 : String -> String
@@ -218,12 +219,6 @@ rotate n xs =
             List.length xs
     in
     List.drop (len - (-n % len)) xs ++ List.take (len - (-n % len)) xs
-
-
-multiplyHead : List Int -> Int
-multiplyHead xs =
-    Maybe.map2 (*) (xs |> List.head) (xs |> List.drop 1 |> List.head)
-        |> Maybe.withDefault 0
 
 
 knotHash : String -> List Int -> String
