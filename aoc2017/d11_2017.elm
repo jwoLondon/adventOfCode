@@ -57,24 +57,23 @@ type alias Position =
 part1 : String -> Int
 part1 =
     parse
-        >> List.foldl move ( 0, 0, 0 )
+        >> List.foldl move ( ( 0, 0, 0 ), 0 )
+        >> Tuple.first
         >> distFromOrigin
 
 
 part2 : String -> Int
-part2 input =
-    let
-        ( finalPos, maxDist ) =
-            input
-                |> parse
-                |> List.foldl moveMaxDist ( ( 0, 0, 0 ), 0 )
-    in
-    maxDist
+part2 =
+    parse
+        >> List.foldl move ( ( 0, 0, 0 ), 0 )
+        >> Tuple.second
 
 
-move : Position -> Position -> Position
-move ( x0, y0, z0 ) ( x1, y1, z1 ) =
-    ( x0 + x1, y0 + y1, z0 + z1 )
+move : Position -> ( Position, Int ) -> ( Position, Int )
+move ( x0, y0, z0 ) ( ( x1, y1, z1 ), md ) =
+    ( ( x0 + x1, y0 + y1, z0 + z1 )
+    , max md (distFromOrigin ( x0 + x1, y0 + y1, z0 + z1 ))
+    )
 
 
 distFromOrigin : Position -> Int
@@ -82,15 +81,8 @@ distFromOrigin ( x, y, z ) =
     (abs x + abs y + abs z) // 2
 
 
-moveMaxDist : Position -> ( Position, Int ) -> ( Position, Int )
-moveMaxDist ( x0, y0, z0 ) ( ( x1, y1, z1 ), md ) =
-    ( ( x0 + x1, y0 + y1, z0 + z1 )
-    , max md (distFromOrigin ( x0 + x1, y0 + y1, z0 + z1 ))
-    )
-
-
 parse : String -> List Position
-parse input =
+parse =
     let
         toVect instr =
             case instr of
@@ -115,6 +107,5 @@ parse input =
                 _ ->
                     ( 0, 0, 0 ) |> Debug.log "Unknown instruction"
     in
-    input
-        |> String.split ","
-        |> List.map toVect
+    String.split ","
+        >> List.map toVect
