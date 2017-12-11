@@ -57,23 +57,22 @@ type alias Position =
 part1 : String -> Int
 part1 =
     parse
-        >> List.foldl move ( ( 0, 0, 0 ), 0 )
-        >> Tuple.first
+        >> List.foldl move ( 0, 0, 0 )
         >> distFromOrigin
 
 
 part2 : String -> Int
 part2 =
     parse
-        >> List.foldl move ( ( 0, 0, 0 ), 0 )
-        >> Tuple.second
+        >> List.scanl move ( 0, 0, 0 )
+        >> List.map distFromOrigin
+        >> List.maximum
+        >> Maybe.withDefault 0
 
 
-move : Position -> ( Position, Int ) -> ( Position, Int )
-move ( x0, y0, z0 ) ( ( x1, y1, z1 ), md ) =
-    ( ( x0 + x1, y0 + y1, z0 + z1 )
-    , max md (distFromOrigin ( x0 + x1, y0 + y1, z0 + z1 ))
-    )
+move : Position -> Position -> Position
+move ( x0, y0, z0 ) ( x1, y1, z1 ) =
+    ( x0 + x1, y0 + y1, z0 + z1 )
 
 
 distFromOrigin : Position -> Int
