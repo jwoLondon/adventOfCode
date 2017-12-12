@@ -69,7 +69,7 @@ import Regex exposing (regex)
 import Set exposing (Set)
 
 
-type alias Neighbours =
+type alias Edges =
     Dict Int (Set Int)
 
 
@@ -87,46 +87,47 @@ main =
 part1 : List String -> Int
 part1 =
     parse
-        >> getGroup 0
+        >> groupContaining 0
         >> Set.size
 
 
 part2 : List String -> Int
 part2 input =
     let
-        neighbours =
+        edges =
             parse input
+
+        addGraph graph =
+            Set.insert (graph |> Set.toList)
     in
-    List.foldl (\node groups -> Set.insert (getGroup node neighbours |> Set.toList) groups)
-        Set.empty
-        (Dict.keys neighbours)
+    Dict.keys edges
+        |> List.foldl (\n gs -> addGraph (groupContaining n edges) gs) Set.empty
         |> Set.size
 
 
-getGroup : Int -> Neighbours -> Group
-getGroup node neighbours =
-    buildGroup
-        neighbours
-        (Dict.get node neighbours |> Maybe.withDefault Set.empty)
-        (Set.singleton node)
+groupContaining : Int -> Edges -> Group
+groupContaining node edges =
+    let
+        getConnected node =
+            Dict.get node edges |> Maybe.withDefault Set.empty
+
+        buildGraph linked group =
+            case Set.toList linked of
+                [] ->
+                    group
+
+                hd :: tl ->
+                    if Set.member hd group then
+                        buildGraph (Set.fromList tl) group
+                    else
+                        buildGraph
+                            (Set.union (getConnected hd) (Set.fromList tl))
+                            (Set.insert hd group)
+    in
+    buildGraph (getConnected node) (Set.singleton node)
 
 
-buildGroup : Neighbours -> Set Int -> Group -> Group
-buildGroup neighbours linked group =
-    case Set.toList linked of
-        [] ->
-            group
-
-        hd :: tl ->
-            if Set.member hd group then
-                buildGroup neighbours (Set.fromList tl) group
-            else
-                buildGroup neighbours
-                    (Set.union (Dict.get hd neighbours |> Maybe.withDefault Set.empty) (Set.fromList tl))
-                    (Set.insert hd group)
-
-
-parse : List String -> Neighbours
+parse : List String -> Edges
 parse =
     List.map parseLine
         >> Dict.fromList
