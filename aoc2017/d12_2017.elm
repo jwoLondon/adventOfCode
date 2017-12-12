@@ -70,7 +70,7 @@ import Set exposing (Set)
 
 
 type alias Neighbours =
-    Dict Int (List Int)
+    Dict Int (Set Int)
 
 
 type alias Group =
@@ -86,8 +86,7 @@ main =
 
 part1 : List String -> Int
 part1 =
-    List.map parseLine
-        >> Dict.fromList
+    parse
         >> getGroup 0
         >> Set.size
 
@@ -96,9 +95,7 @@ part2 : List String -> Int
 part2 input =
     let
         neighbours =
-            input
-                |> List.map parseLine
-                |> Dict.fromList
+            parse input
     in
     List.foldl (\node groups -> Set.insert (getGroup node neighbours |> Set.toList) groups)
         Set.empty
@@ -108,42 +105,44 @@ part2 input =
 
 getGroup : Int -> Neighbours -> Group
 getGroup node neighbours =
-    buildGroup (Dict.get node neighbours |> Maybe.withDefault [])
-        (Set.singleton node)
+    buildGroup
         neighbours
+        (Dict.get node neighbours |> Maybe.withDefault Set.empty)
+        (Set.singleton node)
 
 
-buildGroup : List Int -> Group -> Neighbours -> Group
-buildGroup linked group neighbours =
-    case linked of
+buildGroup : Neighbours -> Set Int -> Group -> Group
+buildGroup neighbours linked group =
+    case Set.toList linked of
         [] ->
             group
 
         hd :: tl ->
             if Set.member hd group then
-                buildGroup tl group neighbours
+                buildGroup neighbours (Set.fromList tl) group
             else
-                buildGroup (addUnique (Dict.get hd neighbours |> Maybe.withDefault []) tl)
+                buildGroup neighbours
+                    (Set.union (Dict.get hd neighbours |> Maybe.withDefault Set.empty) (Set.fromList tl))
                     (Set.insert hd group)
-                    neighbours
 
 
-addUnique : List Int -> List Int -> List Int
-addUnique l1 l2 =
-    l1 ++ l2 |> Set.fromList |> Set.toList
+parse : List String -> Neighbours
+parse =
+    List.map parseLine
+        >> Dict.fromList
 
 
-parseLine : String -> ( Int, List Int )
+parseLine : String -> ( Int, Set Int )
 parseLine str =
     let
-        toLinks : List String -> ( Int, List Int )
+        toLinks : List String -> ( Int, Set Int )
         toLinks strs =
             case List.map toInt strs of
                 hd :: tl ->
-                    ( hd, tl )
+                    ( hd, Set.fromList tl )
 
                 _ ->
-                    ( 0, [] ) |> Debug.log "Bad input"
+                    ( 0, Set.empty ) |> Debug.log "Bad input"
     in
     str
         |> Regex.find Regex.All (Regex.regex "(\\d+)")
