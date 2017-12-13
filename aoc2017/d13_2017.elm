@@ -349,7 +349,7 @@ part2 input =
             else
                 nextDelayUndetected (delay + 1)
     in
-    nextDelayUndetected 3800000
+    nextDelayUndetected 0
 
 
 severityAt : Int -> Layers -> Int
