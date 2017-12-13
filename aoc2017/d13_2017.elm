@@ -299,7 +299,6 @@
 module D13_2017 exposing (..)
 
 import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
-import Dict exposing (Dict)
 
 
 main : Program Never Model Msg
@@ -313,35 +312,24 @@ type alias Scanner =
     List Int
 
 
-type alias Layers =
-    List Int
+type alias Layer =
+    ( Int, Int )
 
 
 part1 : List String -> Int
-part1 input =
-    let
-        layers =
-            parse input
-
-        numLayers =
-            List.length layers
-    in
-    List.foldl (\t sev -> sev + severityAt t layers)
-        0
-        (List.range 0 (numLayers - 1))
+part1 =
+    List.map parseLine
+        >> List.foldl (\pos sev -> sev + severityAt pos) 0
 
 
 part2 : List String -> Int
 part2 input =
     let
         layers =
-            parse input
-
-        numLayers =
-            List.length layers
+            List.map parseLine input
 
         survivedWith delay =
-            List.all (safeAt delay layers) (List.range 0 (numLayers - 1))
+            List.all (safeAt delay) layers
 
         nextDelayUndetected delay =
             if survivedWith delay then
@@ -352,58 +340,35 @@ part2 input =
     nextDelayUndetected 0
 
 
-severityAt : Int -> Layers -> Int
-severityAt pos layers =
-    if get pos (scannerAt pos layers) == 0 then
-        pos * get pos layers
+severityAt : Layer -> Int
+severityAt ( pos, layer ) =
+    if scannerAt pos layer == 0 then
+        pos * layer
     else
         0
 
 
-safeAt : Int -> Layers -> Int -> Bool
-safeAt delay layers pos =
-    get pos (scannerAt (pos + delay) layers) /= 0
+safeAt : Int -> Layer -> Bool
+safeAt delay ( pos, layer ) =
+    scannerAt (pos + delay) layer /= 0
 
 
-scannerAt : Int -> Layers -> Scanner
-scannerAt t layers =
+scannerAt : Int -> Int -> Int
+scannerAt t lHeight =
     let
-        scanHeightAt t layer =
-            let
-                sHeight =
-                    if layer <= 1 then
-                        0
-                    else
-                        t % ((layer - 1) * 2)
-            in
-            if sHeight < layer then
-                sHeight
+        sHeight =
+            if lHeight <= 1 then
+                0
             else
-                2 * (layer - 1) - sHeight
+                t % ((lHeight - 1) * 2)
     in
-    List.map (scanHeightAt t) layers
+    if sHeight < lHeight then
+        sHeight
+    else
+        2 * (lHeight - 1) - sHeight
 
 
-get : Int -> List Int -> Int
-get pos xs =
-    List.drop pos xs |> List.head |> Maybe.withDefault 0
-
-
-parse : List String -> Layers
-parse input =
-    let
-        pairs =
-            List.map (\s -> parseLine s) input
-                |> List.foldl (\( a, b ) -> Dict.insert a b) Dict.empty
-
-        maxLayer =
-            List.maximum (Dict.keys pairs) |> Maybe.withDefault 0
-    in
-    List.range 0 maxLayer
-        |> List.map (\n -> Dict.get n pairs |> Maybe.withDefault 0)
-
-
-parseLine : String -> ( Int, Int )
+parseLine : String -> Layer
 parseLine input =
     case input |> String.split ": " |> List.map toInt of
         layer :: depth :: [] ->
