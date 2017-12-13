@@ -344,12 +344,22 @@ part2 input =
             List.all (safeAt delay layers) (List.range 0 (numLayers - 1))
 
         nextDelayUndetected delay =
-            if survivedWith delay then
+            let
+                surv =
+                    survivedWith delay
+
+                _ =
+                    if delay % 10000 == 0 then
+                        Debug.log "Delay" delay
+                    else
+                        0
+            in
+            if surv then
                 delay
             else
                 nextDelayUndetected (delay + 1)
     in
-    nextDelayUndetected 0
+    nextDelayUndetected 380000
 
 
 severityAt : Int -> Layers -> Int
@@ -368,21 +378,20 @@ safeAt delay layers pos =
 scannerAt : Int -> Layers -> Scanner
 scannerAt t layers =
     let
-        bounce xs =
-            xs ++ (List.drop 1 xs |> List.reverse |> List.drop 1)
-    in
-    List.map
-        (\layer ->
-            if layer == 0 then
-                -1
+        scanHeightAt t layer =
+            let
+                sHeight =
+                    if layer <= 1 then
+                        0
+                    else
+                        t % ((layer - 1) * 2)
+            in
+            if sHeight < layer then
+                sHeight
             else
-                let
-                    bounceLayer =
-                        bounce (List.range 0 (layer - 1))
-                in
-                get (t % List.length bounceLayer) bounceLayer
-        )
-        layers
+                2 * (layer - 1) - sHeight
+    in
+    List.map (scanHeightAt t) layers
 
 
 get : Int -> List Int -> Int
