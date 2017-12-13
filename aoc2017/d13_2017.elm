@@ -328,11 +328,8 @@ part2 input =
         layers =
             List.map parseLine input
 
-        survivedWith delay =
-            List.all (safeAt delay) layers
-
         nextDelayUndetected delay =
-            if survivedWith delay then
+            if List.all (safeAt delay) layers then
                 delay
             else
                 nextDelayUndetected (delay + 1)
