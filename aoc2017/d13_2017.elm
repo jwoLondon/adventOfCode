@@ -351,18 +351,15 @@ safeAt delay ( pos, layer ) =
 
 
 scannerAt : Int -> Int -> Int
-scannerAt t lHeight =
+scannerAt t layerHeight =
     let
-        sHeight =
-            if lHeight <= 1 then
-                0
-            else
-                t % ((lHeight - 1) * 2)
+        period =
+            2 * (layerHeight - 1)
     in
-    if sHeight < lHeight then
-        sHeight
+    if t % period < layerHeight then
+        t % period
     else
-        2 * (lHeight - 1) - sHeight
+        (t + layerHeight) % period
 
 
 parseLine : String -> Layer
