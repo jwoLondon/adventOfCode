@@ -344,22 +344,12 @@ part2 input =
             List.all (safeAt delay layers) (List.range 0 (numLayers - 1))
 
         nextDelayUndetected delay =
-            let
-                surv =
-                    survivedWith delay
-
-                _ =
-                    if delay % 10000 == 0 then
-                        Debug.log "Delay" delay
-                    else
-                        0
-            in
-            if surv then
+            if survivedWith delay then
                 delay
             else
                 nextDelayUndetected (delay + 1)
     in
-    nextDelayUndetected 380000
+    nextDelayUndetected 3800000
 
 
 severityAt : Int -> Layers -> Int
