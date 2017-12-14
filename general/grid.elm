@@ -40,9 +40,31 @@ rowCount =
     Matrix.rowCount
 
 
+{-| Convenience function to generate a list of row indices for the grid
+-}
+rowIndices : Grid a -> List Int
+rowIndices grid =
+    List.range 0 (Matrix.rowCount grid - 1)
+
+
 colCount : Grid a -> Int
 colCount =
     Matrix.colCount
+
+
+{-| Convenience function to generate a list of column indices for the grid
+-}
+colIndices : Grid a -> List Int
+colIndices grid =
+    List.range 0 (Matrix.colCount grid - 1)
+
+
+{-| Convenience function to generate a (row,col) tuple for each cell in the grid
+in row prime order.
+-}
+gridIndices : Grid a -> List ( Int, Int )
+gridIndices grid =
+    List.concatMap (\r -> List.map (\c -> ( r, c )) (colIndices grid)) (rowIndices grid)
 
 
 getRow : Int -> Grid a -> Maybe (List a)
