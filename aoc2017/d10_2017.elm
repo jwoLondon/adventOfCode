@@ -136,8 +136,7 @@
 module D10_2017 exposing (..)
 
 import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, toInt)
-import Bitwise
-import Char
+import KnotHash
 
 
 main : Program Never Model Msg
@@ -162,7 +161,7 @@ part1 input =
             input
                 |> String.split ","
                 |> List.map toInt
-                |> knot ( 0, 0, List.range 0 255 )
+                |> KnotHash.knot ( 0, 0, List.range 0 255 )
     in
     rotate -pos numList
         |> List.take 2
@@ -170,40 +169,8 @@ part1 input =
 
 
 part2 : String -> String
-part2 input =
-    let
-        ( pos, _, numList ) =
-            input
-                |> String.toList
-                |> List.map Char.toCode
-                |> flip (++) [ 17, 31, 73, 47, 23 ]
-                |> multiKnot 64 ( 0, 0, List.range 0 255 )
-    in
-    rotate -pos numList
-        |> knotHash ""
-
-
-multiKnot : Int -> OffsetList -> TwistLengths -> OffsetList
-multiKnot repeats offsetList twistLengths =
-    List.range 1 repeats
-        |> List.foldl (\_ ol -> knot ol twistLengths) offsetList
-
-
-knot : OffsetList -> TwistLengths -> OffsetList
-knot offsetList twistLengths =
-    let
-        pinchAndTwist twistLength ( pos, skipSize, xs ) =
-            ( (pos + twistLength + skipSize) % List.length xs
-            , skipSize + 1
-            , (reversePart twistLength >> rotate (twistLength + skipSize)) xs
-            )
-    in
-    List.foldl pinchAndTwist offsetList twistLengths
-
-
-reversePart : Int -> List a -> List a
-reversePart n xs =
-    (List.take n xs |> List.reverse) ++ List.drop n xs
+part2 =
+    KnotHash.knotHash
 
 
 rotate : Int -> List a -> List a
@@ -213,31 +180,3 @@ rotate n xs =
             List.length xs
     in
     List.drop (len - (-n % len)) xs ++ List.take (len - (-n % len)) xs
-
-
-knotHash : String -> List Int -> String
-knotHash dense sparse =
-    if sparse == [] then
-        dense
-    else
-        let
-            blockHex =
-                sparse
-                    |> List.take 16
-                    |> List.foldl Bitwise.xor 0
-                    |> toHex
-        in
-        knotHash (dense ++ blockHex) (List.drop 16 sparse)
-
-
-toHex : Int -> String
-toHex n =
-    let
-        hexChr n =
-            [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' ]
-                |> List.drop n
-                |> List.head
-                |> Maybe.withDefault 'f'
-    in
-    [ hexChr (Bitwise.and (Bitwise.shiftRightBy 4 n) 0x0F), hexChr (Bitwise.and n 0x0F) ]
-        |> String.fromList
