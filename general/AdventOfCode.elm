@@ -3,6 +3,7 @@
 
 module AdventOfCode exposing (..)
 
+import Dict
 import Html exposing (Html, div, h1, text)
 import Http
 
@@ -146,6 +147,44 @@ transpose ll =
         heads :: transpose tails
     else
         []
+
+
+{-| Provides a binary representation of the given decimal. Represented as a list
+of 1s and 0s with a minumum length determined by the padding parameter.
+-}
+decToBinary : Int -> List Int -> Int -> List Int
+decToBinary padding bin dec =
+    if dec == 0 then
+        List.repeat (max 0 (padding - List.length bin)) 0 ++ bin
+    else
+        let
+            bit =
+                if dec % 2 == 0 then
+                    0
+                else
+                    1
+        in
+        decToBinary padding (bit :: bin) (dec // 2)
+
+
+{-| Provides a binary representation of the given hexidecimal number. Represented
+as a list of 1s and 0s.
+-}
+hexToBinary : String -> List Int
+hexToBinary hexStr =
+    let
+        hexLookup =
+            List.map2 (,)
+                ("0123456789abcdef" |> String.toList)
+                (List.map (decToBinary 4 []) (List.range 0 15))
+                |> Dict.fromList
+
+        toBits hexChr =
+            Dict.get hexChr hexLookup |> Maybe.withDefault []
+    in
+    hexStr
+        |> String.toList
+        |> List.foldl (\c digits -> digits ++ toBits c) []
 
 
 
