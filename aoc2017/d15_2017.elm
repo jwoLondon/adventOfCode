@@ -195,7 +195,7 @@ gen2 generator multiple prev =
 
 matchLast : Int -> Int -> Int
 matchLast num1 num2 =
-    if Bitwise.shiftLeftBy 16 num1 == Bitwise.shiftLeftBy 16 num2 then
+    if Bitwise.and 0xFFFF num1 == Bitwise.and 0xFFFF num2 then
         1
     else
         0
@@ -212,7 +212,7 @@ parse input =
                 >> toInt
     in
     case input of
-        line1 :: line2 :: [] ->
+        [ line1, line2 ] ->
             ( parseLine line1, parseLine line2 )
 
         _ ->
