@@ -67,10 +67,14 @@ type Move
     | NoOp
 
 
+start : Progs
+start =
+    "abcdefghijklmnop" |> String.toList
+
+
 part1 : String -> String
 part1 input =
-    "abcdefghijklmnop"
-        |> String.toList
+    start
         |> dance (parseLine input)
         |> String.fromList
 
@@ -78,16 +82,13 @@ part1 input =
 part2 : String -> String
 part2 input =
     let
-        progs =
-            "abcdefghijklmnop" |> String.toList
-
         moves =
             parseLine input
 
         numRepeats =
             1000000000 % findPeriod moves
     in
-    List.foldl (\_ ps -> dance moves ps) progs (List.range 1 numRepeats)
+    List.foldl (\_ ps -> dance moves ps) start (List.range 1 numRepeats)
         |> String.fromList
 
 
@@ -115,9 +116,6 @@ danceMove move progs =
 findPeriod : List Move -> Int
 findPeriod moves =
     let
-        start =
-            "abcdefghijklmnop" |> String.toList
-
         matchStart n progs =
             if progs == start then
                 n
