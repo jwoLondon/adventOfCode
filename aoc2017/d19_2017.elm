@@ -64,7 +64,7 @@
 
 module D19_2017 exposing (..)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat)
 import Grid exposing (Grid)
 
 
@@ -98,21 +98,20 @@ part2 : List String -> Int
 part2 =
     landmarkHistory
         >> Tuple.second
-        >> (+) 1
 
 
 landmarkHistory : List String -> History
 landmarkHistory input =
     let
-        ( history, destination, _ ) =
+        ( history, destination, direction ) =
             move (parse input)
-                ( ( [], 0 ), start input, ( 1, 0 ) )
+                ( ( [], 1 ), startLocation input, ( 1, 0 ) )
     in
     history
 
 
-start : List String -> ( Int, Int )
-start =
+startLocation : List String -> ( Int, Int )
+startLocation =
     List.head
         >> Maybe.andThen (String.indexes "|" >> List.head)
         >> Maybe.withDefault -1
