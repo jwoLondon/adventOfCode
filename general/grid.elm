@@ -20,6 +20,19 @@ init rowCount colCount =
     always >> Matrix.matrix rowCount colCount
 
 
+fromList : a -> List (List a) -> Grid a
+fromList default rows =
+    let
+        grid =
+            init
+                (rows |> List.length)
+                (rows |> List.head |> Maybe.withDefault [] |> List.length)
+                default
+    in
+    List.foldl (\xs ( row, g ) -> ( row + 1, setRow row xs g )) ( 0, grid ) rows
+        |> Tuple.second
+
+
 toList : Grid a -> List a
 toList =
     Matrix.flatten
