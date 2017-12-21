@@ -73,6 +73,7 @@
    ------destroyed by collision------    -6 -5 -4 -3 -2 -1  0  1  2  3
    ------destroyed by collision------                      (3)
    p=< 0,0,0>, v=<-1,0,0>, a=< 0,0,0>
+
    In this example, particles 0, 1, and 2 are simultaneously destroyed at the
    time and place marked X. On the next tick, particle 3 passes through unharmed.
 
