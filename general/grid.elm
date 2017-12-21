@@ -33,6 +33,16 @@ fromList default rows =
         |> Tuple.second
 
 
+toRows : Grid a -> List (List a)
+toRows =
+    Matrix.toList
+
+
+toCols : Grid a -> List (List a)
+toCols =
+    transpose >> Matrix.toList
+
+
 toList : Grid a -> List a
 toList =
     Matrix.flatten
@@ -102,6 +112,31 @@ setRow r row g =
 setCol : Int -> List a -> Grid a -> Grid a
 setCol c col =
     transpose >> setRow c col >> transpose
+
+
+flipRows : Grid a -> Grid a
+flipRows grid =
+    let
+        numRows =
+            Matrix.rowCount grid
+    in
+    Matrix.mapWithLocation (\( row, col ) val -> Matrix.get ( numRows - 1 - row, col ) grid |> Maybe.withDefault val) grid
+
+
+flipCols : Grid a -> Grid a
+flipCols grid =
+    let
+        numCols =
+            Matrix.colCount grid
+    in
+    Matrix.mapWithLocation (\( row, col ) val -> Matrix.get ( row, numCols - 1 - col ) grid |> Maybe.withDefault val) grid
+
+
+{-| Rotates grid 90 degress clockwise.
+-}
+rotate : Grid a -> Grid a
+rotate =
+    transpose >> flipCols
 
 
 transpose : Grid a -> Grid a
