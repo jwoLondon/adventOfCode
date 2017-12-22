@@ -226,7 +226,7 @@
 
 module D22_2017 exposing (..)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat)
 import Dict exposing (Dict)
 
 
