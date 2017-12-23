@@ -85,11 +85,10 @@ registers =
 
 
 part1 : List String -> Int
-part1 input =
-    input
-        |> parse
-        |> run 0 registers
-        |> get 'z'
+part1 =
+    parse
+        >> run 0 registers
+        >> get 'z'
 
 
 
@@ -142,7 +141,10 @@ part2 : List String -> Int
 part2 input =
     let
         initRegs =
-            input |> parse |> Array.slice 0 8 |> run 0 (registers |> Dict.insert 'a' 1)
+            input
+                |> parse
+                |> Array.slice 0 8
+                |> run 0 (registers |> Dict.insert 'a' 1)
 
         lower =
             get 'b' initRegs
@@ -167,18 +169,18 @@ part2 input =
 run : Int -> Registers -> Array Instruction -> Registers
 run pos registers program =
     case Array.get pos program of
-        Just (Set reg expr) ->
-            run (pos + 1) (Dict.insert reg (eval expr registers) registers) program
+        Just (Set r expr) ->
+            run (pos + 1) (Dict.insert r (eval expr registers) registers) program
 
-        Just (Sub reg expr) ->
-            run (pos + 1) (Dict.insert reg (get reg registers - eval expr registers) registers) program
+        Just (Sub r expr) ->
+            run (pos + 1) (Dict.insert r (get r registers - eval expr registers) registers) program
 
-        Just (Mul reg expr) ->
+        Just (Mul r expr) ->
             let
                 reg2 =
                     Dict.insert 'z' (get 'z' registers + 1) registers
             in
-            run (pos + 1) (Dict.insert reg (get reg reg2 * eval expr reg2) reg2) program
+            run (pos + 1) (Dict.insert r (get r reg2 * eval expr reg2) reg2) program
 
         Just (Jnz expr1 expr2) ->
             if eval expr1 registers /= 0 then
