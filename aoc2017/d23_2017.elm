@@ -78,11 +78,10 @@ type Instruction
 registers : Registers
 registers =
     -- Use extra register z to store number of multiplications.
-    "abcdefgh"
+    "abcdefghz"
         |> String.toList
         |> List.map (\r -> ( r, 0 ))
         |> Dict.fromList
-        |> Dict.insert 'z' 0
 
 
 part1 : List String -> Int
