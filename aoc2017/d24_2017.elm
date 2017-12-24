@@ -121,9 +121,8 @@ join maxFn anchor ( stren, len ) maxVals components =
         scores =
             available anchor components
                 |> Set.map maxScore
-                |> Set.toList
     in
-    maxFn maxVals (scores |> List.foldl maxFn ( -1, -1 ))
+    maxFn maxVals (scores |> Set.foldl maxFn ( -1, -1 ))
 
 
 maxSecond : MaxFn ( Int, Int )
