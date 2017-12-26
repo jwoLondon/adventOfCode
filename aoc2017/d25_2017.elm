@@ -87,20 +87,20 @@
 
 module D25_2017 exposing (..)
 
-import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat)
 import Dict exposing (Dict)
 
 
 main : Program Never Model Msg
 main =
     aoc "data/d25_2017.txt"
-        (part1 >> outFormat |> multiLineInput)
-        (part2 >> outFormat |> multiLineInput)
+        (part1 >> outFormat)
+        (part2 >> outFormat)
 
 
 type alias TuringMachine =
     { state : State
-    , tape : Dict Int Int
+    , tape : Dict Int Bool
     , position : Int
     , steps : Int
     }
@@ -115,14 +115,14 @@ type State
     | F
 
 
-part1 : String -> Int
+part1 : List String -> Int
 part1 =
     run (TuringMachine A Dict.empty 0 12523873)
         |> checksum
         |> always
 
 
-part2 : String -> String
+part2 : List String -> String
 part2 =
     "The Turing machine, and soon the entire computer, springs back to life."
         |> always
@@ -140,52 +140,52 @@ run tm =
             newState =
                 case tm.state of
                     A ->
-                        if current == 0 then
-                            tm |> write 1 |> moveRight |> setState B
+                        if current then
+                            tm |> write True |> moveLeft |> setState E
                         else
-                            tm |> write 1 |> moveLeft |> setState E
+                            tm |> write True |> moveRight |> setState B
 
                     B ->
-                        if current == 0 then
-                            tm |> write 1 |> moveRight |> setState C
+                        if current then
+                            tm |> write True |> moveRight |> setState F
                         else
-                            tm |> write 1 |> moveRight |> setState F
+                            tm |> write True |> moveRight |> setState C
 
                     C ->
-                        if current == 0 then
-                            tm |> write 1 |> moveLeft |> setState D
+                        if current then
+                            tm |> write False |> moveRight |> setState B
                         else
-                            tm |> write 0 |> moveRight |> setState B
+                            tm |> write True |> moveLeft |> setState D
 
                     D ->
-                        if current == 0 then
-                            tm |> write 1 |> moveRight |> setState E
+                        if current == False then
+                            tm |> write True |> moveRight |> setState E
                         else
-                            tm |> write 0 |> moveLeft |> setState C
+                            tm |> write False |> moveLeft |> setState C
 
                     E ->
-                        if current == 0 then
-                            tm |> write 1 |> moveLeft |> setState A
+                        if current then
+                            tm |> write False |> moveRight |> setState D
                         else
-                            tm |> write 0 |> moveRight |> setState D
+                            tm |> write True |> moveLeft |> setState A
 
                     F ->
-                        if current == 0 then
-                            tm |> write 1 |> moveRight |> setState A
+                        if current then
+                            tm |> write True |> moveRight |> setState C
                         else
-                            tm |> write 1 |> moveRight |> setState C
+                            tm |> write True |> moveRight |> setState A
         in
         newState
             |> decSteps
             |> run
 
 
-read : TuringMachine -> Int
+read : TuringMachine -> Bool
 read tm =
-    Dict.get tm.position tm.tape |> Maybe.withDefault 0
+    Dict.get tm.position tm.tape |> Maybe.withDefault False
 
 
-write : Int -> TuringMachine -> TuringMachine
+write : Bool -> TuringMachine -> TuringMachine
 write val tm =
     { tm | tape = Dict.insert tm.position val tm.tape }
 
@@ -211,5 +211,5 @@ decSteps tm =
 
 
 checksum : TuringMachine -> Int
-checksum tm =
-    tm.tape |> Dict.values |> List.filter (\v -> v == 1) |> List.length
+checksum =
+    .tape >> Dict.values >> List.filter identity >> List.length
