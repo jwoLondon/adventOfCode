@@ -90,13 +90,21 @@ type alias Component =
     ( Int, Int )
 
 
+type alias BridgeProp =
+    ( Int, Int )
+
+
 type alias MaxFn comparable =
     comparable -> comparable -> comparable
 
 
 part1 : List String -> Int
 part1 =
+    {- Use partition to optimise search by removing 'doubles' (e.g. 3/3 or 1/1) and
+       adding their score if bridge contains their value somewhere along its length.
+    -}
     parse
+        >> Set.partition (\( a, b ) -> a /= b)
         >> join max 0 ( 0, 0 ) ( 0, 0 )
         >> Tuple.first
 
@@ -104,19 +112,20 @@ part1 =
 part2 : List String -> Int
 part2 =
     parse
+        >> Set.partition (\( a, b ) -> a /= b)
         >> join maxSecond 0 ( 0, 0 ) ( 0, 0 )
         >> Tuple.first
 
 
-join : MaxFn ( Int, Int ) -> Int -> ( Int, Int ) -> ( Int, Int ) -> Set Component -> ( Int, Int )
-join maxFn anchor ( stren, len ) maxVals components =
+join : MaxFn BridgeProp -> Int -> BridgeProp -> BridgeProp -> ( Set Component, Set Component ) -> BridgeProp
+join maxFn anchor ( stren, len ) maxVals ( components, doubles ) =
     let
         maxScore c =
             join maxFn
                 (newAnchor anchor c)
-                ( stren + strength c, len + 1 )
+                (maxFn maxVals (( stren + strength c, len + 1 ) |> addDouble c doubles))
                 (maxFn maxVals ( stren + strength c, len + 1 ))
-                (Set.remove c components)
+                ( Set.remove c components, removeUsedDouble c doubles )
 
         scores =
             available anchor components
@@ -125,10 +134,29 @@ join maxFn anchor ( stren, len ) maxVals components =
     maxFn maxVals (scores |> Set.foldl maxFn ( -1, -1 ))
 
 
-maxSecond : MaxFn ( Int, Int )
-maxSecond ( a1, b1 ) ( a2, b2 ) =
-    max ( b1, a1 ) ( b2, a2 )
-        |> (\( a, b ) -> ( b, a ))
+addDouble : Component -> Set Component -> BridgeProp -> BridgeProp
+addDouble ( a, b ) doubles ( str, len ) =
+    if Set.member ( a, a ) doubles then
+        ( str + 2 * a, len + 1 )
+    else if Set.member ( b, b ) doubles then
+        ( str + 2 * b, len + 1 )
+    else
+        ( str, len )
+
+
+removeUsedDouble : Component -> Set Component -> Set Component
+removeUsedDouble ( a, b ) =
+    Set.remove ( a, a ) >> Set.remove ( b, b )
+
+
+maxSecond : MaxFn BridgeProp
+maxSecond pair1 pair2 =
+    max (swap pair1) (swap pair2) |> swap
+
+
+swap : ( a, b ) -> ( b, a )
+swap ( a, b ) =
+    ( b, a )
 
 
 strength : Component -> Int
