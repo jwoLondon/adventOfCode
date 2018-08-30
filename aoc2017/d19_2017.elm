@@ -62,13 +62,13 @@
 -}
 
 
-module D19_2017 exposing (..)
+module D19_2017 exposing (Direction, History, Location, isValidMove, landmarkHistory, main, move, parse, part1, part2, startLocation)
 
 import AdventOfCode exposing (Model, Msg, aoc, outFormat)
 import Grid exposing (Grid)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d19_2017.txt"
         (part1 >> outFormat)
@@ -115,7 +115,7 @@ startLocation =
     List.head
         >> Maybe.andThen (String.indexes "|" >> List.head)
         >> Maybe.withDefault -1
-        >> (,) 0
+        >> (\a b -> ( a, b )) 0
 
 
 move : Grid Char -> ( History, Location, Direction ) -> ( History, Location, Direction )
@@ -124,12 +124,16 @@ move grid ( ( landmarks, steps ), ( r, c ), ( dy, dx ) ) =
         Just '+' ->
             if dx == 0 && (Grid.get ( r, c - 1 ) grid |> isValidMove) then
                 move grid ( ( landmarks, steps + 1 ), ( r, c - 1 ), ( 0, -1 ) )
+
             else if dx == 0 && (Grid.get ( r, c + 1 ) grid |> isValidMove) then
                 move grid ( ( landmarks, steps + 1 ), ( r, c + 1 ), ( 0, 1 ) )
+
             else if dy == 0 && (Grid.get ( r + 1, c ) grid |> isValidMove) then
                 move grid ( ( landmarks, steps + 1 ), ( r + 1, c ), ( 1, 0 ) )
+
             else if dy == 0 && (Grid.get ( r - 1, c ) grid |> isValidMove) then
                 move grid ( ( landmarks, steps + 1 ), ( r - 1, c ), ( -1, 0 ) )
+
             else
                 ( ( landmarks, steps ), ( r, c ), ( 0, 0 ) ) |> Debug.log "Cannot move"
 
@@ -148,6 +152,7 @@ move grid ( ( landmarks, steps ), ( r, c ), ( dy, dx ) ) =
         Just landmark ->
             if Grid.get ( r + dy, c + dx ) grid |> isValidMove then
                 move grid ( ( landmarks ++ [ landmark ], steps + 1 ), ( r + dy, c + dx ), ( dy, dx ) )
+
             else
                 ( ( landmarks ++ [ landmark ], steps ), ( r, c ), ( dy, dx ) )
 

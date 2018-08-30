@@ -32,14 +32,13 @@
 -}
 
 
-module D04_2017 exposing (..)
+module D04_2017 exposing (main, numWithUnique, parseLine, part1, part2, sortChars, unique)
 
 import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat)
-import Regex exposing (regex)
 import Set exposing (Set)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d04_2017.txt"
         (part1 >> outFormat)
@@ -76,5 +75,5 @@ sortChars =
 
 
 parseLine : String -> List String
-parseLine text =
-    Regex.split Regex.All (regex "\\s+") text
+parseLine =
+    String.split " "

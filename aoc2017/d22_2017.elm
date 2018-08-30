@@ -224,13 +224,13 @@
 -}
 
 
-module D22_2017 exposing (..)
+module D22_2017 exposing (BurstFunction, Carrier, Direction(..), Location, Nodes, Status(..), burst, burstPart2, doBursts, initialNodes, main, move, parseLine, part1, part2, reverse, turnLeft, turnRight)
 
 import AdventOfCode exposing (Model, Msg, aoc, outFormat)
 import Dict exposing (Dict)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d22_2017.txt"
         (part1 >> outFormat)
@@ -280,7 +280,7 @@ part2 input =
 initialNodes : List String -> Nodes
 initialNodes input =
     input
-        |> List.indexedMap (,)
+        |> List.indexedMap (\a b -> ( a, b ))
         |> List.foldl (parseLine (List.length input)) Dict.empty
 
 
@@ -288,6 +288,7 @@ doBursts : BurstFunction -> ( Nodes, Carrier, Int ) -> Int -> Int
 doBursts burstFn ( nodes, carrier, numInfections ) n =
     if n < 1 then
         numInfections
+
     else
         doBursts burstFn (burstFn ( nodes, carrier, numInfections )) (n - 1)
 
@@ -299,6 +300,7 @@ burst ( nodes, ( dir, location ), numInfected ) =
         , turnRight ( dir, location ) |> move
         , numInfected
         )
+
     else
         ( Dict.insert location Infected nodes
         , turnLeft ( dir, location ) |> move
@@ -394,11 +396,12 @@ parseLine numRows ( row, textLine ) nodes =
     in
     textLine
         |> String.toList
-        |> List.indexedMap (,)
+        |> List.indexedMap (\a b -> ( a, b ))
         |> List.foldl
             (\( col, chr ) inf ->
                 if chr == '#' then
                     Dict.insert ( row - numRows // 2, col - numCols // 2 ) Infected inf
+
                 else
                     inf
             )

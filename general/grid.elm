@@ -1,7 +1,8 @@
-module Grid exposing (..)
+module Grid exposing (Grid, Location, colCount, colIndices, flipCols, flipRows, fromList, get, getCol, getRow, gridIndices, init, rotate, rowCount, rowIndices, set, setCol, setRow, toCols, toList, toRows, transpose)
 
 import Array exposing (Array)
-import Matrix exposing (Matrix)
+import Matrix
+
 
 
 {- This version wraps the Matrix module and adds row and column functions. -}
@@ -16,8 +17,8 @@ type alias Grid a =
 
 
 init : Int -> Int -> a -> Grid a
-init rowCount colCount =
-    always >> Matrix.matrix rowCount colCount
+init rCount cCount =
+    always >> Matrix.matrix rCount cCount
 
 
 fromList : a -> List (List a) -> Grid a
@@ -105,6 +106,7 @@ setRow : Int -> List a -> Grid a -> Grid a
 setRow r row g =
     if r < 0 || r >= Matrix.rowCount g || List.length row /= Matrix.colCount g then
         g
+
     else
         Array.set r (Array.fromList row) g
 
@@ -152,6 +154,7 @@ transpose =
             in
             if List.length heads == List.length ll then
                 heads :: transposeLists tails
+
             else
                 []
     in

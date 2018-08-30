@@ -77,12 +77,12 @@
 -}
 
 
-module D09_2017 exposing (..)
+module D09_2017 exposing (FSM, Mode(..), main, part1, part2, transition)
 
 import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d09_2017.txt"
         (part1 >> outFormat |> multiLineInput)

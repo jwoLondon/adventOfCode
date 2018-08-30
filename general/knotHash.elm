@@ -16,6 +16,15 @@ type alias TwistLengths =
     List Int
 
 
+{-| Take a function, the first argument, and return a new function that accepts
+the same parameters as the original function, but in reverse order. This replaces
+the now removed `flip` function in elm 0.19
+-}
+flip : (a -> b -> c) -> b -> a -> c
+flip function argB argA =
+    function argA argB
+
+
 {-| Generates a 64 bit hex string knot hash of the given string
 -}
 knotHash : String -> String
@@ -24,6 +33,7 @@ knotHash inStr =
         kHash dense sparse =
             if sparse == [] then
                 dense
+
             else
                 let
                     blockHex =
@@ -52,7 +62,7 @@ knot : OffsetList -> TwistLengths -> OffsetList
 knot offsetList twistLengths =
     let
         pinchAndTwist twistLength ( pos, skipSize, xs ) =
-            ( (pos + twistLength + skipSize) % List.length xs
+            ( modBy (List.length xs) (pos + twistLength + skipSize)
             , skipSize + 1
             , (reversePart twistLength >> rotate (twistLength + skipSize)) xs
             )
@@ -81,15 +91,15 @@ rotate n xs =
         len =
             List.length xs
     in
-    List.drop (len - (-n % len)) xs ++ List.take (len - (-n % len)) xs
+    List.drop (len - modBy len -n) xs ++ List.take (len - modBy len -n) xs
 
 
 toHex : Int -> String
 toHex n =
     let
-        hexChr n =
+        hexChr x =
             [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' ]
-                |> List.drop n
+                |> List.drop x
                 |> List.head
                 |> Maybe.withDefault 'f'
     in

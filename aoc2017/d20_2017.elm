@@ -81,13 +81,12 @@
 -}
 
 
-module D20_2017 exposing (..)
+module D20_2017 exposing (Particle, incTime, magnitude, main, pCompare, parseLine, part1, part2, removeCollisions, simulate)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
-import Regex exposing (regex)
+import AdventOfCode exposing (Model, Msg, aoc, matches, outFormat, toInt)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d20_2017.txt"
         (part1 >> outFormat)
@@ -101,7 +100,7 @@ type alias Particle =
 part1 : List String -> Int
 part1 =
     List.map parseLine
-        >> List.indexedMap (,)
+        >> List.indexedMap (\a b -> ( a, b ))
         >> List.sortWith pCompare
         >> List.head
         >> Maybe.map Tuple.first
@@ -111,7 +110,7 @@ part1 =
 part2 : List String -> Int
 part2 =
     List.map parseLine
-        >> List.indexedMap (,)
+        >> List.indexedMap (\a b -> ( a, b ))
         >> simulate 100
 
 
@@ -119,16 +118,22 @@ pCompare : ( Int, Particle ) -> ( Int, Particle ) -> Order
 pCompare ( _, ( p0, v0, a0 ) ) ( _, ( p1, v1, a1 ) ) =
     if magnitude a0 < magnitude a1 then
         LT
+
     else if magnitude a0 > magnitude a1 then
         GT
+
     else if magnitude v0 < magnitude v1 then
         LT
+
     else if magnitude v0 > magnitude v1 then
         GT
+
     else if magnitude p0 < magnitude p1 then
         LT
+
     else if magnitude p0 > magnitude p1 then
         GT
+
     else
         EQ
 
@@ -142,6 +147,7 @@ simulate : Int -> List ( Int, Particle ) -> Int
 simulate steps =
     if steps <= 0 then
         List.length
+
     else
         removeCollisions []
             >> incTime
@@ -161,6 +167,7 @@ removeCollisions uncollided iParticles =
         p :: ps ->
             if List.any (collide p) ps then
                 removeCollisions uncollided (List.filter (not << collide p) ps)
+
             else
                 removeCollisions (p :: uncollided) ps
 
@@ -185,13 +192,11 @@ parseLine : String -> Particle
 parseLine input =
     let
         vectors =
-            input
-                |> Regex.find Regex.All (Regex.regex "(-?\\d+)")
-                |> List.concatMap .submatches
-                |> List.filterMap identity
-                |> List.map toInt
+            matches "(-?\\d+)"
+                >> List.filterMap identity
+                >> List.map toInt
     in
-    case vectors of
+    case vectors input of
         [ px, py, pz, vx, vy, vz, ax, ay, az ] ->
             ( ( px, py, pz ), ( vx, vy, vz ), ( ax, ay, az ) )
 

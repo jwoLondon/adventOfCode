@@ -85,13 +85,13 @@
 -}
 
 
-module D25_2017 exposing (..)
+module D25_2017 exposing (State(..), TuringMachine, checksum, main, moveLeft, moveRight, part1, part2, read, run, setState, write)
 
 import AdventOfCode exposing (Model, Msg, aoc, outFormat)
 import Dict exposing (Dict)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d25_2017.txt"
         (part1 >> outFormat)
@@ -102,7 +102,6 @@ type alias TuringMachine =
     { state : State
     , tape : Dict Int Bool
     , position : Int
-    , steps : Int
     }
 
 
@@ -117,7 +116,7 @@ type State
 
 part1 : List String -> Int
 part1 =
-    run (TuringMachine A Dict.empty 0 12523873)
+    run 12523873 (TuringMachine A Dict.empty 0)
         |> checksum
         |> always
 
@@ -128,56 +127,55 @@ part2 =
         |> always
 
 
-run : TuringMachine -> TuringMachine
-run tm =
-    if tm.steps <= 0 then
-        tm
-    else
-        let
-            current =
-                read tm
+run : Int -> TuringMachine -> TuringMachine
+run steps turingMachine =
+    let
+        newState : Int -> TuringMachine -> TuringMachine
+        newState _ tm =
+            case tm.state of
+                A ->
+                    if read tm then
+                        tm |> write True |> moveLeft |> setState E
 
-            newState =
-                case tm.state of
-                    A ->
-                        if current then
-                            tm |> write True |> moveLeft |> setState E
-                        else
-                            tm |> write True |> moveRight |> setState B
+                    else
+                        tm |> write True |> moveRight |> setState B
 
-                    B ->
-                        if current then
-                            tm |> write True |> moveRight |> setState F
-                        else
-                            tm |> write True |> moveRight |> setState C
+                B ->
+                    if read tm then
+                        tm |> write True |> moveRight |> setState F
 
-                    C ->
-                        if current then
-                            tm |> write False |> moveRight |> setState B
-                        else
-                            tm |> write True |> moveLeft |> setState D
+                    else
+                        tm |> write True |> moveRight |> setState C
 
-                    D ->
-                        if current == False then
-                            tm |> write True |> moveRight |> setState E
-                        else
-                            tm |> write False |> moveLeft |> setState C
+                C ->
+                    if read tm then
+                        tm |> write False |> moveRight |> setState B
 
-                    E ->
-                        if current then
-                            tm |> write False |> moveRight |> setState D
-                        else
-                            tm |> write True |> moveLeft |> setState A
+                    else
+                        tm |> write True |> moveLeft |> setState D
 
-                    F ->
-                        if current then
-                            tm |> write True |> moveRight |> setState C
-                        else
-                            tm |> write True |> moveRight |> setState A
-        in
-        newState
-            |> decSteps
-            |> run
+                D ->
+                    if read tm then
+                        tm |> write False |> moveLeft |> setState C
+
+                    else
+                        tm |> write True |> moveRight |> setState E
+
+                E ->
+                    if read tm then
+                        tm |> write False |> moveRight |> setState D
+
+                    else
+                        tm |> write True |> moveLeft |> setState A
+
+                F ->
+                    if read tm then
+                        tm |> write True |> moveRight |> setState C
+
+                    else
+                        tm |> write True |> moveRight |> setState A
+    in
+    List.foldl newState turingMachine (List.range 1 steps)
 
 
 read : TuringMachine -> Bool
@@ -203,11 +201,6 @@ moveRight tm =
 moveLeft : TuringMachine -> TuringMachine
 moveLeft tm =
     { tm | position = tm.position - 1 }
-
-
-decSteps : TuringMachine -> TuringMachine
-decSteps tm =
-    { tm | steps = tm.steps - 1 }
 
 
 checksum : TuringMachine -> Int

@@ -33,12 +33,12 @@
 -}
 
 
-module D11_2017 exposing (..)
+module D11_2017 exposing (Position, distFromOrigin, main, move, parse, part1, part2)
 
-import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat)
+import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, scanl)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d11_2017.txt"
         (part1 >> outFormat |> multiLineInput)
@@ -63,7 +63,7 @@ part1 =
 part2 : String -> Int
 part2 =
     parse
-        >> List.scanl move ( 0, 0, 0 )
+        >> scanl move ( 0, 0, 0 )
         >> List.map distFromOrigin
         >> List.maximum
         >> Maybe.withDefault 0

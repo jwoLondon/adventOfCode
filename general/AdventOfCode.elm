@@ -1,25 +1,28 @@
-{- Architecture for a reading a single string from an external file. -}
+{- Architecture for Advent of code applications with utility functions for common tasks. -}
 
 
-module AdventOfCode exposing (..)
+module AdventOfCode exposing (Model, Msg(..), OutFormat, aoc, combinations, decToBinary, factors, flip, hexToBinary, init, matches, multiLineInput, outFormat, parseInt, permutations, scanl, select, selectLargest, toInt, transpose, update, view, whitespace)
 
+import Browser
 import Dict
 import Html exposing (Html, div, h1, text)
 import Http
+import Parser exposing ((|.), (|=), Parser)
+import Regex
 
 
 outFormat : a -> OutFormat
 outFormat =
-    toString >> text
+    Debug.toString >> text
 
 
 type alias OutFormat =
     Html Msg
 
 
-aoc : String -> (List String -> OutFormat) -> (List String -> OutFormat) -> Program Never Model Msg
+aoc : String -> (List String -> OutFormat) -> (List String -> OutFormat) -> Program () Model Msg
 aoc inFilename p1 p2 =
-    Html.program
+    Browser.element
         { init = init inFilename p1 p2
         , view = view
         , update = update
@@ -43,7 +46,56 @@ multiLineInput f s =
 -}
 toInt : String -> Int
 toInt =
-    String.toInt >> Result.withDefault 0
+    String.toInt >> Maybe.withDefault 0
+
+
+{-| Given a regular expression (first parameter), will provide a list of matches
+to the second parameter. Allows regex groups to be identified and where matched,
+will be `Just` a match or `Nothing` if the group does not match.
+-}
+matches : String -> String -> List (Maybe String)
+matches regex =
+    Regex.find
+        (Regex.fromString regex
+            |> Maybe.withDefault Regex.never
+        )
+        >> List.concatMap .submatches
+
+
+{-| scanl has been dropped from Elm 0.19, so here's an implementation.
+-}
+scanl : (a -> b -> b) -> b -> List a -> List b
+scanl fn b =
+    let
+        scan a bs =
+            case bs of
+                hd :: tl ->
+                    fn a hd :: bs
+
+                _ ->
+                    []
+    in
+    List.foldl scan [ b ] >> List.reverse
+
+
+{-| Whitespace parser instead of using regex.
+-}
+whitespace : Parser ()
+whitespace =
+    Parser.chompWhile (\c -> c == ' ' || c == '\t' || c == '\n' || c == '\u{000D}')
+
+
+{-| Custom integer parser that allows negative numbers. Can be used in place of
+Parser.int
+-}
+parseInt : Parser Int
+parseInt =
+    Parser.oneOf
+        [ Parser.succeed negate
+            |. Parser.symbol "-"
+            |= Parser.int
+        , Parser.int
+        ]
 
 
 {-| Generates all combinations of size k or smaller of an ordered list.
@@ -52,6 +104,7 @@ combinations : Int -> List a -> List (List a)
 combinations k items =
     if k <= 0 then
         [ [] ]
+
     else
         case items of
             [] ->
@@ -93,8 +146,8 @@ select xs =
         [] ->
             []
 
-        x :: xs ->
-            ( x, xs ) :: List.map (\( y, ys ) -> ( y, x :: ys )) (select xs)
+        x :: xTail ->
+            ( x, xTail ) :: List.map (\( y, ys ) -> ( y, x :: ys )) (select xTail)
 
 
 {-| Return all combinations in the form of (element, rest of the list) where element
@@ -107,29 +160,31 @@ selectLargest xs =
         [] ->
             []
 
-        x :: xs ->
-            ( x, List.filter (\y -> y < x) xs )
-                :: List.map (\( y, ys ) -> ( y, x :: ys )) (selectLargest xs)
+        x :: xTail ->
+            ( x, List.filter (\y -> y < x) xTail )
+                :: List.map (\( y, ys ) -> ( y, x :: ys )) (selectLargest xTail)
 
 
 {-| Provides a list of all the factors of a given number.
 -}
 factors : Int -> List Int
-factors n =
+factors num =
     let
         fac : Int -> Int -> List Int -> List Int
         fac n i facs =
             if i == 1 then
                 1 :: n :: facs
-            else if n % i == 0 then
+
+            else if modBy i n == 0 then
                 fac n (i - 1) (i :: (n // i) :: facs)
+
             else
                 fac n (i - 1) facs
 
         upper =
-            round (sqrt (toFloat n))
+            round (sqrt (toFloat num))
     in
-    fac n upper []
+    fac num upper []
 
 
 {-| Transposes a list of lists, swappings rows for columns.
@@ -145,6 +200,7 @@ transpose ll =
     in
     if List.length heads == List.length ll then
         heads :: transpose tails
+
     else
         []
 
@@ -156,11 +212,13 @@ decToBinary : Int -> List Int -> Int -> List Int
 decToBinary padding bin dec =
     if dec == 0 then
         List.repeat (max 0 (padding - List.length bin)) 0 ++ bin
+
     else
         let
             bit =
-                if dec % 2 == 0 then
+                if modBy 2 dec == 0 then
                     0
+
                 else
                     1
         in
@@ -174,7 +232,7 @@ hexToBinary : String -> List Int
 hexToBinary hexStr =
     let
         hexLookup =
-            List.map2 (,)
+            List.map2 (\a b -> ( a, b ))
                 ("0123456789abcdef" |> String.toList)
                 (List.map (decToBinary 4 []) (List.range 0 15))
                 |> Dict.fromList
@@ -185,6 +243,15 @@ hexToBinary hexStr =
     hexStr
         |> String.toList
         |> List.foldl (\c digits -> digits ++ toBits c) []
+
+
+{-| Take a function, the first argument, and return a new function that accepts
+the same parameters as the original function, but in reverse order. This replaces
+the now removed `flip` function in elm 0.19
+-}
+flip : (a -> b -> c) -> b -> a -> c
+flip function argB argA =
+    function argA argB
 
 
 
@@ -198,8 +265,8 @@ type alias Model =
     }
 
 
-init : String -> (List String -> Html Msg) -> (List String -> Html Msg) -> ( Model, Cmd Msg )
-init filename part1 part2 =
+init : String -> (List String -> Html Msg) -> (List String -> Html Msg) -> () -> ( Model, Cmd Msg )
+init filename part1 part2 _ =
     ( Model [] part1 part2
     , filename |> Http.send FileRead << Http.getString
     )
@@ -215,6 +282,7 @@ view model =
         output =
             if model.input == [] then
                 [ h1 [] [ text "Processing..." ] ]
+
             else
                 [ h1 [] [ text "Part 1" ]
                 , model.part1 model.input
@@ -240,4 +308,4 @@ update msg model =
             ( { model | input = String.lines input }, Cmd.none )
 
         FileRead (Err err) ->
-            ( { model | input = "Error: " ++ toString err |> String.lines }, Cmd.none )
+            ( { model | input = "Error: " ++ Debug.toString err |> String.lines }, Cmd.none )

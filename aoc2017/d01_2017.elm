@@ -46,12 +46,12 @@
 -}
 
 
-module D01_2017 exposing (..)
+module D01_2017 exposing (captcha, main, matchedVal, part1, part2, rotate)
 
 import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, toInt)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d01_2017.txt"
         (part1 >> outFormat |> multiLineInput)
@@ -83,6 +83,7 @@ matchedVal : comparable -> comparable -> Maybe comparable
 matchedVal val1 val2 =
     if val1 == val2 then
         Just val1
+
     else
         Nothing
 
@@ -91,6 +92,6 @@ rotate : Int -> List a -> List a
 rotate n xs =
     let
         pivot =
-            n % List.length xs
+            modBy (List.length xs) n
     in
     List.drop pivot xs ++ List.take pivot xs

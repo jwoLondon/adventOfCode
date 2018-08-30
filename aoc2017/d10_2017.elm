@@ -133,13 +133,13 @@
 -}
 
 
-module D10_2017 exposing (..)
+module D10_2017 exposing (OffsetList, TwistLengths, main, part1, part2, rotate)
 
 import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, toInt)
 import KnotHash
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d10_2017.txt"
         (part1 >> outFormat |> multiLineInput)
@@ -179,4 +179,4 @@ rotate n xs =
         len =
             List.length xs
     in
-    List.drop (len - (-n % len)) xs ++ List.take (len - (-n % len)) xs
+    List.drop (len - modBy len -n) xs ++ List.take (len - modBy len -n) xs

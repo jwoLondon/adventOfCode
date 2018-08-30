@@ -52,13 +52,13 @@
 -}
 
 
-module D02_2017 exposing (..)
+module D02_2017 exposing (checksum, diff, divis, main, parseLine, part1, part2)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat, selectLargest, toInt)
-import Regex exposing (regex)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat, parseInt, selectLargest, toInt, whitespace)
+import Parser exposing ((|.), (|=), Parser)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d02_2017.txt"
         (part1 >> outFormat)
@@ -92,7 +92,7 @@ divis : List Int -> Int
 divis nums =
     let
         divPairs ( n, ns ) =
-            case List.filter (\x -> n % x == 0) ns of
+            case List.filter (\x -> modBy x n == 0) ns of
                 [ x ] ->
                     Just ( n, x )
 
@@ -106,5 +106,44 @@ divis nums =
 
 
 parseLine : String -> List Int
-parseLine text =
-    List.map toInt (Regex.split Regex.All (regex "\\s+") text)
+parseLine txt =
+    case txt |> Parser.run parseInts of
+        Ok xs ->
+            xs
+
+        Err err ->
+            let
+                _ =
+                    Debug.log "I had trouble parsing " err
+            in
+            []
+
+
+parseInts : Parser (List Int)
+parseInts =
+    let
+        intListParse revInts =
+            Parser.oneOf
+                [ nextInt |> Parser.andThen (\n -> intListParse (n :: revInts))
+                , Parser.succeed (List.reverse revInts)
+                ]
+
+        nextInt =
+            Parser.succeed identity
+                |. whitespace
+                |= parseInt
+    in
+    Parser.succeed identity
+        |= Parser.andThen (\n -> intListParse [ n ]) parseInt
+
+
+
+{- Retained for reference only. The regex equivalent to the elm parser:
+
+
+   parseLine : String -> List Int
+   parseLine text =
+       --  List.map toInt (Regex.split Regex.All (regex "\\s+") text)
+       Regex.split (Regex.fromString "\\s+" |> Maybe.withDefault Regex.never) text
+           |> List.map toInt
+-}

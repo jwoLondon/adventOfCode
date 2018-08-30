@@ -73,13 +73,13 @@
 -}
 
 
-module D24_2017 exposing (..)
+module D24_2017 exposing (BridgeProp, Component, MaxFn, addDouble, available, join, main, maxSecond, newAnchor, parse, part1, part2, removeUsedDouble, strength, swap)
 
 import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
 import Set exposing (Set)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d24_2017.txt"
         (part1 >> outFormat)
@@ -138,8 +138,10 @@ addDouble : Component -> Set Component -> BridgeProp -> BridgeProp
 addDouble ( a, b ) doubles ( str, len ) =
     if Set.member ( a, a ) doubles then
         ( str + 2 * a, len + 1 )
+
     else if Set.member ( b, b ) doubles then
         ( str + 2 * b, len + 1 )
+
     else
         ( str, len )
 
@@ -168,8 +170,10 @@ newAnchor : Int -> Component -> Int
 newAnchor anchor component =
     if Tuple.first component == anchor then
         Tuple.second component
+
     else if Tuple.second component == anchor then
         Tuple.first component
+
     else
         -1 |> Debug.log "Cannot match component"
 

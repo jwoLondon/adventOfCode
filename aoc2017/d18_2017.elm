@@ -111,15 +111,14 @@
 -}
 
 
-module D18_2017 exposing (..)
+module D18_2017 exposing (Expression(..), Instruction(..), Prog, Queue, Registers, duet, eval, get, main, parse, parseLine, part1, part2, pop, push, run, runPart2)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, matches, outFormat, toInt)
 import Array exposing (Array)
 import Dict exposing (Dict)
-import Regex exposing (regex)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d18_2017.txt"
         (part1 >> outFormat)
@@ -135,7 +134,7 @@ type alias Queue =
 
 
 type alias Prog =
-    ( Int, Registers, Queue, Queue )
+    ( Int, Registers, ( Queue, Queue ) )
 
 
 type Expression
@@ -183,7 +182,7 @@ part2 instructions =
         prog =
             parse instructions
     in
-    duet 0 ( 0, regs0, [], [] ) ( 0, regs1, [], [] ) prog
+    duet 0 ( 0, regs0, ( [], [] ) ) ( 0, regs1, ( [], [] ) ) prog
 
 
 run : Int -> Registers -> Array Instruction -> Registers
@@ -202,17 +201,19 @@ run pos registers program =
             run (pos + 1) (Dict.insert reg (get reg registers * eval expr registers) registers) program
 
         Just (Mod reg expr) ->
-            run (pos + 1) (Dict.insert reg (get reg registers % eval expr registers) registers) program
+            run (pos + 1) (Dict.insert reg (modBy (eval expr registers) (get reg registers)) registers) program
 
         Just (Rcv reg) ->
             if eval (Register reg) registers /= 0 then
                 registers
+
             else
                 run (pos + 1) registers program
 
         Just (Jgz expr1 expr2) ->
             if eval expr1 registers > 0 then
                 run (pos + eval expr2 registers) registers program
+
             else
                 run (pos + 1) registers program
 
@@ -223,59 +224,60 @@ run pos registers program =
 duet : Int -> Prog -> Prog -> Array Instruction -> Int
 duet p1Sends h0 h1 instr =
     let
-        ( pos0, reg0, in0, out0 ) =
+        ( pos0, reg0, ( in0, out0 ) ) =
             runPart2 h0 instr
 
-        ( pos1, reg1, in1, out1 ) =
+        ( pos1, reg1, ( in1, out1 ) ) =
             runPart2 h1 instr
     in
     case pop out0 of
         Just ( val0, queue0 ) ->
-            duet p1Sends ( pos0, reg0, in0, queue0 ) ( pos1, reg1, push val0 in1, out1 ) instr
+            duet p1Sends ( pos0, reg0, ( in0, queue0 ) ) ( pos1, reg1, ( push val0 in1, out1 ) ) instr
 
         Nothing ->
             case pop out1 of
                 Just ( val1, queue1 ) ->
-                    duet (p1Sends + 1) ( pos0, reg0, push val1 in0, out0 ) ( pos1, reg1, in1, queue1 ) instr
+                    duet (p1Sends + 1) ( pos0, reg0, ( push val1 in0, out0 ) ) ( pos1, reg1, ( in1, queue1 ) ) instr
 
                 Nothing ->
                     p1Sends
 
 
 runPart2 : Prog -> Array Instruction -> Prog
-runPart2 ( pos, registers, inQueue, outQueue ) instructions =
+runPart2 ( pos, registers, ( inQueue, outQueue ) ) instructions =
     case Array.get pos instructions of
         Just (Snd expr) ->
-            runPart2 ( pos + 1, registers, inQueue, push (eval expr registers) outQueue ) instructions
+            runPart2 ( pos + 1, registers, ( inQueue, push (eval expr registers) outQueue ) ) instructions
 
         Just (Set reg expr) ->
-            runPart2 ( pos + 1, Dict.insert reg (eval expr registers) registers, inQueue, outQueue ) instructions
+            runPart2 ( pos + 1, Dict.insert reg (eval expr registers) registers, ( inQueue, outQueue ) ) instructions
 
         Just (Add reg expr) ->
-            runPart2 ( pos + 1, Dict.insert reg (get reg registers + eval expr registers) registers, inQueue, outQueue ) instructions
+            runPart2 ( pos + 1, Dict.insert reg (get reg registers + eval expr registers) registers, ( inQueue, outQueue ) ) instructions
 
         Just (Mul reg expr) ->
-            runPart2 ( pos + 1, Dict.insert reg (get reg registers * eval expr registers) registers, inQueue, outQueue ) instructions
+            runPart2 ( pos + 1, Dict.insert reg (get reg registers * eval expr registers) registers, ( inQueue, outQueue ) ) instructions
 
         Just (Mod reg expr) ->
-            runPart2 ( pos + 1, Dict.insert reg (get reg registers % eval expr registers) registers, inQueue, outQueue ) instructions
+            runPart2 ( pos + 1, Dict.insert reg (modBy (eval expr registers) (get reg registers)) registers, ( inQueue, outQueue ) ) instructions
 
         Just (Rcv reg) ->
             case pop inQueue of
                 Nothing ->
-                    ( pos, registers, inQueue, outQueue )
+                    ( pos, registers, ( inQueue, outQueue ) )
 
                 Just ( inVal, inQueueNew ) ->
-                    runPart2 ( pos + 1, Dict.insert reg inVal registers, inQueueNew, outQueue ) instructions
+                    runPart2 ( pos + 1, Dict.insert reg inVal registers, ( inQueueNew, outQueue ) ) instructions
 
         Just (Jgz expr1 expr2) ->
             if eval expr1 registers > 0 then
-                runPart2 ( pos + eval expr2 registers, registers, inQueue, outQueue ) instructions
+                runPart2 ( pos + eval expr2 registers, registers, ( inQueue, outQueue ) ) instructions
+
             else
-                runPart2 ( pos + 1, registers, inQueue, outQueue ) instructions
+                runPart2 ( pos + 1, registers, ( inQueue, outQueue ) ) instructions
 
         Nothing ->
-            ( pos, registers, inQueue, outQueue )
+            ( pos, registers, ( inQueue, outQueue ) )
 
 
 get : Char -> Registers -> Int
@@ -318,43 +320,40 @@ parse =
 parseLine : String -> List Instruction -> List Instruction
 parseLine text instructions =
     let
-        matches text =
-            text
-                |> Regex.find (Regex.AtMost 1)
-                    (Regex.regex "(\\w+) ([a-p]|[-]?\\d+) ?([a-z]|[-]?\\d+)?")
-                |> List.map .submatches
+        regex =
+            "(\\w+) ([a-p]|[-]?\\d+) ?([a-z]|[-]?\\d+)?"
 
         toExpression regOrNum =
             case String.toInt regOrNum of
-                Ok num ->
+                Just num ->
                     Literal num
 
-                Err _ ->
+                Nothing ->
                     Register (toChar regOrNum)
 
         toChar s =
             String.toList s |> List.head |> Maybe.withDefault 'X'
     in
-    case matches text of
-        [ [ Just "snd", Just regOrNum, Nothing ] ] ->
+    case matches regex text of
+        [ Just "snd", Just regOrNum, Nothing ] ->
             Snd (toExpression regOrNum) :: instructions
 
-        [ [ Just "set", Just reg, Just regOrNum2 ] ] ->
+        [ Just "set", Just reg, Just regOrNum2 ] ->
             Set (toChar reg) (toExpression regOrNum2) :: instructions
 
-        [ [ Just "add", Just reg, Just regOrNum2 ] ] ->
+        [ Just "add", Just reg, Just regOrNum2 ] ->
             Add (toChar reg) (toExpression regOrNum2) :: instructions
 
-        [ [ Just "mul", Just reg, Just regOrNum2 ] ] ->
+        [ Just "mul", Just reg, Just regOrNum2 ] ->
             Mul (toChar reg) (toExpression regOrNum2) :: instructions
 
-        [ [ Just "mod", Just reg, Just regOrNum2 ] ] ->
+        [ Just "mod", Just reg, Just regOrNum2 ] ->
             Mod (toChar reg) (toExpression regOrNum2) :: instructions
 
-        [ [ Just "rcv", Just reg, Nothing ] ] ->
+        [ Just "rcv", Just reg, Nothing ] ->
             Rcv (toChar reg) :: instructions
 
-        [ [ Just "jgz", Just regOrNum1, Just regOrNum2 ] ] ->
+        [ Just "jgz", Just regOrNum1, Just regOrNum2 ] ->
             Jgz (toExpression regOrNum1) (toExpression regOrNum2) :: instructions
 
         _ ->

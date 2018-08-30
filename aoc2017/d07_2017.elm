@@ -93,18 +93,17 @@
 -}
 
 
-module D07_2017 exposing (..)
+module D07_2017 exposing (Prog(..), buildTree, correctWeight, main, parseForChildren, parseForWeight, part1, part2, unbalancedProg)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, matches, outFormat, toInt)
 import Dict exposing (Dict)
-import Regex exposing (regex)
 
 
 type Prog
     = Node String Int (List Prog)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d07_2017.txt"
         (part1 >> outFormat)
@@ -156,8 +155,8 @@ unbalancedProg prog =
         (Node _ _ children) =
             prog
 
-        totalWeight (Node _ weight children) =
-            weight + (List.map totalWeight children |> List.sum)
+        totalWeight (Node _ weight c) =
+            weight + (List.map totalWeight c |> List.sum)
 
         cWeights =
             List.map totalWeight children
@@ -172,8 +171,10 @@ unbalancedProg prog =
     in
     if identical cWeights then
         Nothing
+
     else if List.filterMap unbalancedProg children == [] then
         Just ( cWeights, List.map (\(Node _ w _) -> w) children )
+
     else
         List.filterMap unbalancedProg children
             |> List.head
@@ -185,12 +186,13 @@ correctWeight unbalanced =
         outlierDiff x xs =
             if (List.filter (\n -> n == x) xs |> List.length) == 1 then
                 ((List.sum xs - x) // (List.length xs - 1)) - x
+
             else
                 0
     in
     case unbalanced of
         Just wsPair ->
-            List.map2 (,) (Tuple.first wsPair) (Tuple.second wsPair)
+            List.map2 (\a b -> ( a, b )) (Tuple.first wsPair) (Tuple.second wsPair)
                 |> List.map (\( w0, w1 ) -> ( outlierDiff w0 (Tuple.first wsPair), w1 ))
                 |> List.filter (\( a, _ ) -> a /= 0)
                 |> List.map (\( a, b ) -> a + b)
@@ -212,8 +214,7 @@ parseForWeight =
                 _ ->
                     ( String.concat tokens, 0 ) |> Debug.log "Bad input"
     in
-    Regex.find Regex.All (Regex.regex "(\\w+) \\((\\d+)\\)")
-        >> List.concatMap .submatches
+    matches "(\\w+) \\((\\d+)\\)"
         >> List.filterMap identity
         >> toProg
 
@@ -229,7 +230,6 @@ parseForChildren =
                 _ ->
                     ( String.concat tokens, [] ) |> Debug.log "Bad input"
     in
-    Regex.find Regex.All (Regex.regex "(\\w+) \\((?:\\d+)\\)|(?: -> )?(\\w+)")
-        >> List.concatMap .submatches
+    matches "(\\w+) \\((?:\\d+)\\)|(?: -> )?(\\w+)"
         >> List.filterMap identity
         >> toProg

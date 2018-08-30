@@ -61,11 +61,10 @@
 -}
 
 
-module D12_2017 exposing (..)
+module D12_2017 exposing (Edges, Group, groupContaining, main, parse, parseLine, part1, part2)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, matches, outFormat, toInt)
 import Dict exposing (Dict)
-import Regex exposing (regex)
 import Set exposing (Set)
 
 
@@ -77,7 +76,7 @@ type alias Group =
     Set Int
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d12_2017.txt"
         (part1 >> outFormat)
@@ -108,8 +107,8 @@ part2 input =
 groupContaining : Int -> Edges -> Group
 groupContaining node edges =
     let
-        getConnected node =
-            Dict.get node edges |> Maybe.withDefault Set.empty
+        getConnected n =
+            Dict.get n edges |> Maybe.withDefault Set.empty
 
         buildGraph linked group =
             case Set.toList linked of
@@ -119,6 +118,7 @@ groupContaining node edges =
                 hd :: tl ->
                     if Set.member hd group then
                         buildGraph (Set.fromList tl) group
+
                     else
                         buildGraph
                             (Set.union (getConnected hd) (Set.fromList tl))
@@ -134,7 +134,7 @@ parse =
 
 
 parseLine : String -> ( Int, Set Int )
-parseLine str =
+parseLine =
     let
         toLinks : List String -> ( Int, Set Int )
         toLinks strs =
@@ -145,8 +145,6 @@ parseLine str =
                 _ ->
                     ( 0, Set.empty ) |> Debug.log "Bad input"
     in
-    str
-        |> Regex.find Regex.All (Regex.regex "(\\d+)")
-        |> List.concatMap .submatches
-        |> List.filterMap identity
-        |> toLinks
+    matches "(\\d+)"
+        >> List.filterMap identity
+        >> toLinks

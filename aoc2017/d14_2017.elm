@@ -71,15 +71,15 @@
 -}
 
 
-module D14_2017 exposing (..)
+module D14_2017 exposing (Location, connected, gridSize, main, numGroups, part1, part2, toGroup, toGroups, toRowBits)
 
-import AdventOfCode exposing (Model, Msg, aoc, hexToBinary, multiLineInput, outFormat)
+import AdventOfCode exposing (Model, Msg, aoc, flip, hexToBinary, multiLineInput, outFormat)
 import Grid exposing (Grid)
 import KnotHash exposing (knotHash)
 import Set
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d14_2017.txt"
         (part1 >> outFormat |> multiLineInput)
@@ -117,7 +117,7 @@ part2 input =
 
 toRowBits : String -> Int -> List Int
 toRowBits salt row =
-    knotHash (salt ++ "-" ++ toString row)
+    knotHash (salt ++ "-" ++ String.fromInt row)
         |> hexToBinary
 
 
@@ -145,6 +145,7 @@ connected groupID ( r, c ) grid =
             |> connected groupID ( r + 1, c )
             |> connected groupID ( r, c - 1 )
             |> connected groupID ( r, c + 1 )
+
     else
         grid
 

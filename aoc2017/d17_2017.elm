@@ -70,12 +70,12 @@
 -}
 
 
-module D17_2017 exposing (..)
+module D17_2017 exposing (afterZero, insertCircular, main, part1, part2, positionAt, rotate)
 
 import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, toInt)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d17_2017.txt"
         (part1 >> outFormat |> multiLineInput)
@@ -106,13 +106,14 @@ part2 input =
 
 insertCircular : Int -> Int -> List Int -> List Int
 insertCircular spinSize n cList =
-    n :: rotate (spinSize % List.length cList) cList
+    n :: rotate (modBy (List.length cList) spinSize) cList
 
 
 afterZero : Int -> Int -> Int -> ( Int, Int ) -> ( Int, Int )
 afterZero spinSize maxN n prev =
     if n >= maxN then
         prev
+
     else
         afterZero spinSize maxN (n + 1) (positionAt spinSize n prev)
 
@@ -121,10 +122,11 @@ positionAt : Int -> Int -> ( Int, Int ) -> ( Int, Int )
 positionAt spinSize n ( prevZero, prev ) =
     let
         newPos =
-            ((prev + spinSize) % n) + 1
+            modBy n (prev + spinSize) + 1
     in
     if newPos == 1 then
         ( n, newPos )
+
     else
         ( prevZero, newPos )
 
@@ -133,6 +135,6 @@ rotate : Int -> List a -> List a
 rotate n xs =
     let
         pivot =
-            List.length xs - (n % List.length xs)
+            List.length xs - modBy (List.length xs) n
     in
     List.drop pivot xs ++ List.take pivot xs

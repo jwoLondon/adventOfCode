@@ -53,7 +53,7 @@
 -}
 
 
-module D03_2017 exposing (..)
+module D03_2017 exposing (Location, Memory, accumNeighbours, highestAddress, locationToSpiral, main, manhattanDistance, part1, part2, spiralToLocation, stressTest, valueAtHighestAddress)
 
 import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, toInt)
 import Dict exposing (Dict)
@@ -67,7 +67,7 @@ type alias Location =
     ( Int, Int )
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d03_2017.txt"
         (part1 >> outFormat |> multiLineInput)
@@ -88,6 +88,7 @@ stressTest : Memory -> Int -> Int
 stressTest memory threshold =
     if valueAtHighestAddress memory > threshold then
         valueAtHighestAddress memory
+
     else
         stressTest (memory |> accumNeighbours (highestAddress memory + 1)) threshold
 
@@ -135,10 +136,13 @@ locationToSpiral ( x, y ) =
     in
     if y == ring then
         corner - ring + x
+
     else if x == -ring then
         corner - 3 * ring + y
+
     else if y == -ring then
         corner - 5 * ring - x
+
     else
         corner - 7 * ring - y
 
@@ -154,10 +158,13 @@ spiralToLocation n =
     in
     if n >= corner - 2 * ring then
         ( n - corner + ring, ring )
+
     else if n >= corner - 4 * ring then
         ( -ring, n - corner + 3 * ring )
+
     else if n >= corner - 6 * ring then
         ( corner - 5 * ring - n, -ring )
+
     else
         ( ring, corner - 7 * ring - n )
 

@@ -54,15 +54,14 @@
 -}
 
 
-module D06_2017 exposing (..)
+module D06_2017 exposing (Banks, States, distribute, findRepeat, hash, indexedMax, main, part1, part2, splitLine)
 
 import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, toInt)
-import Array.Hamt as Array exposing (Array)
-import Regex exposing (regex)
+import Array exposing (Array)
 import Set exposing (Set)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d06_2017.txt"
         (part1 >> outFormat |> multiLineInput)
@@ -101,6 +100,7 @@ findRepeat banks states counter =
     in
     if Set.member state states then
         ( banks, counter )
+
     else
         findRepeat (distribute banks) (Set.insert state states) (counter + 1)
 
@@ -121,14 +121,15 @@ distribute banks =
             ceiling (toFloat maxVal / toFloat len)
 
         remains =
-            if maxVal % divi > 0 then
-                [ maxVal % divi ]
+            if modBy divi maxVal > 0 then
+                [ modBy divi maxVal ]
                     ++ List.repeat (len - maxVal // divi - 1) 0
+
             else
                 List.repeat (len - maxVal // divi) 0
 
         rotate n xs =
-            List.drop (len - n % len) xs ++ List.take (len - n % len) xs
+            List.drop (len - modBy len n) xs ++ List.take (len - modBy len n) xs
 
         addition =
             List.repeat (maxVal // divi) divi
@@ -145,11 +146,12 @@ indexedMax banks =
         findMax ( i, n ) ( iMax, nMax ) =
             if n > nMax then
                 ( i, n )
+
             else
                 ( iMax, nMax )
     in
     banks
-        |> Array.indexedMap (,)
+        |> Array.indexedMap (\a b -> ( a, b ))
         |> Array.foldl findMax ( -1, 0 )
 
 
@@ -157,10 +159,10 @@ hash : Banks -> String
 hash banks =
     banks
         |> Array.toList
-        |> List.map (\n -> toString n ++ " ")
+        |> List.map (\n -> String.fromInt n ++ " ")
         |> String.concat
 
 
 splitLine : String -> List Int
-splitLine text =
-    List.map toInt (Regex.split Regex.All (regex "\\s+") text)
+splitLine =
+    String.split "\t" >> List.map toInt

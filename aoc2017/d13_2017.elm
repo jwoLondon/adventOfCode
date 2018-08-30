@@ -296,12 +296,12 @@
 -}
 
 
-module D13_2017 exposing (..)
+module D13_2017 exposing (Layer, Scanner, main, parseLine, part1, part2, safeAt, scannerAt, severityAt)
 
 import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d13_2017.txt"
         (part1 >> outFormat)
@@ -331,6 +331,7 @@ part2 input =
         nextDelayUndetected delay =
             if List.all (safeAt delay) layers then
                 delay
+
             else
                 nextDelayUndetected (delay + 1)
     in
@@ -341,6 +342,7 @@ severityAt : Layer -> Int
 severityAt ( pos, layer ) =
     if scannerAt pos layer == 0 then
         pos * layer
+
     else
         0
 
@@ -354,12 +356,13 @@ scannerAt : Int -> Int -> Int
 scannerAt t layerHeight =
     let
         period =
-            2 * (layerHeight - 1)
+            modBy (2 * (layerHeight - 1))
     in
-    if t % period < layerHeight then
-        t % period
+    if period t < layerHeight then
+        period t
+
     else
-        (t + layerHeight) % period
+        period (t + layerHeight)
 
 
 parseLine : String -> Layer

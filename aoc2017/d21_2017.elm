@@ -107,12 +107,11 @@
 -}
 
 
-module D21_2017 exposing (..)
+module D21_2017 exposing (Image, Rules, count, enhance, flatten, grow, main, parse, parseLine, part1, part2, start)
 
 import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
 import Dict exposing (Dict)
 import Grid exposing (Grid)
-import Regex exposing (regex)
 
 
 type alias Rules =
@@ -123,7 +122,7 @@ type alias Image =
     Grid Char
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d21_2017.txt"
         (part1 >> outFormat)
@@ -172,16 +171,16 @@ grow rules img =
         get location =
             Grid.get location img |> Maybe.withDefault ' '
 
-        indices n img =
-            List.range 0 (Grid.colCount img // n - 1) |> List.map ((*) n)
+        indices n im =
+            List.range 0 (Grid.colCount im // n - 1) |> List.map ((*) n)
 
         joinImageRow =
-            List.foldl (\img cols -> cols ++ Grid.toCols img) []
+            List.foldl (\im cols -> cols ++ Grid.toCols im) []
                 >> Grid.fromList ' '
                 >> Grid.transpose
                 >> Grid.toRows
     in
-    if Grid.rowCount img % 2 == 0 then
+    if modBy 2 (Grid.rowCount img) == 0 then
         let
             imgRow r =
                 List.map
@@ -197,7 +196,8 @@ grow rules img =
         List.map imgRow (indices 2 img)
             |> List.foldl (\iRow iRows -> iRows ++ joinImageRow iRow) []
             |> Grid.fromList ' '
-    else if Grid.rowCount img % 3 == 0 then
+
+    else if modBy 3 (Grid.rowCount img) == 0 then
         let
             imgRow r =
                 List.map
@@ -214,6 +214,7 @@ grow rules img =
         List.map (\r -> imgRow r) (indices 3 img)
             |> List.foldl (\iRow iRows -> iRows ++ joinImageRow iRow) []
             |> Grid.fromList ' '
+
     else
         img |> Debug.log "Unexpected grid size"
 
@@ -257,11 +258,11 @@ parseLine : String -> ( Image, Image )
 parseLine text =
     let
         toImage =
-            Regex.split Regex.All (regex "/")
+            String.split "/"
                 >> List.map String.toList
                 >> Grid.fromList ' '
     in
-    case Regex.split Regex.All (regex " => ") text of
+    case String.split " => " text of
         [ a, b ] ->
             ( toImage a, toImage b )
 

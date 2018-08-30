@@ -38,11 +38,10 @@
 -}
 
 
-module D08_2017 exposing (..)
+module D08_2017 exposing (Expression, Registers, applyInstruction, getReg, main, maxReg, parseLine, part1, part2)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, matches, outFormat, toInt)
 import Dict exposing (Dict)
-import Regex exposing (regex)
 
 
 type alias Expression =
@@ -63,7 +62,7 @@ maxReg =
     "MAX_REG"
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d08_2017.txt"
         (part1 >> outFormat)
@@ -96,6 +95,7 @@ applyInstruction op registers =
         in
         Dict.insert maxReg (max newVal (getReg maxReg registers)) registers
             |> Dict.insert op.reg newVal
+
     else
         registers
 
@@ -115,6 +115,7 @@ parseLine =
                         deltaVal =
                             if deltaOp == "inc" then
                                 toInt delta
+
                             else
                                 -1 * toInt delta
 
@@ -146,7 +147,6 @@ parseLine =
                 _ ->
                     Expression "" 0 "" (==) 0 |> Debug.log "Bad input"
     in
-    Regex.find Regex.All (Regex.regex "(\\w+) (inc|dec) (-?\\d+) if (\\w+) ([<>=!]+) (-?\\d+)")
-        >> List.concatMap .submatches
+    matches "(\\w+) (inc|dec) (-?\\d+) if (\\w+) ([<>=!]+) (-?\\d+)"
         >> List.filterMap identity
         >> toExpression

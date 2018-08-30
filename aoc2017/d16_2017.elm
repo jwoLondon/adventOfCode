@@ -42,14 +42,13 @@
 -}
 
 
-module D16_2017 exposing (..)
+module D16_2017 exposing (Move(..), Progs, dance, danceMove, exchange, findPeriod, main, parseLine, part1, part2, partner, spin, start)
 
-import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, matches, multiLineInput, outFormat, toInt)
 import Array exposing (Array)
-import Regex exposing (regex)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d16_2017.txt"
         (part1 >> outFormat |> multiLineInput)
@@ -64,7 +63,6 @@ type Move
     = Spin Int
     | Exchange Int Int
     | Partner Char Char
-    | NoOp
 
 
 start : Progs
@@ -86,7 +84,7 @@ part2 input =
             parseLine input
 
         numRepeats =
-            1000000000 % findPeriod moves
+            modBy (findPeriod moves) 1000000000
     in
     List.foldl (\_ ps -> dance moves ps) start (List.range 1 numRepeats)
         |> String.fromList
@@ -109,9 +107,6 @@ danceMove move progs =
         Partner p1 p2 ->
             partner p1 p2 progs
 
-        _ ->
-            progs |> Debug.log "Unknown move"
-
 
 findPeriod : List Move -> Int
 findPeriod moves =
@@ -119,6 +114,7 @@ findPeriod moves =
         matchStart n progs =
             if progs == start then
                 n
+
             else
                 matchStart (n + 1) (dance moves progs)
     in
@@ -131,8 +127,10 @@ partner p1 p2 prog =
         swap p =
             if p == p1 then
                 p2
+
             else if p == p2 then
                 p1
+
             else
                 p
     in
@@ -158,7 +156,7 @@ spin : Int -> Progs -> Progs
 spin n prog =
     let
         pivot =
-            List.length prog - (n % List.length prog)
+            List.length prog - modBy (List.length prog) n
     in
     List.drop pivot prog ++ List.take pivot prog
 
@@ -166,21 +164,28 @@ spin n prog =
 parseLine : String -> List Move
 parseLine =
     let
-        toMove tokens =
-            case tokens of
+        toMove : List Move -> List (Maybe String) -> List Move
+        toMove moves tokens =
+            case List.take 3 tokens of
+                [] ->
+                    List.reverse moves
+
                 [ Just "s", Just n, Nothing ] ->
-                    Spin (toInt n)
+                    toMove (Spin (toInt n) :: moves) (List.drop 3 tokens)
 
                 [ Just "x", Just n1, Just n2 ] ->
-                    Exchange (toInt n1) (toInt n2)
+                    toMove (Exchange (toInt n1) (toInt n2) :: moves) (List.drop 3 tokens)
 
                 [ Just "p", Just p1, Just p2 ] ->
-                    Partner (p1 |> String.toList |> List.head |> Maybe.withDefault 'x')
-                        (p2 |> String.toList |> List.head |> Maybe.withDefault 'x')
+                    toMove
+                        (Partner (p1 |> String.toList |> List.head |> Maybe.withDefault 'x')
+                            (p2 |> String.toList |> List.head |> Maybe.withDefault 'x')
+                            :: moves
+                        )
+                        (List.drop 3 tokens)
 
                 _ ->
-                    NoOp |> Debug.log "Bad input"
+                    List.reverse moves |> Debug.log "Bad input"
     in
-    Regex.find Regex.All (Regex.regex "(s|x|p)(\\d+|[a-p])(?:/(\\d+|[a-p]))?")
-        >> List.map .submatches
-        >> List.map toMove
+    matches "(s|x|p)(\\d+|[a-p])(?:/(\\d+|[a-p]))?"
+        >> toMove []

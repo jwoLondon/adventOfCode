@@ -44,15 +44,14 @@
 -}
 
 
-module D23_2017 exposing (..)
+module D23_2017 exposing (Expression(..), Instruction(..), Registers, eval, get, isComposite, isPrime, main, parse, parseLine, part1, part2, registers, run)
 
-import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, toInt)
-import Array.Hamt as Array exposing (Array)
+import AdventOfCode exposing (Model, Msg, aoc, matches, multiLineInput, outFormat, toInt)
+import Array exposing (Array)
 import Dict exposing (Dict)
-import Regex exposing (regex)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d23_2017.txt"
         (part1 >> outFormat)
@@ -167,29 +166,30 @@ part2 input =
 
 
 run : Int -> Registers -> Array Instruction -> Registers
-run pos registers program =
+run pos regs program =
     case Array.get pos program of
         Just (Set r expr) ->
-            run (pos + 1) (Dict.insert r (eval expr registers) registers) program
+            run (pos + 1) (Dict.insert r (eval expr regs) regs) program
 
         Just (Sub r expr) ->
-            run (pos + 1) (Dict.insert r (get r registers - eval expr registers) registers) program
+            run (pos + 1) (Dict.insert r (get r regs - eval expr regs) regs) program
 
         Just (Mul r expr) ->
             let
                 reg2 =
-                    Dict.insert 'z' (get 'z' registers + 1) registers
+                    Dict.insert 'z' (get 'z' regs + 1) regs
             in
             run (pos + 1) (Dict.insert r (get r reg2 * eval expr reg2) reg2) program
 
         Just (Jnz expr1 expr2) ->
-            if eval expr1 registers /= 0 then
-                run (pos + eval expr2 registers) registers program
+            if eval expr1 regs /= 0 then
+                run (pos + eval expr2 regs) regs program
+
             else
-                run (pos + 1) registers program
+                run (pos + 1) regs program
 
         Nothing ->
-            registers
+            regs
 
 
 isComposite : Int -> Bool
@@ -201,27 +201,28 @@ isPrime : Int -> Bool
 isPrime n =
     if n < 2 then
         False
+
     else
         let
             candidates =
                 List.range 2 (floor (sqrt (toFloat n)))
         in
-        List.length (List.filter (\fac -> n % fac == 0) candidates) == 0
+        List.length (List.filter (\fac -> modBy fac n == 0) candidates) == 0
 
 
 get : Char -> Registers -> Int
-get regName registers =
-    Dict.get regName registers |> Maybe.withDefault 0
+get regName regs =
+    Dict.get regName regs |> Maybe.withDefault 0
 
 
 eval : Expression -> Registers -> Int
-eval expr registers =
+eval expr regs =
     case expr of
         Literal i ->
             i
 
         Register reg ->
-            get reg registers
+            get reg regs
 
 
 parse : List String -> Array Instruction
@@ -234,34 +235,31 @@ parse =
 parseLine : String -> List Instruction -> List Instruction
 parseLine text instructions =
     let
-        matches text =
-            text
-                |> Regex.find (Regex.AtMost 1)
-                    (Regex.regex "(\\w+) ([a-h]|[-]?\\d+) ?([a-h]|[-]?\\d+)?")
-                |> List.map .submatches
+        regex =
+            "(\\w+) ([a-h]|[-]?\\d+) ?([a-h]|[-]?\\d+)?"
 
         toExpression regOrNum =
             case String.toInt regOrNum of
-                Ok num ->
+                Just num ->
                     Literal num
 
-                Err _ ->
+                Nothing ->
                     Register (toChar regOrNum)
 
         toChar s =
             String.toList s |> List.head |> Maybe.withDefault 'X'
     in
-    case matches text of
-        [ [ Just "set", Just reg, Just regOrNum2 ] ] ->
+    case matches regex text of
+        [ Just "set", Just reg, Just regOrNum2 ] ->
             Set (toChar reg) (toExpression regOrNum2) :: instructions
 
-        [ [ Just "sub", Just reg, Just regOrNum2 ] ] ->
+        [ Just "sub", Just reg, Just regOrNum2 ] ->
             Sub (toChar reg) (toExpression regOrNum2) :: instructions
 
-        [ [ Just "mul", Just reg, Just regOrNum2 ] ] ->
+        [ Just "mul", Just reg, Just regOrNum2 ] ->
             Mul (toChar reg) (toExpression regOrNum2) :: instructions
 
-        [ [ Just "jnz", Just regOrNum1, Just regOrNum2 ] ] ->
+        [ Just "jnz", Just regOrNum1, Just regOrNum2 ] ->
             Jnz (toExpression regOrNum1) (toExpression regOrNum2) :: instructions
 
         _ ->

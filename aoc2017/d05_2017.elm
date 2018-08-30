@@ -50,15 +50,13 @@
 -}
 
 
-module D05_2017 exposing (..)
-
--- Array.Hamt (community package Skinney/elm-array-exploration gives faster Array implementation)
+module D05_2017 exposing (Jumps, jump, main, numSteps, part1, part2, updateJumps1, updateJumps2)
 
 import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
-import Array.Hamt as Array exposing (Array)
+import Array exposing (Array)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d05_2017.txt"
         (part1 >> outFormat)
@@ -110,5 +108,6 @@ updateJumps2 : Int -> Int
 updateJumps2 x =
     if x >= 3 then
         x - 1
+
     else
         x + 1
