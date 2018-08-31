@@ -40,13 +40,13 @@
 -}
 
 
-module D03_2015 exposing (..)
+module D03_2015 exposing (Location, addToFreqTable, dropPresents, main, move, part1, part2, thinList)
 
 import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat)
 import Dict exposing (Dict)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d03_2015.txt"
         (part1 >> outFormat |> multiLineInput)
@@ -83,6 +83,7 @@ thinList : List a -> List a
 thinList list =
     if List.length list == 0 then
         []
+
     else
         List.take 1 list ++ thinList (List.drop 2 list)
 
@@ -124,5 +125,6 @@ addToFreqTable : comparable -> Dict comparable Int -> Dict comparable Int
 addToFreqTable item freqTable =
     if Dict.member item freqTable then
         Dict.update item (Maybe.map ((+) 1)) freqTable
+
     else
         Dict.insert item 1 freqTable

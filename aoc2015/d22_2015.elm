@@ -144,10 +144,9 @@
 -}
 
 
-module Main exposing (..)
+module Main exposing (Character, Spell, armourFrom, damageFrom, isBuyable, main, manaFrom, parse, parseLine, part1, part2, playGame, spellOptions, trySpells, useSpells)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
-import Regex exposing (Regex)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat, submatches, toInt)
 
 
 type alias Character =
@@ -170,7 +169,7 @@ type alias Spell =
     }
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d22_2015.txt"
         (part1 >> outFormat)
@@ -232,8 +231,10 @@ playGame : Bool -> Bool -> Character -> Character -> List Spell -> Int -> Int
 playGame isHard playerTurn wiz boss spells minMana =
     if wiz.spent >= minMana then
         minMana
+
     else if boss.hp - damageFrom spells <= 0 then
         wiz.spent
+
     else
         let
             boss2 =
@@ -250,6 +251,7 @@ playGame isHard playerTurn wiz boss spells minMana =
                             | hp = wiz.hp - 1
                             , mana = wiz.mana + manaFrom spells
                         }
+
                     else
                         { wiz | mana = wiz.mana + manaFrom spells }
 
@@ -258,8 +260,10 @@ playGame isHard playerTurn wiz boss spells minMana =
             in
             if List.isEmpty newSpells || wiz2.hp <= 0 then
                 minMana
+
             else
                 trySpells isHard activeSpells wiz2 boss2 minMana newSpells
+
         else
             let
                 wiz2 =
@@ -270,6 +274,7 @@ playGame isHard playerTurn wiz boss spells minMana =
             in
             if wiz2.hp <= 0 then
                 minMana
+
             else
                 playGame isHard True wiz2 boss2 activeSpells minMana
 
@@ -285,6 +290,7 @@ trySpells isHard activeSpells wiz boss minMana possibleSpells =
                 ( damage, heal, newSpells ) =
                     if spell.timeLeft == 1 then
                         ( spell.dam, spell.heal, activeSpells )
+
                     else
                         ( 0, 0, spell :: activeSpells )
 
@@ -301,6 +307,7 @@ trySpells isHard activeSpells wiz boss minMana possibleSpells =
                 newMinMana =
                     if boss2.hp <= 0 then
                         min minMana wiz2.spent
+
                     else
                         min minMana (playGame isHard False wiz2 boss2 newSpells minMana)
             in
@@ -314,18 +321,11 @@ parse input =
 
 parseLine : String -> Character -> Character
 parseLine text boss =
-    let
-        matches text =
-            text
-                |> Regex.find (Regex.AtMost 1)
-                    (Regex.regex "(\\w+ *\\w+): (\\d+)")
-                |> List.map .submatches
-    in
-    case matches text of
-        [ [ Just "Hit Points", Just p ] ] ->
+    case submatches "(\\w+ *\\w+): (\\d+)" text of
+        [ Just "Hit Points", Just p ] ->
             { boss | hp = toInt p }
 
-        [ [ Just "Damage", Just d ] ] ->
+        [ Just "Damage", Just d ] ->
             { boss | dam = toInt d }
 
         _ ->

@@ -58,14 +58,14 @@
 -}
 
 
-module D07_2015 exposing (..)
+module D07_2015 exposing (Instruction(..), InstructionTable, VoltageTable, buildVoltageTable, eval1, eval2, getNum, main, parse, part1, part2, voltage, wireA)
 
 import AdventOfCode exposing (Model, Msg, aoc, outFormat)
 import Bitwise
 import Dict exposing (Dict)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d07_2015.txt"
         (part1 >> outFormat)
@@ -127,6 +127,7 @@ buildVoltageTable wire instructions voltageTable =
         Nothing ->
             if Dict.size instructions == 0 then
                 Dict.empty
+
             else
                 buildVoltageTable wire instructions newVoltageTable
 
@@ -157,6 +158,7 @@ eval1 : String -> String -> VoltageTable -> (Int -> Int) -> VoltageTable
 eval1 arg wire voltageTable op =
     if Dict.member wire voltageTable then
         voltageTable
+
     else
         case getNum arg voltageTable of
             Just v ->
@@ -170,6 +172,7 @@ eval2 : String -> String -> String -> VoltageTable -> (Int -> Int -> Int) -> Vol
 eval2 arg1 arg2 wire voltageTable op =
     if Dict.member wire voltageTable then
         voltageTable
+
     else
         case ( getNum arg1 voltageTable, getNum arg2 voltageTable ) of
             ( Just num1, Just num2 ) ->
@@ -192,7 +195,7 @@ getNum arg voltageTable =
             Just v
 
         Nothing ->
-            String.toInt arg |> Result.toMaybe
+            String.toInt arg
 
 
 parse : String -> InstructionTable -> InstructionTable

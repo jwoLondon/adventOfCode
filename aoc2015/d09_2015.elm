@@ -40,13 +40,13 @@
 -}
 
 
-module D09_2015 exposing (..)
+module D09_2015 exposing (DistanceTable, addUnique, bestDistance, locations, main, parseLine, part1, part2, totalDist)
 
 import AdventOfCode exposing (Model, Msg, aoc, outFormat, permutations, toInt)
 import Dict exposing (Dict)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d09_2015.txt"
         (part1 >> outFormat)
@@ -100,6 +100,7 @@ addUnique : a -> List a -> List a
 addUnique item list =
     if List.member item list then
         list
+
     else
         item :: list
 

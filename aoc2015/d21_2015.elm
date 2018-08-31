@@ -72,10 +72,9 @@
 -}
 
 
-module Main exposing (..)
+module Main exposing (Character, Item, armourStore, combinations, equip, equipPlayer, main, parse, parseLine, part1, part2, playerWins, playerWinsOld, players, ringStore, weaponStore)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
-import Regex exposing (Regex)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat, submatches, toInt)
 
 
 type alias Item =
@@ -94,7 +93,7 @@ type alias Character =
     }
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d21_2015.txt"
         (part1 >> outFormat)
@@ -105,7 +104,7 @@ part1 : List String -> Maybe Int
 part1 input =
     players
         |> List.filter (playerWins (parse input))
-        |> List.map (\player -> player.spent)
+        |> List.map .spent
         |> List.minimum
 
 
@@ -113,12 +112,12 @@ part2 : List String -> Maybe Int
 part2 input =
     players
         |> List.filter (not << playerWins (parse input))
-        |> List.map (\player -> player.spent)
+        |> List.map .spent
         |> List.maximum
 
 
-weapons : List Item
-weapons =
+weaponStore : List Item
+weaponStore =
     [ Item "Dagger" 8 4 0
     , Item "Shortsword" 10 5 0
     , Item "Warhammer" 25 6 0
@@ -127,8 +126,8 @@ weapons =
     ]
 
 
-armour : List Item
-armour =
+armourStore : List Item
+armourStore =
     [ Item "Naked" 0 0 0
     , Item "Leather" 13 0 1
     , Item "Chainmail" 31 0 2
@@ -138,8 +137,8 @@ armour =
     ]
 
 
-rings : List Item
-rings =
+ringStore : List Item
+ringStore =
     [ Item "NoRingL" 0 0 0
     , Item "NoRingR" 0 0 0
     , Item "Damage1" 25 1 0
@@ -156,11 +155,11 @@ equip weapons armour rings =
     combinations 2 rings
         |> List.concatMap (\n -> List.map (\x -> x :: n) armour)
         |> List.concatMap (\n -> List.map (\x -> x :: n) weapons)
-        |> List.map player
+        |> List.map equipPlayer
 
 
-player : List Item -> Character
-player items =
+equipPlayer : List Item -> Character
+equipPlayer items =
     let
         score item character =
             { character
@@ -187,15 +186,18 @@ playerWins boss player =
 playerWinsOld : Character -> Character -> Bool
 playerWinsOld boss player =
     let
-        playGame boss player isPlayerTurn =
-            if boss.hp <= 0 then
+        playGame b p isPlayerTurn =
+            if b.hp <= 0 then
                 True
-            else if player.hp <= 0 then
+
+            else if p.hp <= 0 then
                 False
+
             else if isPlayerTurn then
-                playGame { boss | hp = boss.hp - (max 1 player.dam - boss.def) } player False
+                playGame { b | hp = b.hp - (max 1 p.dam - b.def) } p False
+
             else
-                playGame boss { player | hp = player.hp - (max 1 boss.dam - player.def) } True
+                playGame b { p | hp = p.hp - (max 1 b.dam - p.def) } True
     in
     playGame boss player True
 
@@ -207,21 +209,14 @@ parse input =
 
 parseLine : String -> Character -> Character
 parseLine text playerStat =
-    let
-        matches text =
-            text
-                |> Regex.find (Regex.AtMost 1)
-                    (Regex.regex "(\\w+ *\\w+): (\\d+)")
-                |> List.map .submatches
-    in
-    case matches text of
-        [ [ Just "Hit Points", Just p ] ] ->
+    case submatches "(\\w+ *\\w+): (\\d+)" text of
+        [ Just "Hit Points", Just p ] ->
             { playerStat | hp = toInt p }
 
-        [ [ Just "Damage", Just d ] ] ->
+        [ Just "Damage", Just d ] ->
             { playerStat | dam = toInt d }
 
-        [ [ Just "Armor", Just a ] ] ->
+        [ Just "Armor", Just a ] ->
             { playerStat | def = toInt a }
 
         _ ->
@@ -232,6 +227,7 @@ combinations : Int -> List a -> List (List a)
 combinations n items =
     if n <= 0 then
         [ [] ]
+
     else
         case items of
             [] ->
@@ -247,4 +243,4 @@ combinations n items =
 
 players : List Character
 players =
-    equip weapons armour rings
+    equip weaponStore armourStore ringStore

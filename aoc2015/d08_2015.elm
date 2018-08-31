@@ -56,13 +56,12 @@
 -}
 
 
-module D08_2015 exposing (..)
+module D08_2015 exposing (decode, encase, encode, main, numChars, part1, part2, shrink)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat)
-import Regex exposing (regex)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat, replace)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d08_2015.txt"
         (part1 >> outFormat)
@@ -80,13 +79,13 @@ part2 instructions =
 
 
 decode : String -> String
-decode text =
-    Regex.replace Regex.All (regex "(\\\\\\\")|(\\\\\\\\)|(\\\\x..)") (\{ match } -> "_") (shrink text)
+decode =
+    shrink >> replace "(\\\\\\\")|(\\\\\\\\)|(\\\\x..)" "_"
 
 
 encode : String -> String
-encode text =
-    encase <| Regex.replace Regex.All (regex "(\\\")|(\\\\)") (\{ match } -> "__") text
+encode =
+    replace "(\\\")|(\\\\)" "__" >> encase
 
 
 numChars : List String -> Int

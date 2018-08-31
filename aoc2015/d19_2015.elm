@@ -72,11 +72,10 @@
 -}
 
 
-module Main exposing (..)
+module Main exposing (ReplacementRules, RevReplacementRules, Selection, back, calibrate, containsSubsets, generate, main, medicine, numSupersets, parent, parse, parseLine, part1, part2, replacements, reverseLookup, selectAndSplit, traceback, unique)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat)
+import AdventOfCode exposing (Model, Msg, aoc, match, outFormat, replace, submatches)
 import Dict exposing (Dict)
-import Regex
 import Set exposing (Set)
 
 
@@ -97,7 +96,7 @@ medicine =
     "CRnCaCaCaSiRnBPTiMgArSiRnSiRnMgArSiRnCaFArTiTiBSiThFYCaFArCaCaSiThCaPBSiThSiThCaCaPTiRnPBSiThRnFArArCaCaSiThCaSiThSiRnMgArCaPTiBPRnFArSiThCaSiRnFArBCaSiRnCaPRnFArPMgYCaFArCaPTiTiTiBPBSiThCaPTiBPBSiRnFArBPBSiRnCaFArBPRnSiRnFArRnSiRnBFArCaFArCaCaCaSiThSiThCaCaPBPTiTiRnFArCaPTiBSiAlArPBCaCaCaCaCaSiRnMgArCaSiThFArThCaSiThCaSiRnCaFYCaSiRnFYFArFArCaSiRnFYFArCaSiRnBPMgArSiThPRnFArCaSiRnFArTiRnSiRnFYFArCaSiRnBFArCaSiRnTiMgArSiThCaSiThCaFArPRnFArSiRnFArTiTiTiTiBCaCaSiRnCaCaFYFArSiThCaPTiBPTiBCaSiThSiRnMgArCaF"
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d19_2015.txt"
         (part1 >> outFormat)
@@ -111,21 +110,16 @@ part1 input =
 
 part2 : List String -> Int
 part2 input =
-    let
-        ( n, e ) =
-            traceback (reverseLookup (parse input) []) medicine 0
-    in
-    n
+    traceback (reverseLookup (parse input) []) medicine 0 |> Tuple.first
 
 
 calibrate : String -> ReplacementRules -> List String
 calibrate molecule rules =
     let
         selections =
-            split molecule |> selectAndSplit
+            match "[A-Z][a-z]*" >> selectAndSplit
     in
-    generate selections rules []
-        |> unique
+    generate (selections molecule) rules [] |> unique
 
 
 generate : List Selection -> ReplacementRules -> List String -> List String
@@ -158,13 +152,13 @@ reverseLookup dict revDict =
         byLength ( k1, v1 ) ( k2, v2 ) =
             compare (String.length k1) (String.length k2)
 
-        add key values revDict =
+        add key values rDict =
             case values of
                 [] ->
-                    revDict
+                    rDict
 
                 hd :: tl ->
-                    add key tl (( hd, key ) :: revDict)
+                    add key tl (( hd, key ) :: rDict)
     in
     case Dict.toList dict of
         [] ->
@@ -178,6 +172,7 @@ traceback : RevReplacementRules -> String -> Int -> ( Int, String )
 traceback revRules compound n =
     if compound == "e" then
         ( n, "e" )
+
     else
         let
             ( m, newCompound ) =
@@ -185,6 +180,7 @@ traceback revRules compound n =
         in
         if newCompound == compound then
             ( n + m, compound )
+
         else
             traceback revRules newCompound (n + m)
 
@@ -207,11 +203,10 @@ parent : String -> String -> String -> ( Int, String )
 parent molecule prevM compound =
     let
         m =
-            Regex.find Regex.All (Regex.regex molecule) compound
-                |> List.length
+            match molecule compound |> List.length
 
         newCompound =
-            Regex.replace Regex.All (Regex.regex molecule) (\_ -> prevM) compound
+            replace molecule prevM compound
     in
     ( m, newCompound )
 
@@ -235,7 +230,7 @@ selectAndSplit list =
 more than once. From List.extra library
 <http://package.elm-lang.org/packages/elm-community/list-extra/6.1.0/List-Extra>
 
-    unique [0,1,1,0,1] == [0,1]
+    unique [ 0, 1, 1, 0, 1 ] == [ 0, 1 ]
 
 -}
 unique : List comparable -> List comparable
@@ -253,6 +248,7 @@ unique list =
                     in
                     if Set.member computedFirst existing then
                         uniqueHelp f existing rest
+
                     else
                         first :: uniqueHelp f (Set.insert computedFirst existing) rest
     in
@@ -266,8 +262,8 @@ containsSubsets rules =
             Dict.values rules
                 |> List.concat
 
-        totalSupersets allMol molecules n =
-            case molecules of
+        totalSupersets allMol ms n =
+            case ms of
                 [] ->
                     n
 
@@ -283,6 +279,7 @@ numSupersets molecule molecules =
         submatch s1 s2 =
             if String.contains s1 s2 then
                 1
+
             else
                 0
     in
@@ -306,23 +303,10 @@ parseLine text rules =
 
                 Just val ->
                     Just (newV :: val)
-
-        matches text =
-            text
-                |> Regex.find (Regex.AtMost 1)
-                    (Regex.regex "(\\w+) => (\\w+)")
-                |> List.map .submatches
     in
-    case matches text of
-        [ [ Just m0, Just molecules ] ] ->
+    case submatches "(\\w+) => (\\w+)" text of
+        [ Just m0, Just molecules ] ->
             Dict.update m0 (append molecules) rules
 
         _ ->
             rules
-
-
-split : String -> List String
-split molecules =
-    -- TODO: Is there a better regex for splitting that does not generate empty list elements?
-    Regex.split Regex.All (Regex.regex "([A-Z][a-z]*)") molecules
-        |> List.filter (\s -> String.length s > 0)

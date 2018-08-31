@@ -57,11 +57,10 @@
 -}
 
 
-module D16_2015 exposing (..)
+module D16_2015 exposing (SelectionRule, Sue, addSue, couldBe, couldMatch1, couldMatch2, donor, main, parse, parseLine, part1, part2)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat, submatches, toInt)
 import Dict exposing (Dict)
-import Regex exposing (Regex)
 
 
 type alias Sue =
@@ -74,7 +73,7 @@ type alias SelectionRule =
     Dict String Int -> String -> Int -> Bool
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d16_2015.txt"
         (part1 >> outFormat)
@@ -176,23 +175,19 @@ parse input =
 parseLine : String -> List Sue -> List Sue
 parseLine text sues =
     let
-        matches =
-            text
-                |> Regex.find (Regex.AtMost 1)
-                    (Regex.regex "(Sue \\d+): (\\w+): (\\d+)[,] (\\w+): (\\d+)[,] (\\w+): (\\d+)")
-                |> List.map .submatches
+        regex =
+            "(Sue \\d+): (\\w+): (\\d+)[,] (\\w+): (\\d+)[,] (\\w+): (\\d+)"
     in
-    case matches of
-        [ [ Just name, Just t1, Just n1, Just t2, Just n2, Just t3, Just n3 ] ] ->
-            sue name t1 (toInt n1) t2 (toInt n2) t3 (toInt n3)
-                :: sues
+    case submatches regex text of
+        [ Just name, Just t1, Just n1, Just t2, Just n2, Just t3, Just n3 ] ->
+            addSue name t1 (toInt n1) t2 (toInt n2) t3 (toInt n3) :: sues
 
         _ ->
             sues
 
 
-sue : String -> String -> Int -> String -> Int -> String -> Int -> Sue
-sue name t1 n1 t2 n2 t3 n3 =
+addSue : String -> String -> Int -> String -> Int -> String -> Int -> Sue
+addSue name t1 n1 t2 n2 t3 n3 =
     Dict.empty
         |> Dict.insert t1 n1
         |> Dict.insert t2 n2

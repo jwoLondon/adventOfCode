@@ -28,13 +28,13 @@
 -}
 
 
-module D10_2015 exposing (..)
+module D10_2015 exposing (iteratedLookSay, main, part1, part2, say)
 
 import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat)
 import Regex
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d10_2015.txt"
         (part1 >> outFormat |> multiLineInput)
@@ -55,14 +55,14 @@ iteratedLookSay : Int -> String -> String
 iteratedLookSay count look =
     if count == 0 then
         look
+
     else
         iteratedLookSay (count - 1) (say look)
 
 
 say : String -> String
 say look =
-    let
-        compressRun =
-            \m -> (String.length m.match |> toString) ++ String.left 1 m.match
-    in
-    Regex.replace Regex.All (Regex.regex "(\\d)\\1*") compressRun look
+    Regex.replace
+        (Regex.fromString "(\\d)\\1*" |> Maybe.withDefault Regex.never)
+        (\m -> (String.length m.match |> String.fromInt) ++ String.left 1 m.match)
+        look

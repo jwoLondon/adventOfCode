@@ -39,14 +39,13 @@
 -}
 
 
-module D11_2015 exposing (..)
+module D11_2015 exposing (hasNoIOL, hasStraight, hasTwoPairs, increment, main, nextPwd, nextValid, part1, part2)
 
-import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat)
+import AdventOfCode exposing (Model, Msg, aoc, contains, multiLineInput, outFormat)
 import Char
-import Regex exposing (regex)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d11_2015.txt"
         (part1 >> outFormat |> multiLineInput)
@@ -78,8 +77,10 @@ increment carry oldPwd newPwd =
             if carry then
                 if hd == 'z' then
                     increment True tl ('a' :: newPwd)
+
                 else
                     increment False tl (Char.fromCode (Char.toCode hd + 1) :: newPwd)
+
             else
                 increment False tl (hd :: newPwd)
 
@@ -92,20 +93,21 @@ nextValid pwd =
     in
     if isValid then
         pwd
+
     else
         nextValid (nextPwd pwd)
 
 
 hasNoIOL : String -> Bool
-hasNoIOL text =
-    not <| Regex.contains (regex "[iol]") text
+hasNoIOL =
+    not << contains "[iol]"
 
 
 hasStraight : String -> Bool
-hasStraight text =
-    Regex.contains (regex "(abc|bcd|cde|def|efg|fgh|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz)") text
+hasStraight =
+    contains "(abc|bcd|cde|def|efg|fgh|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz)"
 
 
 hasTwoPairs : String -> Bool
-hasTwoPairs text =
-    Regex.contains (regex "(.)\\1.*((?!\\1).)\\2") text
+hasTwoPairs =
+    contains "(.)\\1.*((?!\\1).)\\2"

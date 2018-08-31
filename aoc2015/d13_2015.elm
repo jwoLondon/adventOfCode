@@ -58,7 +58,7 @@
 -}
 
 
-module D13_2015 exposing (..)
+module D13_2015 exposing (NeighbourTable, addUnique, main, makeCycle, maxHappiness, parse, parseLine, part1, part2, peopleIn, totalH)
 
 import AdventOfCode exposing (Model, Msg, aoc, outFormat, permutations, toInt)
 import Dict exposing (Dict)
@@ -68,7 +68,7 @@ type alias NeighbourTable =
     Dict ( String, String ) Int
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d13_2015.txt"
         (part1 >> outFormat)
@@ -142,6 +142,7 @@ addUnique : a -> List a -> List a
 addUnique item list =
     if List.member item list then
         list
+
     else
         item :: list
 
@@ -159,6 +160,7 @@ parseLine nText neighbourTable =
                 hChange =
                     if gainOrLose == "gain" then
                         toInt units
+
                     else
                         -1 * toInt units
             in

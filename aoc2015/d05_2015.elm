@@ -50,13 +50,13 @@
 -}
 
 
-module D05_2015 exposing (..)
+module D05_2015 exposing (Part(..), hasABA, hasAtLeast3Vowels, hasRepeatPair, hasRepeats, isNice, main, notProscribed, part1, part2)
 
 import AdventOfCode exposing (Model, Msg, aoc, outFormat)
 import Regex
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d05_2015.txt" (part1 >> outFormat) (part2 >> outFormat)
 
@@ -88,24 +88,41 @@ isNice part text =
 
 hasAtLeast3Vowels : String -> Bool
 hasAtLeast3Vowels =
-    Regex.contains (Regex.regex "(.*[aeiou]){3}")
+    "(.*[aeiou]){3}"
+        |> Regex.fromString
+        |> Maybe.withDefault Regex.never
+        |> Regex.contains
 
 
 hasRepeats : String -> Bool
 hasRepeats =
-    Regex.contains (Regex.regex "(.)\\1")
+    "(.)\\1"
+        |> Regex.fromString
+        |> Maybe.withDefault Regex.never
+        |> Regex.contains
 
 
 notProscribed : String -> Bool
 notProscribed =
-    Regex.contains (Regex.regex "ab|cd|pq|xy") >> not
+    not
+        << ("ab|cd|pq|xy"
+                |> Regex.fromString
+                |> Maybe.withDefault Regex.never
+                |> Regex.contains
+           )
 
 
 hasABA : String -> Bool
 hasABA =
-    Regex.contains (Regex.regex "(.).\\1")
+    "(.).\\1"
+        |> Regex.fromString
+        |> Maybe.withDefault Regex.never
+        |> Regex.contains
 
 
 hasRepeatPair : String -> Bool
 hasRepeatPair =
-    Regex.contains (Regex.regex "(..).*\\1")
+    "(..).*\\1"
+        |> Regex.fromString
+        |> Maybe.withDefault Regex.never
+        |> Regex.contains

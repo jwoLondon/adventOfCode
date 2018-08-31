@@ -28,12 +28,12 @@
 -}
 
 
-module D17_2015 exposing (..)
+module D17_2015 exposing (allCombinations, knapsacks, main, maxNumItems, minNumItems, part1, part2)
 
-import AdventOfCode exposing (Model, Msg, aoc, combinations, outFormat)
+import AdventOfCode exposing (Model, Msg, aoc, combinations, outFormat, scanl)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d17_2015.txt"
         (part1 >> outFormat)
@@ -44,7 +44,7 @@ part1 : List String -> Int
 part1 input =
     let
         containers =
-            List.filterMap (String.toInt >> Result.toMaybe) input
+            List.filterMap String.toInt input
     in
     knapsacks (minNumItems 150 containers) (maxNumItems 150 containers) 150 containers
         |> List.length
@@ -54,7 +54,7 @@ part2 : List String -> Int
 part2 input =
     let
         containers =
-            List.filterMap (String.toInt >> Result.toMaybe) input
+            List.filterMap String.toInt input
 
         min =
             minNumItems 150 containers
@@ -65,8 +65,8 @@ part2 input =
 knapsacks : Int -> Int -> Int -> List Int -> List (List Int)
 knapsacks minK maxK capacity items =
     let
-        holds capacity items =
-            List.sum items == capacity
+        holds cap n =
+            List.sum n == cap
     in
     List.filter (holds capacity) (allCombinations minK maxK items)
 
@@ -75,6 +75,7 @@ allCombinations : Int -> Int -> List a -> List (List a)
 allCombinations minK k items =
     if k == minK then
         combinations k items
+
     else
         allCombinations minK (k - 1) items ++ combinations k items
 
@@ -84,7 +85,7 @@ minNumItems target list =
     list
         |> List.sort
         |> List.reverse
-        |> List.scanl (+) 0
+        |> scanl (+) 0
         |> List.filter (\x -> x <= target)
         |> List.length
 
@@ -93,7 +94,7 @@ maxNumItems : Int -> List Int -> Int
 maxNumItems target list =
     (list
         |> List.sort
-        |> List.scanl (+) 0
+        |> scanl (+) 0
         |> List.filter (\x -> x <= target)
         |> List.length
     )

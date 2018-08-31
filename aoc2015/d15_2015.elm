@@ -55,10 +55,9 @@
 -}
 
 
-module D15_2015 exposing (..)
+module D15_2015 exposing (Ingredient, Properties, main, next, parseLine, part1, part2, permute, totalScore)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt, transpose)
-import Regex
+import AdventOfCode exposing (Model, Msg, aoc, outFormat, submatches, toInt, transpose)
 
 
 type alias Ingredient =
@@ -74,7 +73,7 @@ type alias Properties =
     List (List Int)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d15_2015.txt"
         (part1 >> outFormat)
@@ -113,6 +112,7 @@ permute allProps calories qToFind unallocated quantities maxScore =
     if qToFind == 1 then
         max maxScore <|
             totalScore allProps calories (unallocated :: quantities)
+
     else
         next allProps calories (qToFind - 1) unallocated 0 quantities maxScore
 
@@ -127,6 +127,7 @@ next allProps calories qToFind unallocated allocated quantities maxScore =
     if unallocated > 0 then
         max maxScore <|
             next allProps calories qToFind (unallocated - 1) (allocated + 1) quantities newMax
+
     else
         newMax
 
@@ -134,10 +135,10 @@ next allProps calories qToFind unallocated allocated quantities maxScore =
 totalScore : Properties -> List Int -> List Int -> Int
 totalScore allProps calories quantities =
     let
-        propScore quantities props =
+        propScore q props =
             let
                 properties =
-                    List.map2 (*) props quantities
+                    List.map2 (*) props q
             in
             max 0 <|
                 List.sum properties
@@ -147,6 +148,7 @@ totalScore allProps calories quantities =
     in
     if calories == [] || propScore quantities calories == 500 then
         List.product propScores
+
     else
         0
 
@@ -154,14 +156,11 @@ totalScore allProps calories quantities =
 parseLine : String -> List Ingredient -> List Ingredient
 parseLine text ingredients =
     let
-        matches =
-            text
-                |> Regex.find (Regex.AtMost 1)
-                    (Regex.regex "\\w+: capacity (-?\\d+), durability (-?\\d+), flavor (-?\\d+), texture (-?\\d+), calories (-?\\d+)")
-                |> List.map .submatches
+        regex =
+            "\\w+: capacity (-?\\d+), durability (-?\\d+), flavor (-?\\d+), texture (-?\\d+), calories (-?\\d+)"
     in
-    case matches of
-        [ [ Just cap, Just dur, Just fla, Just tex, Just cal ] ] ->
+    case submatches regex text of
+        [ Just cap, Just dur, Just fla, Just tex, Just cal ] ->
             ingredients
                 ++ [ Ingredient (toInt cap) (toInt dur) (toInt fla) (toInt tex) (toInt cal) ]
 

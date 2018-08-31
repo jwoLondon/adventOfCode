@@ -31,15 +31,14 @@
 -}
 
 
-module D12_2015 exposing (..)
+module D12_2015 exposing (JsVal(..), countAllNumbers, countNonRedNumbers, jsValDecoder, main, part1, part2, toSum)
 
-import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, split, toInt)
 import Dict exposing (Dict)
 import Json.Decode as D exposing (Decoder)
-import Regex exposing (regex)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d12_2015.txt"
         (part1 >> outFormat |> multiLineInput)
@@ -63,7 +62,7 @@ part2 input =
 
 countAllNumbers : String -> Int
 countAllNumbers text =
-    List.foldl toSum 0 (Regex.split Regex.All (regex "[^0-9-]+") text)
+    List.foldl toSum 0 (split "[^0-9-]+" text)
 
 
 toSum : String -> Int -> Int
@@ -83,6 +82,7 @@ countNonRedNumbers jsVal total =
         JsObject object ->
             if List.member (JsString "red") (Dict.values object) then
                 total
+
             else
                 total + List.foldl countNonRedNumbers 0 (Dict.values object)
 

@@ -42,12 +42,12 @@
 -}
 
 
-module Main exposing (..)
+module Main exposing (firstHouse, firstHousePt2, main, numPresents, numPresentsPt2, part1, part2)
 
 import AdventOfCode exposing (Model, Msg, aoc, factors, multiLineInput, outFormat, toInt)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d20_2015.txt"
         (part1 >> outFormat |> multiLineInput)
@@ -72,6 +72,7 @@ firstHouse : Int -> Int -> Int
 firstHouse houseNum minPresents =
     if numPresents houseNum >= minPresents then
         houseNum
+
     else
         firstHouse (houseNum + 1) minPresents
 
@@ -85,6 +86,7 @@ firstHousePt2 : Int -> Int -> Int
 firstHousePt2 houseNum minPresents =
     if numPresentsPt2 houseNum >= minPresents then
         houseNum
+
     else
         firstHousePt2 (houseNum + 1) minPresents
 

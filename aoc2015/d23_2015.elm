@@ -44,12 +44,11 @@
 -}
 
 
-module Main exposing (..)
+module Main exposing (Instruction(..), Registers, get, main, parse, parseLine, part1, part2, run)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat, submatches, toInt)
 import Array exposing (Array)
 import Dict exposing (Dict)
-import Regex exposing (Regex)
 
 
 type alias Registers =
@@ -65,7 +64,7 @@ type Instruction
     | Jio Char Int
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d23_2015.txt"
         (part1 >> outFormat)
@@ -107,14 +106,16 @@ run pos registers program =
             run (pos + offset) registers program
 
         Just (Jie reg offset) ->
-            if get reg registers % 2 == 0 then
+            if modBy 2 (get reg registers) == 0 then
                 run (pos + offset) registers program
+
             else
                 run (pos + 1) registers program
 
         Just (Jio reg offset) ->
             if get reg registers == 1 then
                 run (pos + offset) registers program
+
             else
                 run (pos + 1) registers program
 
@@ -130,32 +131,26 @@ parse =
 parseLine : String -> List Instruction -> List Instruction
 parseLine text instructions =
     let
-        matches text =
-            text
-                |> Regex.find (Regex.AtMost 1)
-                    (Regex.regex "(\\w+) ([ab]|[+-]\\d+)(?:, )?([+-]\\d+)?")
-                |> List.map .submatches
-
         toChar =
             String.toList >> List.head >> Maybe.withDefault 'X'
     in
-    case matches text of
-        [ [ Just "hlf", Just reg, Nothing ] ] ->
+    case submatches "(\\w+) ([ab]|[+-]\\d+)(?:, )?([+-]\\d+)?" text of
+        [ Just "hlf", Just reg, Nothing ] ->
             Hlf (toChar reg) :: instructions
 
-        [ [ Just "tpl", Just reg, Nothing ] ] ->
+        [ Just "tpl", Just reg, Nothing ] ->
             Tpl (toChar reg) :: instructions
 
-        [ [ Just "inc", Just reg, Nothing ] ] ->
+        [ Just "inc", Just reg, Nothing ] ->
             Inc (toChar reg) :: instructions
 
-        [ [ Just "jmp", Just offset, Nothing ] ] ->
+        [ Just "jmp", Just offset, Nothing ] ->
             Jmp (toInt offset) :: instructions
 
-        [ [ Just "jie", Just reg, Just offset ] ] ->
+        [ Just "jie", Just reg, Just offset ] ->
             Jie (toChar reg) (toInt offset) :: instructions
 
-        [ [ Just "jio", Just reg, Just offset ] ] ->
+        [ Just "jio", Just reg, Just offset ] ->
             Jio (toChar reg) (toInt offset) :: instructions
 
         _ ->

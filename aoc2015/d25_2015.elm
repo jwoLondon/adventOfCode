@@ -68,16 +68,16 @@
 -}
 
 
-module Main exposing (..)
+module Main exposing (main, modularExp, nAt, parse, part1, part2)
 
-import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, toInt)
-import Regex exposing (Regex)
+import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, submatches, toInt)
+
 
 
 {- This  a direct solution that calculates the code via modular exponentiation. -}
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d25_2015.txt"
         (part1 >> outFormat |> multiLineInput)
@@ -105,23 +105,18 @@ modularExp : Int -> Int -> Int -> Int -> Int
 modularExp initial base modulus exponent =
     if exponent == 0 then
         initial
-    else if exponent % 2 == 1 then
-        modularExp ((initial * base) % modulus) ((base * base) % modulus) modulus (exponent // 2)
+
+    else if modBy 2 exponent == 1 then
+        modularExp (modBy modulus (initial * base)) (modBy modulus (base * base)) modulus (exponent // 2)
+
     else
-        modularExp initial ((base * base) % modulus) modulus (exponent // 2)
+        modularExp initial (modBy modulus (base * base)) modulus (exponent // 2)
 
 
 parse : String -> ( Int, Int )
 parse text =
-    let
-        matches text =
-            text
-                |> Regex.find (Regex.AtMost 1)
-                    (Regex.regex "row (\\d+), column (\\d+)")
-                |> List.map .submatches
-    in
-    case matches text of
-        [ [ Just row, Just col ] ] ->
+    case submatches "row (\\d+), column (\\d+)" text of
+        [ Just row, Just col ] ->
             ( toInt row, toInt col )
 
         _ ->

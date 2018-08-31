@@ -81,13 +81,13 @@
 -}
 
 
-module Main exposing (..)
+module Main exposing (combinations, hasSubsetSum, main, maxNumItems, minNumItems, part1, part2, smallestGroups, smallestQE, sortedByQE)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat, scanl)
 import Set
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d24_2015.txt"
         (part1 >> outFormat)
@@ -95,21 +95,20 @@ main =
 
 
 part1 : List String -> Int
-part1 input =
-    List.filterMap (String.toInt >> Result.toMaybe) input
-        |> smallestQE 3
+part1 =
+    List.filterMap String.toInt >> smallestQE 3
 
 
 part2 : List String -> Int
-part2 input =
-    List.filterMap (String.toInt >> Result.toMaybe) input
-        |> smallestQE 4
+part2 =
+    List.filterMap String.toInt >> smallestQE 4
 
 
 smallestGroups : Int -> Int -> Int -> List Int -> List (List Int)
 smallestGroups numGroups capacity minGroupSize items =
     if minGroupSize > (List.length items // numGroups) then
         []
+
     else
         let
             subsets =
@@ -133,6 +132,7 @@ hasSubsetSum capacity minGroupSize items =
     in
     if subsets == [] then
         hasSubsetSum capacity (minGroupSize + 1) items
+
     else
         True
 
@@ -141,6 +141,7 @@ combinations : Int -> List a -> List (List a)
 combinations k items =
     if k <= 0 then
         [ [] ]
+
     else
         case items of
             [] ->
@@ -155,20 +156,19 @@ combinations k items =
 
 
 minNumItems : Int -> List Int -> Int
-minNumItems target list =
-    list
-        |> List.sort
-        |> List.reverse
-        |> List.scanl (+) 0
-        |> List.filter (\x -> x <= target)
-        |> List.length
+minNumItems target =
+    List.sort
+        >> List.reverse
+        >> scanl (+) 0
+        >> List.filter (\x -> x <= target)
+        >> List.length
 
 
 maxNumItems : Int -> List Int -> Int
 maxNumItems target list =
     (list
         |> List.sort
-        |> List.scanl (+) 0
+        |> scanl (+) 0
         |> List.filter (\x -> x <= target)
         |> List.length
     )
@@ -188,7 +188,7 @@ smallestQE numGroups items =
         diff l1 l2 =
             Set.fromList l2 |> Set.diff (Set.fromList l1) |> Set.toList
 
-        splittableRemainder items subsets =
+        splittableRemainder its subsets =
             case subsets of
                 [] ->
                     0
@@ -202,12 +202,13 @@ smallestQE numGroups items =
                        subset is possible, so guarantees for 3 groups, but not 4.
                     -}
                     if
-                        diff items subset
-                            |> hasSubsetSum cWeight (minNumItems cWeight items)
+                        diff its subset
+                            |> hasSubsetSum cWeight (minNumItems cWeight its)
                     then
                         List.product subset
+
                     else
-                        splittableRemainder items tl
+                        splittableRemainder its tl
     in
     smallest
         |> splittableRemainder items

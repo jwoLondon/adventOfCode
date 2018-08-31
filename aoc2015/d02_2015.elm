@@ -38,12 +38,12 @@
 -}
 
 
-module D02_2015 exposing (..)
+module D02_2015 exposing (main, paperArea, part1, part2, ribbonLength, smallestArea, smallestPerimeter)
 
 import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d02_2015.txt"
         (part1 >> outFormat)

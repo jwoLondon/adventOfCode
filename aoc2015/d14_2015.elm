@@ -49,10 +49,9 @@
 -}
 
 
-module D14_2015 exposing (..)
+module D14_2015 exposing (Reindeer, distanceAfter, main, parse, parseLine, part1, part2, pointsAfter, pointsAt)
 
-import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
-import Regex
+import AdventOfCode exposing (Model, Msg, aoc, outFormat, submatches, toInt)
 
 
 type alias Reindeer =
@@ -62,7 +61,7 @@ type alias Reindeer =
     }
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d14_2015.txt"
         (part1 >> outFormat)
@@ -93,13 +92,13 @@ distanceAfter time reindeer =
         cycle =
             reindeer.duration + reindeer.rest
     in
-    reindeer.speed * (reindeer.duration * (time // cycle) + min reindeer.duration (time % cycle))
+    reindeer.speed * (reindeer.duration * (time // cycle) + min reindeer.duration (modBy cycle time))
 
 
 pointsAfter : Int -> List Reindeer -> List Int
-pointsAfter maxTime deer =
+pointsAfter maxTime reindeer =
     let
-        pa time maxTime points deer =
+        pa time tMax points deer =
             let
                 distances =
                     List.map (distanceAfter time) deer
@@ -107,12 +106,13 @@ pointsAfter maxTime deer =
                 newPoints =
                     List.map2 (+) points (pointsAt time distances deer)
             in
-            if time == maxTime then
+            if time == tMax then
                 newPoints
+
             else
-                pa (time + 1) maxTime newPoints deer
+                pa (time + 1) tMax newPoints deer
     in
-    pa 1 maxTime (List.repeat (List.length deer) 0) deer
+    pa 1 maxTime (List.repeat (List.length reindeer) 0) reindeer
 
 
 pointsAt : Int -> List Int -> List Reindeer -> List Int
@@ -121,9 +121,10 @@ pointsAt time distances deer =
         maxDist =
             List.maximum distances |> Maybe.withDefault 0
 
-        points distances =
-            if distances == maxDist then
+        points d =
+            if d == maxDist then
                 1
+
             else
                 0
     in
@@ -138,14 +139,11 @@ parse input =
 parseLine : String -> List Reindeer -> List Reindeer
 parseLine text reindeer =
     let
-        matches =
-            text
-                |> Regex.find (Regex.AtMost 1)
-                    (Regex.regex "(\\d+) km/s for (\\d+) seconds, but then must rest for (\\d+)")
-                |> List.map .submatches
+        regex =
+            "(\\d+) km/s for (\\d+) seconds, but then must rest for (\\d+)"
     in
-    case matches of
-        [ [ Just speed, Just duration, Just rest ] ] ->
+    case submatches regex text of
+        [ Just speed, Just duration, Just rest ] ->
             reindeer ++ [ Reindeer (toInt speed) (toInt duration) (toInt rest) ]
 
         _ ->

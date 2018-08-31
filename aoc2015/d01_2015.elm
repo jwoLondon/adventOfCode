@@ -33,12 +33,12 @@
 -}
 
 
-module D01_2015 exposing (..)
+module D01_2015 exposing (indexOf, last, main, moveFloor, part1, part2)
 
-import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat)
+import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, scanl)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d01_2015.txt"
         (part1 >> outFormat |> multiLineInput)
@@ -47,18 +47,19 @@ main =
 
 part1 : String -> Int
 part1 =
-    String.toList >> List.scanl moveFloor 0 >> last
+    String.toList >> scanl moveFloor 0 >> last
 
 
 part2 : String -> Int
 part2 =
-    String.toList >> List.scanl moveFloor 0 >> indexOf -1 0
+    String.toList >> scanl moveFloor 0 >> indexOf -1 0
 
 
 moveFloor : Char -> Int -> Int
 moveFloor instruction floor =
     if instruction == '(' then
         floor + 1
+
     else
         floor - 1
 
@@ -77,5 +78,6 @@ indexOf item index list =
         hd :: tl ->
             if hd == item then
                 index
+
             else
                 indexOf item (index + 1) tl

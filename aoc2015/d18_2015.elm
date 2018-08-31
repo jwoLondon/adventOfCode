@@ -142,7 +142,7 @@
 -}
 
 
-module D18_2015 exposing (..)
+module D18_2015 exposing (Lights, Location, emptyGrid, evolve, evolvedCell, evolvedGrid, gridSize, lightAt, main, nextLocation, numNeighbours, numberOn, parse, part1, part2, setLight)
 
 import AdventOfCode exposing (Model, Msg, aoc, outFormat)
 import Array exposing (Array)
@@ -156,7 +156,7 @@ type alias Location =
     ( Int, Int )
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d18_2015.txt"
         (part1 >> outFormat)
@@ -201,11 +201,13 @@ evolve isPart2 numEvolutions lights =
                     |> setLight ( 0, gridSize - 1 ) 1
                     |> setLight ( gridSize - 1, gridSize - 1 ) 1
                     |> setLight ( gridSize - 1, 0 ) 1
+
             else
                 lights
     in
     if numEvolutions <= 0 then
         lights2
+
     else
         evolve isPart2 (numEvolutions - 1) (evolvedGrid ( 0, 0 ) lights2 emptyGrid)
 
@@ -214,6 +216,7 @@ evolvedGrid : Location -> Lights -> Lights -> Lights
 evolvedGrid ( x, y ) prevLights newLights =
     if x >= gridSize || y >= gridSize then
         newLights
+
     else
         evolvedGrid
             (nextLocation ( x, y ))
@@ -222,18 +225,21 @@ evolvedGrid ( x, y ) prevLights newLights =
 
 
 evolvedCell : (Location -> Lights -> Int) -> Location -> Lights -> Int
-evolvedCell lightAt location lights =
+evolvedCell lightFn location lights =
     let
         neighbours =
-            numNeighbours lightAt location lights
+            numNeighbours lightFn location lights
     in
-    if lightAt location lights == 1 then
+    if lightFn location lights == 1 then
         if neighbours == 2 || neighbours == 3 then
             1
+
         else
             0
+
     else if neighbours == 3 then
         1
+
     else
         0
 
@@ -242,6 +248,7 @@ nextLocation : Location -> Location
 nextLocation ( x, y ) =
     if x < gridSize - 1 then
         ( x + 1, y )
+
     else
         ( 0, y + 1 )
 
@@ -255,6 +262,7 @@ lightAt : Location -> Lights -> Int
 lightAt ( x, y ) lights =
     if (x < 0) || (y < 0) || (x >= gridSize) || (y >= gridSize) then
         0
+
     else
         Maybe.withDefault 0 <| Array.get (y * gridSize + x) lights
 
@@ -265,15 +273,15 @@ setLight ( x, y ) value lights =
 
 
 numNeighbours : (Location -> Lights -> Int) -> Location -> Lights -> Int
-numNeighbours lightAt ( x, y ) lights =
+numNeighbours lightFn ( x, y ) lights =
     lightAt ( x - 1, y - 1 ) lights
-        + lightAt ( x, y - 1 ) lights
-        + lightAt ( x + 1, y - 1 ) lights
-        + lightAt ( x - 1, y ) lights
-        + lightAt ( x + 1, y ) lights
-        + lightAt ( x - 1, y + 1 ) lights
-        + lightAt ( x, y + 1 ) lights
-        + lightAt ( x + 1, y + 1 ) lights
+        + lightFn ( x, y - 1 ) lights
+        + lightFn ( x + 1, y - 1 ) lights
+        + lightFn ( x - 1, y ) lights
+        + lightFn ( x + 1, y ) lights
+        + lightFn ( x - 1, y + 1 ) lights
+        + lightFn ( x, y + 1 ) lights
+        + lightFn ( x + 1, y + 1 ) lights
 
 
 parse : List String -> Lights
@@ -282,6 +290,7 @@ parse input =
         digits chr =
             if chr == '#' then
                 1
+
             else
                 0
     in

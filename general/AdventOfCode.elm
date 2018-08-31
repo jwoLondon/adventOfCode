@@ -1,7 +1,7 @@
 {- Architecture for Advent of code applications with utility functions for common tasks. -}
 
 
-module AdventOfCode exposing (Model, Msg(..), OutFormat, aoc, combinations, decToBinary, factors, flip, hexToBinary, init, matches, multiLineInput, outFormat, parseInt, permutations, scanl, select, selectLargest, toInt, transpose, update, view, whitespace)
+module AdventOfCode exposing (Model, Msg(..), OutFormat, aoc, combinations, contains, decToBinary, factors, flip, hexToBinary, init, match, multiLineInput, outFormat, parseInt, permutations, replace, scanl, select, selectLargest, split, submatches, toInt, transpose, update, view, whitespace)
 
 import Browser
 import Dict
@@ -49,17 +49,54 @@ toInt =
     String.toInt >> Maybe.withDefault 0
 
 
-{-| Given a regular expression (first parameter), will provide a list of matches
-to the second parameter. Allows regex groups to be identified and where matched,
-will be `Just` a match or `Nothing` if the group does not match.
+{-| Given a regex containing groups (first parameter), will provide a list of sub
+(grouped) matches found in the text of the second parameter. Allows regex groups
+to be identified and where matched, will be `Just` a match or `Nothing` if the
+group does not match.
 -}
-matches : String -> String -> List (Maybe String)
-matches regex =
+submatches : String -> String -> List (Maybe String)
+submatches regex =
     Regex.find
-        (Regex.fromString regex
-            |> Maybe.withDefault Regex.never
-        )
+        (Regex.fromString regex |> Maybe.withDefault Regex.never)
         >> List.concatMap .submatches
+
+
+{-| Given a regex, will provide a list of matches found in the text of the second
+parameter. This version is useful for simpler regular expressions that do not
+group into sub-matches.
+-}
+match : String -> String -> List String
+match regex =
+    Regex.find
+        (Regex.fromString regex |> Maybe.withDefault Regex.never)
+        >> List.map .match
+
+
+{-| Given a regular expression (first parameter), will indicate whether the text
+in the second parameter contains any matches.
+-}
+contains : String -> String -> Bool
+contains regex =
+    Regex.contains
+        (Regex.fromString regex |> Maybe.withDefault Regex.never)
+
+
+{-| Split a string (second parameter) by patterns identified by a regex (first parameter).
+-}
+split : String -> String -> List String
+split regex =
+    Regex.split
+        (Regex.fromString regex |> Maybe.withDefault Regex.never)
+
+
+{-| Search using a given regex (first parameter) replacing matches with the second
+paramter applying it to the text of the third parameter.
+-}
+replace : String -> String -> String -> String
+replace searchText replaceText =
+    Regex.replace
+        (Regex.fromString searchText |> Maybe.withDefault Regex.never)
+        (\_ -> replaceText)
 
 
 {-| scanl has been dropped from Elm 0.19, so here's an implementation.

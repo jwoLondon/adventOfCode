@@ -21,13 +21,13 @@
 -}
 
 
-module D04_2015 exposing (..)
+module D04_2015 exposing (findNextZeroHash, hasLeadingZeros, main, part1, part2)
 
 import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat)
 import MD5Fast as MD5
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d04_2015.txt"
         (part1 >> outFormat |> multiLineInput)
@@ -48,10 +48,11 @@ findNextZeroHash : Int -> Int -> String -> Int
 findNextZeroHash numZeros num key =
     let
         hash =
-            key ++ toString num |> MD5.hex
+            key ++ String.fromInt num |> MD5.hex
     in
     if hasLeadingZeros numZeros hash then
         num
+
     else
         findNextZeroHash numZeros (num + 1) key
 

@@ -51,13 +51,13 @@
 -}
 
 
-module D06_2015 exposing (..)
+module D06_2015 exposing (Instruction, Lights, Location, getLocations, gridSize, lightAt, main, parse, part1, part2, setLight, switchLights, toggle1, toggle2, tuple, turnOff1, turnOff2, turnOn1, turnOn2)
 
 import AdventOfCode exposing (Model, Msg, aoc, outFormat, toInt)
 import Array exposing (Array)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     aoc "data/d06_2015.txt"
         (part1 >> outFormat)
@@ -116,18 +116,21 @@ switchLights isPart1 instruction lights =
         "turn on" ->
             if isPart1 then
                 List.foldl turnOn1 lights locations
+
             else
                 List.foldl turnOn2 lights locations
 
         "turn off" ->
             if isPart1 then
                 List.foldl turnOff1 lights locations
+
             else
                 List.foldl turnOff2 lights locations
 
         "toggle" ->
             if isPart1 then
                 List.foldl toggle1 lights locations
+
             else
                 List.foldl toggle2 lights locations
 
@@ -186,6 +189,7 @@ toggle1 : Location -> Lights -> Lights
 toggle1 location lights =
     if lightAt location lights == 1 then
         setLight location 0 lights
+
     else
         setLight location 1 lights
 
@@ -213,7 +217,9 @@ getLocations ( left, top ) ( right, bottom ) ( x, y ) oldLocations =
     in
     if ( x, y ) == ( right, bottom ) then
         locations
+
     else if x == right then
         getLocations ( left, top ) ( right, bottom ) ( left, y + 1 ) locations
+
     else
         getLocations ( left, top ) ( right, bottom ) ( x + 1, y ) locations
