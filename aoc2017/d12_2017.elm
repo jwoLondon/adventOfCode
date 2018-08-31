@@ -63,7 +63,7 @@
 
 module D12_2017 exposing (Edges, Group, groupContaining, main, parse, parseLine, part1, part2)
 
-import AdventOfCode exposing (Model, Msg, aoc, matches, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat, submatches, toInt)
 import Dict exposing (Dict)
 import Set exposing (Set)
 
@@ -145,6 +145,6 @@ parseLine =
                 _ ->
                     ( 0, Set.empty ) |> Debug.log "Bad input"
     in
-    matches "(\\d+)"
+    submatches "(\\d+)"
         >> List.filterMap identity
         >> toLinks

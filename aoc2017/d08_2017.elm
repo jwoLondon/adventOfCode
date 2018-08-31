@@ -40,7 +40,7 @@
 
 module D08_2017 exposing (Expression, Registers, applyInstruction, getReg, main, maxReg, parseLine, part1, part2)
 
-import AdventOfCode exposing (Model, Msg, aoc, matches, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat, submatches, toInt)
 import Dict exposing (Dict)
 
 
@@ -147,6 +147,6 @@ parseLine =
                 _ ->
                     Expression "" 0 "" (==) 0 |> Debug.log "Bad input"
     in
-    matches "(\\w+) (inc|dec) (-?\\d+) if (\\w+) ([<>=!]+) (-?\\d+)"
+    submatches "(\\w+) (inc|dec) (-?\\d+) if (\\w+) ([<>=!]+) (-?\\d+)"
         >> List.filterMap identity
         >> toExpression

@@ -112,7 +112,7 @@
 
 module D15_2017 exposing (Generator, compare, gen2, genA, genB, main, matchLowBits, parse, part1, part2)
 
-import AdventOfCode exposing (Model, Msg, aoc, matches, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat, submatches, toInt)
 import Bitwise
 
 
@@ -200,7 +200,7 @@ parse : List String -> ( Int, Int )
 parse input =
     let
         parseLine =
-            matches "(\\d+)"
+            submatches "(\\d+)"
                 >> List.filterMap identity
                 >> String.concat
                 >> toInt

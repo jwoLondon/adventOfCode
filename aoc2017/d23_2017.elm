@@ -46,7 +46,7 @@
 
 module D23_2017 exposing (Expression(..), Instruction(..), Registers, eval, get, isComposite, isPrime, main, parse, parseLine, part1, part2, registers, run)
 
-import AdventOfCode exposing (Model, Msg, aoc, matches, multiLineInput, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, submatches, toInt)
 import Array exposing (Array)
 import Dict exposing (Dict)
 
@@ -235,9 +235,6 @@ parse =
 parseLine : String -> List Instruction -> List Instruction
 parseLine text instructions =
     let
-        regex =
-            "(\\w+) ([a-h]|[-]?\\d+) ?([a-h]|[-]?\\d+)?"
-
         toExpression regOrNum =
             case String.toInt regOrNum of
                 Just num ->
@@ -249,7 +246,7 @@ parseLine text instructions =
         toChar s =
             String.toList s |> List.head |> Maybe.withDefault 'X'
     in
-    case matches regex text of
+    case submatches "(\\w+) ([a-h]|[-]?\\d+) ?([a-h]|[-]?\\d+)?" text of
         [ Just "set", Just reg, Just regOrNum2 ] ->
             Set (toChar reg) (toExpression regOrNum2) :: instructions
 

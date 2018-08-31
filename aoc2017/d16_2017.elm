@@ -44,7 +44,7 @@
 
 module D16_2017 exposing (Move(..), Progs, dance, danceMove, exchange, findPeriod, main, parseLine, part1, part2, partner, spin, start)
 
-import AdventOfCode exposing (Model, Msg, aoc, matches, multiLineInput, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, multiLineInput, outFormat, submatches, toInt)
 import Array exposing (Array)
 
 
@@ -187,5 +187,5 @@ parseLine =
                 _ ->
                     List.reverse moves |> Debug.log "Bad input"
     in
-    matches "(s|x|p)(\\d+|[a-p])(?:/(\\d+|[a-p]))?"
+    submatches "(s|x|p)(\\d+|[a-p])(?:/(\\d+|[a-p]))?"
         >> toMove []

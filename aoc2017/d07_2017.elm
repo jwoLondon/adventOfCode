@@ -95,7 +95,7 @@
 
 module D07_2017 exposing (Prog(..), buildTree, correctWeight, main, parseForChildren, parseForWeight, part1, part2, unbalancedProg)
 
-import AdventOfCode exposing (Model, Msg, aoc, matches, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat, submatches, toInt)
 import Dict exposing (Dict)
 
 
@@ -214,7 +214,7 @@ parseForWeight =
                 _ ->
                     ( String.concat tokens, 0 ) |> Debug.log "Bad input"
     in
-    matches "(\\w+) \\((\\d+)\\)"
+    submatches "(\\w+) \\((\\d+)\\)"
         >> List.filterMap identity
         >> toProg
 
@@ -230,6 +230,6 @@ parseForChildren =
                 _ ->
                     ( String.concat tokens, [] ) |> Debug.log "Bad input"
     in
-    matches "(\\w+) \\((?:\\d+)\\)|(?: -> )?(\\w+)"
+    submatches "(\\w+) \\((?:\\d+)\\)|(?: -> )?(\\w+)"
         >> List.filterMap identity
         >> toProg

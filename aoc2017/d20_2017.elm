@@ -83,7 +83,7 @@
 
 module D20_2017 exposing (Particle, incTime, magnitude, main, pCompare, parseLine, part1, part2, removeCollisions, simulate)
 
-import AdventOfCode exposing (Model, Msg, aoc, matches, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat, submatches, toInt)
 
 
 main : Program () Model Msg
@@ -192,7 +192,7 @@ parseLine : String -> Particle
 parseLine input =
     let
         vectors =
-            matches "(-?\\d+)"
+            submatches "(-?\\d+)"
                 >> List.filterMap identity
                 >> List.map toInt
     in

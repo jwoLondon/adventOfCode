@@ -113,7 +113,7 @@
 
 module D18_2017 exposing (Expression(..), Instruction(..), Prog, Queue, Registers, duet, eval, get, main, parse, parseLine, part1, part2, pop, push, run, runPart2)
 
-import AdventOfCode exposing (Model, Msg, aoc, matches, outFormat, toInt)
+import AdventOfCode exposing (Model, Msg, aoc, outFormat, submatches, toInt)
 import Array exposing (Array)
 import Dict exposing (Dict)
 
@@ -320,9 +320,6 @@ parse =
 parseLine : String -> List Instruction -> List Instruction
 parseLine text instructions =
     let
-        regex =
-            "(\\w+) ([a-p]|[-]?\\d+) ?([a-z]|[-]?\\d+)?"
-
         toExpression regOrNum =
             case String.toInt regOrNum of
                 Just num ->
@@ -334,7 +331,7 @@ parseLine text instructions =
         toChar s =
             String.toList s |> List.head |> Maybe.withDefault 'X'
     in
-    case matches regex text of
+    case submatches "(\\w+) ([a-p]|[-]?\\d+) ?([a-z]|[-]?\\d+)?" text of
         [ Just "snd", Just regOrNum, Nothing ] ->
             Snd (toExpression regOrNum) :: instructions
 
