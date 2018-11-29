@@ -18,7 +18,7 @@ Example literate data sources for the [Advent of Code](http://adventofcode.com) 
 |  12 | [data](d12_2015.md) |  x   |  x   |  x   |
 |  13 | [data](d13_2015.md) |  x   |  x   |  x   |
 |  14 | [data](d14_2015.md) |  x   |  x   |  x   |
-|  15 |          x          |  x   |  x   |  x   |
+|  15 | [data](d15_2015.md) |  x   |  x   |  x   |
 |  16 |          x          |  x   |  x   |  x   |
 |  17 |          x          |  x   |  x   |  x   |
 |  18 |          x          |  x   |  x   |  x   |
