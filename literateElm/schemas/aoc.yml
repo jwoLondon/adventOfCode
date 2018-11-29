@@ -1,0 +1,36 @@
+labels:
+  - name: part1
+    paired:
+      htmlTemplate: <div class="part1"><fieldset><legend>Part One</legend>{{children}}</fieldset></div>
+  - name: part2
+    paired:
+      htmlTemplate: <div class="part2"><fieldset><legend>Part Two</legend>{{children}}</fieldset></div>
+      
+rules:
+  
+
+styling:
+   css: |
+    fieldset {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    legend {
+      font-size:1.2em; font-weight: bold;
+    }
+
+    .part1 fieldset, .part2 fieldset {
+      background: #f3f3f3;
+      font-family: iosevka, monotone;
+      font-size:0.9em;
+    }
+
+    .part1,.part2 {
+      margin-top: 1em;
+      margin-bottom: 2em;
+    }
+    
+     .part2 {
+      margin-top: 2em;
+    }
+
