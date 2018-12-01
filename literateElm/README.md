@@ -5,7 +5,7 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 
 | Day |          2015           | 2016 |          2017           | 2018 |
 | --: | :---------------------: | :--: | :---------------------: | :--: |
-|   1 | [complete](d01_2015.md) |  x   |            x            |  x   |
+|   1 | [complete](d01_2015.md) |  x   |            x            |   [Chronal Calibration](d01_2018.md)   |
 |   2 | [complete](d02_2015.md) |  x   |            x            |  x   |
 |   3 | [complete](d03_2015.md) |  x   |            x            |  x   |
 |   4 | [complete](d04_2015.md) |  x   |            x            |  x   |
