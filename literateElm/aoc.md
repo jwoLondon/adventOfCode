@@ -131,7 +131,7 @@ indexOf item list =
     first 0 list
 ```
 
-From [List.extra](http://package.elm-lang.org/packages/elm-community/list-extra/latest), create a list of lists swapping `rows` and `columns` from an input list of lists.
+From [List.Extra](http://package.elm-lang.org/packages/elm-community/list-extra/latest), create a list of lists swapping `rows` and `columns` from an input list of lists.
 
 ```elm {l}
 transpose : List (List a) -> List (List a)
@@ -165,6 +165,35 @@ makeCycle lists =
                     List.append list [ hd ]
     in
     List.map addHeadToTail lists
+```
+
+From [List.Extra](https://package.elm-lang.org/packages/elm-community/list-extra/latest/List-Extra#unique),
+remove duplicate values, keeping the first instance of each element which appears more than once.
+Unlike converting to and from a [Set](https://package.elm-lang.org/packages/elm/core/latest/Set), this will preserve the order of unique list items.
+
+`unique [ 6, 2, 2, 1, 2, 4, 6 ] == [ 6, 2, 1, 4 ]`
+
+```elm {l}
+unique : List comparable -> List comparable
+unique list =
+    let
+        uniqueHelp f existing remaining accumulator =
+            case remaining of
+                [] ->
+                    List.reverse accumulator
+
+                first :: rest ->
+                    let
+                        computedFirst =
+                            f first
+                    in
+                    if Set.member computedFirst existing then
+                        uniqueHelp f existing rest accumulator
+
+                    else
+                        uniqueHelp f (Set.insert computedFirst existing) rest (first :: accumulator)
+    in
+    uniqueHelp identity Set.empty list []
 ```
 
 ## Combinatorics
@@ -209,7 +238,7 @@ permutations xs_ =
             List.concatMap f (select xs)
 ```
 
-From [List.Extra](http://package.elm-lang.org/packages/elm-community/list-extra/6.1.0/List-Extra), return all combinations in the form of (element, rest of the list).
+From [List.Extra](https://package.elm-lang.org/packages/elm-community/list-extra/latest/List-Extra#select), return all combinations in the form of (element, rest of the list).
 
 `select [1,2,3,4] == [(1,[2,3,4]),(2,[1,3,4]),(3,[1,2,4]),(4,[1,2,3])]`
 
@@ -226,7 +255,7 @@ select xs =
 
 Return all combinations in the form of _(element, rest of the list)_ where element is larger than all items in the rest of list.
 
-`select [1,2,3,4] == [(1,[]),(2,[1]),(3,[1,2]),(4,[1,2,3])]`
+`selectLargest [1,2,3,4] == [(1,[]),(2,[1]),(3,[1,2]),(4,[1,2,3])]`
 
 ```elm {l}
 selectLargest : List comparable -> List ( comparable, List comparable )
@@ -238,6 +267,21 @@ selectLargest xs =
         x :: xTail ->
             ( x, List.filter (\y -> y < x) xTail )
                 :: List.map (\( y, ys ) -> ( y, x :: ys )) (selectLargest xTail)
+```
+
+From [List.Extra](https://package.elm-lang.org/packages/elm-community/list-extra/latest/List-Extra#selectSplit), return all combinations in the form of (elements before, element, elements after).
+
+`selectSplit [1,2,3,4] == [([],1,[2,3,4]), ([1],2,[3,4]), ([1,2],3,[4]), ([1,2,3],4,[])]`
+
+```elm {l}
+selectSplit : List a -> List ( List a, a, List a )
+selectSplit list =
+    case list of
+        [] ->
+            []
+
+        x :: xs ->
+            ( [], x, xs ) :: List.map (\( lys, y, rys ) -> ( x :: lys, y, rys )) (selectSplit xs)
 ```
 
 ## Frequency Distributions
@@ -419,6 +463,53 @@ gTranspose =
                 []
     in
     Matrix.toList >> transposeLists >> Matrix.fromList
+```
+
+### 3-Tuples
+
+Elm has functions for creating and transforming tuples with two parameters, but not for three.
+These functions provide the extra support for 3-tuples:
+
+Create a 3-tuple
+
+```elm {l}
+triplet : a -> b -> c -> ( a, b, c )
+triplet a b c =
+    ( a, b, c )
+```
+
+The first value of a 3-tuple.
+
+```elm {l}
+tripletFirst : ( a, b, c ) -> a
+tripletFirst ( a, _, _ ) =
+    a
+```
+
+The second value of a 3-tuple.
+
+```elm {l}
+tripletSecond : ( a, b, c ) -> b
+tripletSecond ( _, b, _ ) =
+    b
+```
+
+The third value of a 3-tuple.
+
+```elm {l}
+tripletThird : ( a, b, c ) -> c
+tripletThird ( _, _, c ) =
+    c
+```
+
+Transform all three values of a 3-tuple:
+
+`( "Lovelace", 1851, False ) |> mapTriplet String.toUpper ((+) 1) not`
+
+```elm {l}
+mapTriplet : (a -> x) -> (b -> y) -> (c -> z) -> ( a, b, c ) -> ( x, y, z )
+mapTriplet fn1 fn2 fn3 ( a, b, c ) =
+    ( fn1 a, fn2 b, fn3 c )
 ```
 
 ## Functional Utilities
