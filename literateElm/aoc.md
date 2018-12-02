@@ -219,6 +219,23 @@ combinations k items =
                 appendedToAll hd (combinations (k - 1) tl) ++ combinations k tl
 ```
 
+A convenience function for chosing pairwise combinations and returning the results as a list of tuples:
+
+```elm {l}
+pairwiseCombinations : List a -> List ( a, a )
+pairwiseCombinations =
+    let
+        toTuple list =
+            case list of
+                [ s1, s2 ] ->
+                    Just ( s1, s2 )
+
+                _ ->
+                    Nothing
+    in
+    combinations 2 >> List.filterMap toTuple
+```
+
 From [List.Extra](http://package.elm-lang.org/packages/elm-community/list-extra/6.1.0/List-Extra), return the list of of all permutations of a list. The result is in lexicographic order.
 
 `permutations [1,2,3] == [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]`
