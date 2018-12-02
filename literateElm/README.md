@@ -24,7 +24,7 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 |  17 | [No Such Thing as Too Much](d17_2015.md)              |  x   | x                                | x                                          |
 |  18 | [Like a GIF For Your Yard](d18_2015.md)               |  x   | x                                | x                                          |
 |  19 | [Medicine for Rudolph](d19_2015.md)                   |  x   | x                                | x                                          |
-|  20 | x                                                     |  x   | x                                | x                                          |
+|  20 | [Infinite Elves and Infinite Houses](d20_2015.md)     |  x   | x                                | x                                          |
 |  21 | x                                                     |  x   | x                                | x                                          |
 |  22 | x                                                     |  x   | x                                | x                                          |
 |  23 | x                                                     |  x   | x                                | x                                          |
