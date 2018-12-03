@@ -7,7 +7,7 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 | --: | :---------------------------------------------------- | :--: | :------------------------------- | :----------------------------------------- |
 |   1 | [Not Quite Lisp](d01_2015.md)                         |  x   | x                                | [Chronal Calibration](d01_2018.md)         |
 |   2 | [I Was Told There Would Be No Math](d02_2015.md)      |  x   | x                                | [Inventory Management System](d02_2018.md) |
-|   3 | [Perfectly Spherical Houses in a Vacuum](d03_2015.md) |  x   | x                                | x                                          |
+|   3 | [Perfectly Spherical Houses in a Vacuum](d03_2015.md) |  x   | x                                | [No Matter How You Slice It](d03_2018.md)  |
 |   4 | [The Ideal Stocking Stuffer](d04_2015.md)             |  x   | x                                | x                                          |
 |   5 | [Doesn't He Have Intern-Elves For This?](d05_2015.md) |  x   | x                                | x                                          |
 |   6 | [Probably a Fire Hazard](d06_2015.md)                 |  x   | x                                | x                                          |
