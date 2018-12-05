@@ -8,8 +8,8 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 |   1 | [Not Quite Lisp](d01_2015.md)                         |  x   | x                                | [Chronal Calibration](d01_2018.md)         |
 |   2 | [I Was Told There Would Be No Math](d02_2015.md)      |  x   | x                                | [Inventory Management System](d02_2018.md) |
 |   3 | [Perfectly Spherical Houses in a Vacuum](d03_2015.md) |  x   | x                                | [No Matter How You Slice It](d03_2018.md)  |
-|   4 | [The Ideal Stocking Stuffer](d04_2015.md)             |  x   | x                                | x                                          |
-|   5 | [Doesn't He Have Intern-Elves For This?](d05_2015.md) |  x   | x                                | x                                          |
+|   4 | [The Ideal Stocking Stuffer](d04_2015.md)             |  x   | x                                | [Repose Record](d04_2018.md)               |
+|   5 | [Doesn't He Have Intern-Elves For This?](d05_2015.md) |  x   | x                                | [Alchemical Reduction](d05_2018.md)        |
 |   6 | [Probably a Fire Hazard](d06_2015.md)                 |  x   | x                                | x                                          |
 |   7 | [Some Assembly Required](d07_2015.md)                 |  x   | x                                | x                                          |
 |   8 | [Matchsticks](d08_2015.md)                            |  x   | x                                | x                                          |
@@ -25,7 +25,7 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 |  18 | [Like a GIF For Your Yard](d18_2015.md)               |  x   | x                                | x                                          |
 |  19 | [Medicine for Rudolph](d19_2015.md)                   |  x   | x                                | x                                          |
 |  20 | [Infinite Elves and Infinite Houses](d20_2015.md)     |  x   | x                                | x                                          |
-|  21 | x                                                     |  x   | x                                | x                                          |
+|  21 | [RPG Simulator 20XX](d21_2015.md)                     |  x   | x                                | x                                          |
 |  22 | x                                                     |  x   | x                                | x                                          |
 |  23 | x                                                     |  x   | x                                | x                                          |
 |  24 | x                                                     |  x   | x                                | x                                          |
