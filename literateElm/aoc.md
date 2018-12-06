@@ -315,6 +315,28 @@ addToFreqTable item freqTable =
         Dict.insert item 1 freqTable
 ```
 
+Find the commonest value (mode) and its frequency in a list:
+
+```elm {l}
+mode : List comparable -> Maybe (comparable)
+mode =
+    List.foldl addToFreqTable Dict.empty
+        >> Dict.toList
+        >> List.map (\(a,b) -> (b,a))
+        >> List.sort
+        >> List.reverse
+        >> List.map Tuple.second
+        >> List.head
+
+modeCount : List comparable -> Maybe (Int)
+modeCount =
+    List.foldl addToFreqTable Dict.empty
+        >> Dict.values
+        >> List.sort
+        >> List.reverse
+        >> List.head
+```
+
 More generally, when we have a dictionary a common task is to add an item if it does not exist, but replace an existing one if it does:
 
 ```elm {l}
@@ -460,6 +482,21 @@ gSetRow r row g =
 gSetCol : Int -> List a -> Grid a -> Grid a
 gSetCol c col =
     gTranspose >> gSetRow c col >> gTranspose
+
+
+{-| Apply a mapping function to every element in the grid.
+-}
+gMap : (a -> b) -> Grid a -> Grid b
+gMap =
+    map
+
+
+{-| Apply a mapping function to every element in the grid with the option of
+using of the row,column values of the grid cell location.
+-}
+gMapWithLocation : (GridLocation -> a -> b) -> Grid a -> Grid b
+gMapWithLocation =
+    mapWithLocation
 
 
 gTranspose : Grid a -> Grid a
