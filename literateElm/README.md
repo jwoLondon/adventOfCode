@@ -10,7 +10,7 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 |   3 | [Perfectly Spherical Houses in a Vacuum](d03_2015.md) |  x   | x                                | [No Matter How You Slice It](d03_2018.md)  |
 |   4 | [The Ideal Stocking Stuffer](d04_2015.md)             |  x   | x                                | [Repose Record](d04_2018.md)               |
 |   5 | [Doesn't He Have Intern-Elves For This?](d05_2015.md) |  x   | x                                | [Alchemical Reduction](d05_2018.md)        |
-|   6 | [Probably a Fire Hazard](d06_2015.md)                 |  x   | x                                | x                                          |
+|   6 | [Probably a Fire Hazard](d06_2015.md)                 |  x   | x                                | [Chronal Coordinates](d06_2018.md)         |
 |   7 | [Some Assembly Required](d07_2015.md)                 |  x   | x                                | x                                          |
 |   8 | [Matchsticks](d08_2015.md)                            |  x   | x                                | x                                          |
 |   9 | [All in a Single Night](d09_2015.md)                  |  x   | [Stream Processing](d09_2017.md) | x                                          |
