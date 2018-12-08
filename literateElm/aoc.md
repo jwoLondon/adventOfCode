@@ -131,6 +131,15 @@ indexOf item list =
     first 0 list
 ```
 
+Consistent with [List.Extra](http://package.elm-lang.org/packages/elm-community/list-extra/latest),
+convenience function for splitting a list into two at the given partition point.
+
+```elm {l}
+splitAt : Int -> List a -> ( List a, List a )
+splitAt n xs =
+    ( List.take n xs, List.drop n xs )
+```
+
 From [List.Extra](http://package.elm-lang.org/packages/elm-community/list-extra/latest), create a list of lists swapping `rows` and `columns` from an input list of lists.
 
 ```elm {l}
@@ -318,17 +327,18 @@ addToFreqTable item freqTable =
 Find the commonest value (mode) and its frequency in a list:
 
 ```elm {l}
-mode : List comparable -> Maybe (comparable)
+mode : List comparable -> Maybe comparable
 mode =
     List.foldl addToFreqTable Dict.empty
         >> Dict.toList
-        >> List.map (\(a,b) -> (b,a))
+        >> List.map (\( a, b ) -> ( b, a ))
         >> List.sort
         >> List.reverse
         >> List.map Tuple.second
         >> List.head
 
-modeCount : List comparable -> Maybe (Int)
+
+modeCount : List comparable -> Maybe Int
 modeCount =
     List.foldl addToFreqTable Dict.empty
         >> Dict.values
