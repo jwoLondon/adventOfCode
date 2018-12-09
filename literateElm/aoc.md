@@ -4,6 +4,7 @@ id: "litvis"
 elm:
   dependencies:
     elm/regex: latest
+    folkertdev/elm-deque: latest
 
   source-directories:
     - src
@@ -21,6 +22,7 @@ This document contains utilities used across multiple advent of code documents. 
 ```elm {l=hidden}
 import Array exposing (Array)
 import Bitwise exposing (..)
+import Deque exposing (Deque)
 import Dict exposing (Dict)
 import Json.Decode as JD
 import MD5Fast as MD5
