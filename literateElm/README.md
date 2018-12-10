@@ -14,7 +14,7 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 |   7 | [Some Assembly Required](d07_2015.md)                 |  x   | x                                | x                                          |
 |   8 | [Matchsticks](d08_2015.md)                            |  x   | x                                | [Memory Maneuver](d08_2018.md)             |
 |   9 | [All in a Single Night](d09_2015.md)                  |  x   | [Stream Processing](d09_2017.md) | [Marble Mania](d09_2018.md)                |
-|  10 | [Elves Look, Elves Say](d10_2015.md)                  |  x   | x                                | x                                          |
+|  10 | [Elves Look, Elves Say](d10_2015.md)                  |  x   | x                                | [The Stars Align](d10_2018.md)             |
 |  11 | [Corporate Policy](d11_2015.md)                       |  x   | x                                | x                                          |
 |  12 | [JSAbacusFramework.io](d12_2015.md)                   |  x   | x                                | x                                          |
 |  13 | [Knights of the Dinner Table](d13_2015.md)            |  x   | x                                | x                                          |
