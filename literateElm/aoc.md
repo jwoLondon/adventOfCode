@@ -247,6 +247,17 @@ pairwiseCombinations =
     combinations 2 >> List.filterMap toTuple
 ```
 
+Generate a list of coordinate pairs between the given minumum and maximum positions inclusive.
+
+`gridLocations (0,0) (2,2) == [(0,0),(0,1),(0,2),(1,0),(1,1),(1,2),(2,0),(2,1),(2,2)]`
+
+```elm {l}
+gridLocations : ( Int, Int ) -> ( Int, Int ) -> List ( Int, Int )
+gridLocations ( minX, minY ) ( maxX, maxY ) =
+    List.range minX maxX
+        |> List.concatMap (\x -> List.map (\y -> ( x, y )) (List.range minY maxY))
+```
+
 From [List.Extra](http://package.elm-lang.org/packages/elm-community/list-extra/6.1.0/List-Extra), return the list of of all permutations of a list. The result is in lexicographic order.
 
 `permutations [1,2,3] == [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]`
