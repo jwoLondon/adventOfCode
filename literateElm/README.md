@@ -17,7 +17,7 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 |  10 | [Elves Look, Elves Say](d10_2015.md)                  |  x   | x                                | [The Stars Align](d10_2018.md)             |
 |  11 | [Corporate Policy](d11_2015.md)                       |  x   | x                                | [Chronal Charge](d11_2018.md)              |
 |  12 | [JSAbacusFramework.io](d12_2015.md)                   |  x   | x                                | [Subterranean Sustainability](d12_2018.md) |
-|  13 | [Knights of the Dinner Table](d13_2015.md)            |  x   | x                                | x                                          |
+|  13 | [Knights of the Dinner Table](d13_2015.md)            |  x   | x                                | [Mine Cart Madness](d13_2018.md)           |
 |  14 | [Reindeer Olympics](d14_2015.md)                      |  x   | x                                | x                                          |
 |  15 | [Science for Hungry People](d15_2015.md)              |  x   | x                                | x                                          |
 |  16 | [Aunt Sue](d16_2015.md)                               |  x   | x                                | x                                          |
