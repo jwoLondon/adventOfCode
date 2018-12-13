@@ -589,6 +589,20 @@ mapTriplet fn1 fn2 fn3 ( a, b, c ) =
     ( fn1 a, fn2 b, fn3 c )
 ```
 
+```elm {l=hidden}
+-- Temporary convenience functions for representing tuples as strings. This is useful while Litvis fails to show tuples correctly when selecting raw output.
+
+
+tupleList : ( a, a ) -> List a
+tupleList ( p1, p2 ) =
+    [ p1, p2 ]
+
+
+tripletList : ( a, a, a ) -> List a
+tripletList ( p1, p2, p3 ) =
+    [ p1, p2, p3 ]
+```
+
 ## Functional Utilities
 
 Reverse the order of parameters in a two-parameter function (was removed in Elm 0.19).
