@@ -27,6 +27,6 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 |  20 | [Infinite Elves and Infinite Houses](d20_2015.md)     |  x   | x                                | x                                          |
 |  21 | [RPG Simulator 20XX](d21_2015.md)                     |  x   | x                                | x                                          |
 |  22 | x                                                     |  x   | x                                | x                                          |
-|  23 | x                                                     |  x   | x                                | x                                          |
+|  23 | [Opening the Turing Lock](d23_2015.md)                |  x   | x                                | x                                          |
 |  24 | x                                                     |  x   | x                                | x                                          |
 |  25 | x                                                     |  x   | x                                | x                                          |
