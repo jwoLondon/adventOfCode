@@ -18,7 +18,7 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 |  11 | [Corporate Policy](d11_2015.md)                       |  x   | x                                | [Chronal Charge](d11_2018.md)              |
 |  12 | [JSAbacusFramework.io](d12_2015.md)                   |  x   | x                                | [Subterranean Sustainability](d12_2018.md) |
 |  13 | [Knights of the Dinner Table](d13_2015.md)            |  x   | x                                | [Mine Cart Madness](d13_2018.md)           |
-|  14 | [Reindeer Olympics](d14_2015.md)                      |  x   | x                                | x                                          |
+|  14 | [Reindeer Olympics](d14_2015.md)                      |  x   | x                                | [Chocolate Charts](d14_2018.md)            |
 |  15 | [Science for Hungry People](d15_2015.md)              |  x   | x                                | x                                          |
 |  16 | [Aunt Sue](d16_2015.md)                               |  x   | x                                | x                                          |
 |  17 | [No Such Thing as Too Much](d17_2015.md)              |  x   | x                                | x                                          |
