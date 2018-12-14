@@ -22,6 +22,7 @@ This document contains utilities used across multiple advent of code documents. 
 ```elm {l=hidden}
 import Array exposing (Array)
 import Bitwise exposing (..)
+import BoundedDeque exposing (BoundedDeque)
 import Deque exposing (Deque)
 import Dict exposing (Dict)
 import Json.Decode as JD
