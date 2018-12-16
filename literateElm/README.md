@@ -20,7 +20,7 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 |  13 | [Knights of the Dinner Table](d13_2015.md)            |  x   | x                                | [Mine Cart Madness](d13_2018.md)           |
 |  14 | [Reindeer Olympics](d14_2015.md)                      |  x   | x                                | [Chocolate Charts](d14_2018.md)            |
 |  15 | [Science for Hungry People](d15_2015.md)              |  x   | x                                | x                                          |
-|  16 | [Aunt Sue](d16_2015.md)                               |  x   | x                                | x                                          |
+|  16 | [Aunt Sue](d16_2015.md)                               |  x   | x                                | [Chronal Classification](d16_2018.md)      |
 |  17 | [No Such Thing as Too Much](d17_2015.md)              |  x   | x                                | x                                          |
 |  18 | [Like a GIF For Your Yard](d18_2015.md)               |  x   | x                                | x                                          |
 |  19 | [Medicine for Rudolph](d19_2015.md)                   |  x   | x                                | x                                          |
