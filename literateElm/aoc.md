@@ -115,6 +115,44 @@ scanl fn b =
     List.foldl scan [ b ] >> List.reverse
 ```
 
+From [List.Extra](http://package.elm-lang.org/packages/elm-community/list-extra/latest), drop items from the front of a list while the given condition is true.
+
+```elm {l}
+dropWhile : (a -> Bool) -> List a -> List a
+dropWhile predicate list =
+    case list of
+        [] ->
+            []
+
+        x :: xs ->
+            if predicate x then
+                dropWhile predicate xs
+
+            else
+                list
+```
+
+From [List.Extra](http://package.elm-lang.org/packages/elm-community/list-extra/latest), take items from the front of a list while the given condition is true. Like a filter but acts sequentially and stops at the point of first `False` predicate.
+
+```elm {l}
+takeWhile : (a -> Bool) -> List a -> List a
+takeWhile predicate =
+    let
+        takeWhileHelper accum list =
+            case list of
+                [] ->
+                    List.reverse accum
+
+                x :: xs ->
+                    if predicate x then
+                        takeWhileHelper (x :: accum) xs
+
+                    else
+                        List.reverse accum
+    in
+    takeWhileHelper []
+```
+
 Find the index of the first occurance of a value in a list:
 
 ```elm {l}
@@ -463,6 +501,11 @@ gInit rowCount colCount =
 gToList : Grid a -> List a
 gToList =
     Matrix.flatten
+
+
+gToLists : Grid a -> List (List a)
+gToLists =
+    Matrix.toList
 
 
 gGet : GridLocation -> Grid a -> Maybe a
