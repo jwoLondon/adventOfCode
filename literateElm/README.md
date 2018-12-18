@@ -22,7 +22,7 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 |  15 | [Science for Hungry People](d15_2015.md)              |  x   | x                                | x                                          |
 |  16 | [Aunt Sue](d16_2015.md)                               |  x   | x                                | [Chronal Classification](d16_2018.md)      |
 |  17 | [No Such Thing as Too Much](d17_2015.md)              |  x   | x                                | x                                          |
-|  18 | [Like a GIF For Your Yard](d18_2015.md)               |  x   | x                                | x                                          |
+|  18 | [Like a GIF For Your Yard](d18_2015.md)               |  x   | x                                | [Settlers of The North Pole](d18_2018.md)  |
 |  19 | [Medicine for Rudolph](d19_2015.md)                   |  x   | x                                | x                                          |
 |  20 | [Infinite Elves and Infinite Houses](d20_2015.md)     |  x   | x                                | x                                          |
 |  21 | [RPG Simulator 20XX](d21_2015.md)                     |  x   | x                                | x                                          |
