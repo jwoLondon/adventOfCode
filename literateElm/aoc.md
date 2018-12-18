@@ -5,6 +5,7 @@ elm:
   dependencies:
     elm/regex: latest
     folkertdev/elm-deque: latest
+    gicentre/elm-vegalite: latest
 
   source-directories:
     - src
@@ -30,6 +31,7 @@ import MD5Fast as MD5
 import Matrix exposing (..)
 import Regex
 import Set exposing (Set)
+import VegaLite as VL
 ```
 
 ## Parsing
