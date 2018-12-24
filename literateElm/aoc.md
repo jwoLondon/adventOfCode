@@ -115,6 +115,14 @@ scanl fn b =
     List.foldl scan [ b ] >> List.reverse
 ```
 
+Zip two lists together as a list of tuples.
+
+```elm {l}
+zip : List a -> List b -> List ( a, b )
+zip =
+    List.map2 Tuple.pair
+```
+
 From [List.Extra](http://package.elm-lang.org/packages/elm-community/list-extra/latest), drop items from the front of a list while the given condition is true.
 
 ```elm {l}
