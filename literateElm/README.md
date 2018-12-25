@@ -29,4 +29,4 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 |  22 | x                                                     |  x   | x                                | x                                           |
 |  23 | [Opening the Turing Lock](d23_2015.md)                |  x   | x                                | x                                           |
 |  24 | x                                                     |  x   | x                                | [Immune System Simulator 20XX](d24_2018.md) |
-|  25 | x                                                     |  x   | x                                | x                                           |
+|  25 | x                                                     |  x   | x                                | [Four-Dimensional Adventure](d25_2018.md)   |
