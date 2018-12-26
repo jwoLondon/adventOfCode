@@ -24,7 +24,7 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 |  17 | [No Such Thing as Too Much](d17_2015.md)              |  x   | x                                | [Reservoir Research](d17_2018.md)           |
 |  18 | [Like a GIF For Your Yard](d18_2015.md)               |  x   | x                                | [Settlers of The North Pole](d18_2018.md)   |
 |  19 | [Medicine for Rudolph](d19_2015.md)                   |  x   | x                                | [ Go With The Flow](d19_2018.md)            |
-|  20 | [Infinite Elves and Infinite Houses](d20_2015.md)     |  x   | x                                | x                                           |
+|  20 | [Infinite Elves and Infinite Houses](d20_2015.md)     |  x   | x                                | [ A Regular Map](d20_2018.md)               |
 |  21 | [RPG Simulator 20XX](d21_2015.md)                     |  x   | x                                | [Chronal Conversion](d21_2018.md)           |
 |  22 | x                                                     |  x   | x                                | x                                           |
 |  23 | [Opening the Turing Lock](d23_2015.md)                |  x   | x                                | x                                           |
