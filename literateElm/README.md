@@ -26,7 +26,7 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 |  19 | [Medicine for Rudolph](d19_2015.md)                   |  x   | x                                | [ Go With The Flow](d19_2018.md)            |
 |  20 | [Infinite Elves and Infinite Houses](d20_2015.md)     |  x   | x                                | [ A Regular Map](d20_2018.md)               |
 |  21 | [RPG Simulator 20XX](d21_2015.md)                     |  x   | x                                | [Chronal Conversion](d21_2018.md)           |
-|  22 | x                                                     |  x   | x                                | x                                           |
+|  22 | x                                                     |  x   | x                                | [Mode Maze](d22_2018.md)                    |
 |  23 | [Opening the Turing Lock](d23_2015.md)                |  x   | x                                | x                                           |
 |  24 | x                                                     |  x   | x                                | [Immune System Simulator 20XX](d24_2018.md) |
 |  25 | x                                                     |  x   | x                                | [Four-Dimensional Adventure](d25_2018.md)   |
