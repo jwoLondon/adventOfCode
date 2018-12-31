@@ -6,6 +6,8 @@ elm:
     elm/regex: latest
     folkertdev/elm-deque: latest
     gicentre/elm-vegalite: latest
+    HAN-ASD-DT/priority-queue: latest
+    avh4/elm-fifo: latest
 
   source-directories:
     - src
@@ -26,9 +28,11 @@ import Bitwise exposing (..)
 import BoundedDeque exposing (BoundedDeque)
 import Deque exposing (Deque)
 import Dict exposing (Dict)
+import Fifo exposing (Fifo)
 import Json.Decode as JD
 import MD5Fast as MD5
 import Matrix exposing (..)
+import PriorityQueue exposing (PriorityQueue)
 import Regex
 import Set exposing (Set)
 import VegaLite as VL
