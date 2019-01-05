@@ -195,23 +195,16 @@ splitAt n xs =
     ( List.take n xs, List.drop n xs )
 ```
 
-From [List.Extra](http://package.elm-lang.org/packages/elm-community/list-extra/latest), create a list of lists swapping `rows` and `columns` from an input list of lists.
+Create a list of lists swapping `rows` and `columns` from an input list of lists.
 
 ```elm {l}
 transpose : List (List a) -> List (List a)
-transpose listOfLists =
+transpose xss =
     let
-        heads =
-            List.filterMap List.head listOfLists
-
-        tails =
-            List.filterMap List.tail listOfLists
+        numCols =
+            List.head >> Maybe.withDefault [] >> List.length
     in
-    if List.length heads == List.length listOfLists then
-        heads :: transpose tails
-
-    else
-        []
+    List.foldr (List.map2 (::)) (List.repeat (numCols xss) []) xss
 ```
 
 For a list of lists, add the first element of each list to its end, making a list of closed cycles.
