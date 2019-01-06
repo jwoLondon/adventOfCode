@@ -31,7 +31,7 @@ import Dict exposing (Dict)
 import Fifo exposing (Fifo)
 import Json.Decode as JD
 import MD5Fast as MD5
-import Matrix exposing (..)
+import Matrix
 import PriorityQueue exposing (PriorityQueue)
 import Regex
 import Set exposing (Set)
@@ -562,7 +562,7 @@ gSetCol c col =
 -}
 gMap : (a -> b) -> Grid a -> Grid b
 gMap =
-    map
+    Matrix.map
 
 
 {-| Apply a mapping function to every element in the grid with the option of
@@ -570,27 +570,12 @@ using of the row,column values of the grid cell location.
 -}
 gMapWithLocation : (GridLocation -> a -> b) -> Grid a -> Grid b
 gMapWithLocation =
-    mapWithLocation
+    Matrix.mapWithLocation
 
 
 gTranspose : Grid a -> Grid a
 gTranspose =
-    let
-        transposeLists ll =
-            let
-                heads =
-                    List.filterMap List.head ll
-
-                tails =
-                    List.filterMap List.tail ll
-            in
-            if List.length heads == List.length ll then
-                heads :: transposeLists tails
-
-            else
-                []
-    in
-    Matrix.toList >> transposeLists >> Matrix.fromList
+    Matrix.toList >> transpose >> Matrix.fromList
 ```
 
 ### 3-Tuples
