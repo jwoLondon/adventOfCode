@@ -11,7 +11,7 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 |   4 | [The Ideal Stocking Stuffer](d04_2015.md)             | [Security Through Obscurity](d04_2016.md)      | x                                | [Repose Record](d04_2018.md)                        |
 |   5 | [Doesn't He Have Intern-Elves For This?](d05_2015.md) | [How About a Nice Game of Chess?](d05_2016.md) | x                                | [Alchemical Reduction](d05_2018.md)                 |
 |   6 | [Probably a Fire Hazard](d06_2015.md)                 | [Signals and Noise](d06_2016.md)               | x                                | [Chronal Coordinates](d06_2018.md)                  |
-|   7 | [Some Assembly Required](d07_2015.md)                 | x                                              | x                                | [The Sum of Its Parts](d07_2018.md)                 |
+|   7 | [Some Assembly Required](d07_2015.md)                 | [Internet Protocol Version 7](d07_2016.md)     | x                                | [The Sum of Its Parts](d07_2018.md)                 |
 |   8 | [Matchsticks](d08_2015.md)                            | x                                              | x                                | [Memory Maneuver](d08_2018.md)                      |
 |   9 | [All in a Single Night](d09_2015.md)                  | x                                              | [Stream Processing](d09_2017.md) | [Marble Mania](d09_2018.md)                         |
 |  10 | [Elves Look, Elves Say](d10_2015.md)                  | x                                              | x                                | [The Stars Align](d10_2018.md)                      |
