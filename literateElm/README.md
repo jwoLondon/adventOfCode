@@ -5,7 +5,7 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 
 | Day | 2015                                                  | 2016                                           | 2017                             | 2018                                                |
 | --: | :---------------------------------------------------- | :--------------------------------------------- | :------------------------------- | :-------------------------------------------------- |
-|   1 | [Not Quite Lisp](d01_2015.md)                         | [No Time for a Taxicab](d01_2016.md)           | x                                | [Chronal Calibration](d01_2018.md)                  |
+|   1 | [Not Quite Lisp](d01_2015.md)                         | [No Time for a Taxicab](d01_2016.md)           | [Inverse Captcha](d01_2017.md)   | [Chronal Calibration](d01_2018.md)                  |
 |   2 | [I Was Told There Would Be No Math](d02_2015.md)      | [Bathroom Security](d02_2016.md)               | x                                | [Inventory Management System](d02_2018.md)          |
 |   3 | [Perfectly Spherical Houses in a Vacuum](d03_2015.md) | [Squares With Three Sides](d03_2016.md)        | x                                | [No Matter How You Slice It](d03_2018.md)           |
 |   4 | [The Ideal Stocking Stuffer](d04_2015.md)             | [Security Through Obscurity](d04_2016.md)      | x                                | [Repose Record](d04_2018.md)                        |
