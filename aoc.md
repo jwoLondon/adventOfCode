@@ -251,6 +251,46 @@ unique list =
     uniqueHelp identity Set.empty list []
 ```
 
+For tasks that require moving to arbitrary positions in a list, and one that might also grow or shrink during its lifetime a circular [deque](https://package.elm-lang.org/packages/folkertdev/elm-deque/latest/) offers fast rotation options. This allows the list's head to be moved efficiently either forward (positive values of n) or backward (negative values of n).
+
+```elm {l}
+rotate : Int -> Deque a -> Deque a
+rotate n deque =
+    let
+        rotateClockwise d =
+            let
+                ( maybeVal, newDeque ) =
+                    Deque.popBack d
+            in
+            case maybeVal of
+                Just val ->
+                    Deque.pushFront val newDeque
+
+                Nothing ->
+                    d
+
+        rotateAnticlockwise d =
+            let
+                ( maybeVal, newDeque ) =
+                    Deque.popFront d
+            in
+            case maybeVal of
+                Just val ->
+                    Deque.pushBack val newDeque
+
+                Nothing ->
+                    d
+    in
+    if n == 0 then
+        deque
+
+    else if n > 0 then
+        List.foldl (\_ d -> rotateAnticlockwise d) deque (List.range 1 n)
+
+    else
+        List.foldl (\_ d -> rotateClockwise d) deque (List.range 1 (abs n))
+```
+
 ## Combinatorics
 
 Generate all combinations of size _k_ or smaller of an ordered list.
