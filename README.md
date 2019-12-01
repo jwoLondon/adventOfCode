@@ -43,7 +43,7 @@ These are created in the [litvis environment](https://github.com/gicentre/litvis
 
 Puzzle difficulty as measured by time taken by the 100th person on the global leader board to complete each puzzle.
 
-<!-- <img src="images/completionTimes2019.png" width=49% /> -->
+<img src="images/completionTimes2019.png" width=49% />
 
 <img src="images/completionTimes2018.png" width=49% /> <img src="images/completionTimes2017.png" width=49% />
 
