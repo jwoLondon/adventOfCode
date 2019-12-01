@@ -89,8 +89,7 @@ replace searchText replaceText =
     Regex.replace (Regex.fromString searchText |> Maybe.withDefault Regex.never) (\_ -> replaceText)
 ```
 
-This version of replace allows a match function to be provided that generates the replace text.
-It is syntatic sugar for [Regex.replace](https://package.elm-lang.org/packages/elm/regex/latest/Regex#replace).
+This version of replace allows a match function to be provided that generates the replace text. It is syntactic sugar for [Regex.replace](https://package.elm-lang.org/packages/elm/regex/latest/Regex#replace).
 
 ```elm {l}
 replaceFn : String -> (Regex.Match -> String) -> String -> String
@@ -100,7 +99,7 @@ replaceFn searchText =
 
 ## List Processing
 
-Scanl was dropped from Elm 0.19, so it is added here for convenience:
+`scanl` was dropped from Elm 0.19, so it is added here for convenience:
 
 ```elm {l}
 scanl : (a -> b -> b) -> b -> List a -> List b
@@ -163,7 +162,7 @@ takeWhile predicate =
     takeWhileHelper []
 ```
 
-Find the index of the first occurance of a value in a list:
+Find the index of the first occurrence of a value in a list:
 
 ```elm {l}
 indexOf : a -> List a -> Int
@@ -184,13 +183,26 @@ indexOf item list =
     first 0 list
 ```
 
-Consistent with [List.Extra](http://package.elm-lang.org/packages/elm-community/list-extra/latest),
-convenience function for splitting a list into two at the given partition point.
+Consistent with [List.Extra](http://package.elm-lang.org/packages/elm-community/list-extra/latest), convenience function for splitting a list into two at the given partition point.
 
 ```elm {l}
 splitAt : Int -> List a -> ( List a, List a )
 splitAt n xs =
     ( List.take n xs, List.drop n xs )
+```
+
+Set the value of a list item at the given position. If the position is larger than the list length, the value is appended to the end of the list.
+
+Note, for algorithms that do a lot of setting values at arbitrary positions, consider the more efficient `Array` or `Deque` structures.
+
+```elm {l}
+setListAt : Int -> a -> List a -> List a
+setListAt pos x xs =
+    let
+        ( l, r ) =
+            splitAt pos xs
+    in
+    l ++ x :: (List.tail r |> Maybe.withDefault [])
 ```
 
 Create a list of lists swapping `rows` and `columns` from an input list of lists.
@@ -222,9 +234,7 @@ makeCycle lists =
     List.map addHeadToTail lists
 ```
 
-From [List.Extra](https://package.elm-lang.org/packages/elm-community/list-extra/latest/List-Extra#unique),
-remove duplicate values, keeping the first instance of each element which appears more than once.
-Unlike converting to and from a [Set](https://package.elm-lang.org/packages/elm/core/latest/Set), this will preserve the order of unique list items.
+From [List.Extra](https://package.elm-lang.org/packages/elm-community/list-extra/latest/List-Extra#unique), remove duplicate values, keeping the first instance of each element which appears more than once. Unlike converting to and from a [Set](https://package.elm-lang.org/packages/elm/core/latest/Set), this will preserve the order of unique list items.
 
 `unique [ 6, 2, 2, 1, 2, 4, 6 ] == [ 6, 2, 1, 4 ]`
 
@@ -256,8 +266,8 @@ unique list =
 For tasks that require moving to arbitrary positions in a list, and one that might also grow or shrink during its lifetime, a circular [deque](https://package.elm-lang.org/packages/folkertdev/elm-deque/latest/) offers fast rotation options. This allows the list's head to be moved efficiently either forward (positive values of n) or backward (negative values of n).
 
 ```elm {l}
-rotate : Int -> Deque a -> Deque a
-rotate n deque =
+rotateDeque : Int -> Deque a -> Deque a
+rotateDeque n deque =
     let
         rotateClockwise d =
             let
@@ -329,7 +339,7 @@ combinations k items =
                 appendedToAll hd (combinations (k - 1) tl) ++ combinations k tl
 ```
 
-A convenience function for chosing pairwise combinations and returning the results as a list of tuples:
+A convenience function for choosing pairwise combinations and returning the results as a list of tuples:
 
 ```elm {l}
 pairwiseCombinations : List a -> List ( a, a )
@@ -346,7 +356,7 @@ pairwiseCombinations =
     combinations 2 >> List.filterMap toTuple
 ```
 
-Generate a list of coordinate pairs between the given minumum and maximum positions inclusive.
+Generate a list of coordinate pairs between the given minimum and maximum positions inclusive.
 
 `gridLocations (0,0) (2,2) == [(0,0),(0,1),(0,2),(1,0),(1,1),(1,2),(2,0),(2,1),(2,2)]`
 
@@ -498,7 +508,7 @@ factors num =
 
 ## Number Conversion
 
-Provide a binary representation of the given decimal. Represented as a list of 1s and 0s with a minumum length determined by the padding parameter.
+Provide a binary representation of the given decimal. Represented as a list of 1s and 0s with a minimum length determined by the padding parameter.
 
 ```elm {l}
 decToBinary : Int -> List Int -> Int -> List Int
@@ -518,7 +528,7 @@ decToBinary padding bin dec =
         decToBinary padding (bit :: bin) (dec // 2)
 ```
 
-Provide a binary representation of the given hexidecimal number. Represented as a list of 1s and 0s.
+Provide a binary representation of the given hexadecimal number. Represented as a list of 1s and 0s.
 
 ```elm {l}
 hexToBinary : String -> List Int
@@ -688,8 +698,7 @@ flip fn argB argA =
     fn argA argB
 ```
 
-Sometimes, puzzles ask us to iterate something _n_ times.
-This can be achieved by folding, supplying a list from 1..n, so this convenience function just makes that clearer:
+Sometimes, puzzles ask us to iterate something _n_ times This can be achieved by folding, supplying a list from 1..n, so this convenience function just makes that clearer:
 
 ```elm {l}
 iterate : Int -> b -> (b -> b) -> b
