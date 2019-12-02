@@ -688,6 +688,20 @@ mapTriplet fn1 fn2 fn3 ( a, b, c ) =
     ( fn1 a, fn2 b, fn3 c )
 ```
 
+Unzip a list of 3-tuples into a 3-tuple of lists:
+
+`unzip3 [ (1,2,3), (4,5,6) ] == ( [1,4], [2,5], [3,6] )`
+
+```elm {l}
+unzip3 : List ( a, b, c ) -> ( List a, List b, List c )
+unzip3 triplets =
+    let
+        addTriplet ( x, y, z ) ( xs, ys, zs ) =
+            ( x :: xs, y :: ys, z :: zs )
+    in
+    List.foldr addTriplet ( [], [], [] ) triplets
+```
+
 ## Functional Utilities
 
 Reverse the order of parameters in a two-parameter function (was removed in Elm 0.19).
