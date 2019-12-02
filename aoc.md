@@ -528,6 +528,28 @@ decToBinary padding bin dec =
         decToBinary padding (bit :: bin) (dec // 2)
 ```
 
+Provide a decimal to hex conversion with the given number of digits (padded with 0s if necessary).
+
+`decToHex 4 510 == "01fe"`
+`decToHex 8 65535 == "0000ffff"`
+
+```elm {l}
+decToHex : Int -> Int -> String
+decToHex numDigits n =
+    let
+        hexChr x =
+            [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' ]
+                |> List.drop x
+                |> List.head
+                |> Maybe.withDefault 'f'
+
+        convertDigit d chrs =
+            hexChr (Bitwise.and (Bitwise.shiftRightBy (d * 4) n) 0x0F) :: chrs
+    in
+    List.foldl convertDigit [] (List.range 0 (numDigits - 1))
+        |> String.fromList
+```
+
 Provide a binary representation of the given hexadecimal number. Represented as a list of 1s and 0s.
 
 ```elm {l}
