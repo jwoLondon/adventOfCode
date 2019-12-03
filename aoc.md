@@ -668,12 +668,25 @@ gTranspose =
 Elm has functions for creating and transforming tuples with two parameters, but not for three.
 These functions provide the extra support for 3-tuples:
 
-Create a 3-tuple
+Create a 3-tuple from three parameters.
 
 ```elm {l}
 triplet : a -> b -> c -> ( a, b, c )
 triplet a b c =
     ( a, b, c )
+```
+
+Create a 3-tuple from the first three values in a list.
+
+```elm {l}
+tripletFromList : List a -> Maybe ( a, a, a )
+tripletFromList xs =
+    case xs of
+        x1 :: x2 :: x3 :: tl ->
+            Just ( x1, x2, x3 )
+
+        _ ->
+            Nothing
 ```
 
 The first value of a 3-tuple.
