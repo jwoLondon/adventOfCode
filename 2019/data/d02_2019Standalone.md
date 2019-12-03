@@ -1,5 +1,5 @@
 ---
-follows: ../intcode.md
+follows: ../../aoc.md
 
 id: "litvis"
 ---

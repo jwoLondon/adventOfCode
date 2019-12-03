@@ -1,5 +1,5 @@
 ---
-follows: data/d02_2019.md
+follows: data/d02_2019Standalone.md
 
 id: "litvis"
 ---
@@ -66,7 +66,90 @@ Once you have a working computer, the first step is to restore the gravity assis
 
 ## Approach
 
-We can use the [intCode assembler](intcode.md) to solve the problem (for the original code before separating the intcode functions, see [d02_2019Standalone.md](d02_2019Standalone.md)).
+We need to be able to store the entire program, read values at given addresses and write to them. It makes sense to store the instructions in a dictionary to do this and to provide a simple function to place the input into this dictionary.
+
+```elm {l}
+type alias Memory =
+    Dict Int Int
+
+
+toMemory : List Int -> Memory
+toMemory =
+    List.indexedMap Tuple.pair >> Dict.fromList
+```
+
+Because we will be doing a lot of reading from the dictionary we can create an 'unsafe' dictionary reader to avoid littering code with handling `Maybe`. At least for the moment, given the only operations are addition and multiplication, we shouldn't need to handle negative numbers, so we can reserve these for possible errors.
+
+```elm {l}
+read : Int -> Memory -> Int
+read address =
+    Dict.get address >> Maybe.withDefault -1
+```
+
+To aid program clarity, and to account for the possibility that further op codes may be added later, we can store each op code as a custom type:
+
+```elm {l}
+type OpCode
+    = Add Int Int
+    | Mult Int Int
+    | Halt
+
+
+readOp : Int -> Memory -> OpCode
+readOp address mem =
+    case read address mem of
+        1 ->
+            Add (read (read (address + 1) mem) mem) (read (read (address + 2) mem) mem)
+
+        2 ->
+            Mult (read (read (address + 1) mem) mem) (read (read (address + 2) mem) mem)
+
+        99 ->
+            Halt
+
+        _ ->
+            Halt |> Debug.log "Unknown opcode read"
+```
+
+We can provide an equivalent function for applying the operation and doing the writing
+
+```elm {l}
+writeOp : OpCode -> Int -> Memory -> Memory
+writeOp opCode address mem =
+    case opCode of
+        Halt ->
+            mem
+
+        Add p1 p2 ->
+            Dict.insert (read (address + 3) mem) (p1 + p2) mem
+
+        Mult p1 p2 ->
+            Dict.insert (read (address + 3) mem) (p1 * p2) mem
+```
+
+Now we have all the elements that allow us to run a program after setting address 1 (referred to as the _noun_ in part 2) and address 2 (referred to as the _verb_):
+
+```elm {l}
+runProg : Int -> Int -> Memory -> Int
+runProg noun verb =
+    let
+        run address mem =
+            let
+                op =
+                    readOp address mem
+            in
+            case op of
+                Halt ->
+                    mem
+
+                _ ->
+                    run (address + 4) (writeOp op address mem)
+    in
+    Dict.insert 1 noun
+        >> Dict.insert 2 verb
+        >> run 0
+        >> read 0
+```
 
 ```elm {l r}
 part1 : Int
@@ -102,12 +185,6 @@ Find the input **noun** and **verb** that cause the program to produce the outpu
 
 The brute force approach would be to try all combinations of noun and verb between 0 and 99 each until we get the desired output. In this case, it is fast enough to suffice:
 
-```elm {l}
-target : Int
-target =
-    19690720
-```
-
 ```elm {l r}
 part2 : List Int
 part2 =
@@ -118,7 +195,7 @@ part2 =
     gridLocations ( 0, 0 ) ( 99, 99 )
         |> List.map
             (\( n, v ) ->
-                if runProg n v mem == target then
+                if runProg n v mem == 19690720 then
                     Just (100 * n + v)
 
                 else
@@ -129,63 +206,4 @@ part2 =
 
 ### Reflection
 
-I do like this kind of puzzle, and great to see hints that _Intcode_ will be developed in later puzzles.
-
-I wasn't entirely happy with a brute force approach to part 2. There was always the risk that certain combinations of noun and verb could lead to non halting programs, or ones that did not halt in a practical amount of time. In the end this wasn't a problem, but as an experiment I wanted to see the relation between inputs and output.
-
-Here are the values for (0,0) (0,1) (0,2), (1,0), (1,1), (1,2), (2,0), (2,1) and (2,2):
-
-```elm {r}
-outputs : List ( Int, Int, Int )
-outputs =
-    let
-        mem =
-            puzzleInput |> toMemory
-    in
-    gridLocations ( 0, 0 ) ( 2, 2 )
-        |> List.map (\( n, v ) -> ( n, v, runProg n v mem ))
-```
-
-This suggests a linear relationship in the form:
-
-    out = dx * noun + dy * verb + x0y0 ..................................... (1)
-
-where dx is the difference in output between two consecutive noun values, dy the difference in output between two consecutive verb values and x0y0 is the output at (noun=0, verb=0).
-
-In the case of the puzzle input:
-
-    dx = 567476 - 337076 = 230400
-    dy = 337077 - 337076 = 1
-    x0y0 = 337076
-
-Because dx is more than 99 times as large as dy, there can only be one noun value that could generate a result within 99.dy of the target:
-
-    noun = floor ((target - x0y0) / dx)
-
-Using this, we can find the verb value by plugging back into (1). Assuming all puzzle inputs generate a planar relationship between (noun,verb) and output and that dx > 99\*dy, we have a general algebraic solution:
-
-```elm {l r}
-part2Algebraic : Int
-part2Algebraic =
-    let
-        ( x0y0, x0y1, x1y0 ) =
-            [ ( 0, 0 ), ( 0, 1 ), ( 1, 0 ) ]
-                |> List.map (\( n, v ) -> ( n, v, runProg n v (toMemory puzzleInput) ))
-                |> List.map tripletThird
-                |> tripletFromList
-                |> Maybe.withDefault ( 0, 0, 0 )
-
-        dx =
-            x1y0 - x0y0
-
-        dy =
-            x0y1 - x0y0
-
-        noun =
-            (target - x0y0) // dx
-
-        verb =
-            (target - x0y0 - dx * noun) // dy
-    in
-    noun * 100 + verb
-```
+I do like this kind of puzzle, and great to see hints that _Intcode_ will be developed in later puzzles. I don't know if using a dictionary rather than a random access array is preferable. For this puzzle, a dictionary isn't necessary given that all memory locations are sequentially adjacent. But who knows how it might develop in later puzzles. There is scope for abstracting the system further, but I will wait to see how future puzzles develop before doing so.
