@@ -7,6 +7,7 @@ elm:
     folkertdev/elm-deque: latest
     gicentre/elm-vegalite: latest
     avh4/elm-fifo: latest
+    drathier/elm-graph: latest
 
   source-directories:
     - src
@@ -28,6 +29,8 @@ import BoundedDeque exposing (BoundedDeque)
 import Deque exposing (Deque)
 import Dict exposing (Dict)
 import Fifo exposing (Fifo)
+import Graph exposing (Graph)
+import Graph.Pair
 import Json.Decode as JD
 import MD5Fast as MD5
 import Matrix
