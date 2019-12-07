@@ -21,14 +21,21 @@ type alias Computer =
     { mem : Dict Int Int
     , outputStore : List Int
     , inputStore : List Int
+    , startPointer : Int
     , log : List String
     , out : Int
+    , haltmode : Haltmode
     }
 
 
-initComputer : List Int -> List Int -> Computer
-initComputer inputs instrs =
-    Computer (List.indexedMap Tuple.pair instrs |> Dict.fromList) [] inputs [] -9999
+type Haltmode
+    = ContinueUntilHalt
+    | ContinueUntilOut
+
+
+initComputer : Haltmode -> List Int -> List Int -> Computer
+initComputer haltmode inputs instrs =
+    Computer (List.indexedMap Tuple.pair instrs |> Dict.fromList) [] inputs 0 [] -9999 haltmode
 ```
 
 ## Memory
@@ -232,7 +239,7 @@ We can run a program by starting at the opcode at position 0 and recursively pro
 
 ```elm {l}
 runProg : Computer -> Computer
-runProg =
+runProg computer =
     let
         run address comp =
             let
@@ -275,7 +282,12 @@ runProg =
                         log =
                             (addrStr address ++ ": **OUT →** " ++ numStr p1 ++ "\n") :: comp.log
                     in
-                    run (address + 2) (writeOp op address { comp | log = log, out = p1 })
+                    case computer.haltmode of
+                        ContinueUntilOut ->
+                            writeOp op address { comp | log = log, out = p1, startPointer = address + 2 }
+
+                        ContinueUntilHalt ->
+                            run (address + 2) (writeOp op address { comp | log = log, out = p1, startPointer = address + 2 })
 
                 JmpIfTrue p1 p2 ->
                     let
@@ -320,17 +332,25 @@ runProg =
                     run (address + 4) (writeOp op address { comp | log = log })
 
                 Halt ->
-                    { comp | log = (addrStr address ++ ": HALT\n") :: comp.log |> List.reverse }
+                    case comp.haltmode of
+                        ContinueUntilOut ->
+                            { comp
+                                | startPointer = -1
+                                , log = (addrStr address ++ ": HALT\n") :: comp.log |> List.reverse
+                            }
+
+                        ContinueUntilHalt ->
+                            { comp | log = (addrStr address ++ ": HALT\n") :: comp.log |> List.reverse }
 
                 NoOp ->
                     { comp | log = (addrStr address ++ ": **Bad Exit**\n") :: comp.log |> List.reverse }
     in
-    run 0
+    run computer.startPointer computer
 ```
 
 ### Examples
 
-First example from [day 2](d02_2019.md), should generate output of 3500 after setting the 'noun' to 9 and 'verb' to 10.
+First example from [day 2](d02_2019.md), should generate output of 3500 after setting the 'noun' (address 1) to 9 and 'verb' (address 2) to 10 within the program instructions.
 
 ```elm {l r}
 test1 : Int
@@ -338,7 +358,7 @@ test1 =
     let
         comp =
             [ 1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50 ]
-                |> initComputer [ 0 ]
+                |> initComputer ContinueUntilHalt [ 0 ]
     in
     { comp
         | mem =
@@ -356,7 +376,7 @@ This should place 123 in input, store it at address 50 and then send the value a
 test4 : List String
 test4 =
     [ 3, 50, 4, 50, 99 ]
-        |> initComputer [ 123 ]
+        |> initComputer ContinueUntilHalt [ 123 ]
         |> runProg
         |> .log
 ```
@@ -367,7 +387,7 @@ Multiply value at address 4 (33) by the immediate value 3 and place result (99) 
 test5 : List String
 test5 =
     [ 1002, 4, 3, 4, 33 ]
-        |> initComputer [ 0 ]
+        |> initComputer ContinueUntilHalt [ 0 ]
         |> runProg
         |> .log
 ```
@@ -378,7 +398,7 @@ If input is equal to 8, output a 1, otherwise output a 0
 test6 : List String
 test6 =
     [ 3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8 ]
-        |> initComputer [ 8 ]
+        |> initComputer ContinueUntilHalt [ 8 ]
         |> runProg
         |> .log
 ```
@@ -389,7 +409,7 @@ If input is less than 8, output a 1, otherwise output a 0
 test7 : List String
 test7 =
     [ 3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8 ]
-        |> initComputer [ 8 ]
+        |> initComputer ContinueUntilHalt [ 8 ]
         |> runProg
         |> .log
 ```
@@ -400,7 +420,20 @@ If the input is less than 8, output should be 999, if equal to 9 it should be 10
 test8 : List String
 test8 =
     [ 3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99 ]
-        |> initComputer [ 9 ]
+        |> initComputer ContinueUntilHalt [ 9 ]
+        |> runProg
+        |> .log
+```
+
+This tests `ContinueUntilOut` mode. Program pauses after first output, but can be resumed with a subsequent call to `runProg`. Should produce exactly the same output as the previous test, but in two stages.
+
+```elm {l m}
+test9 : List String
+test9 =
+    [ 3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99 ]
+        |> initComputer ContinueUntilOut [ 9 ]
+        |> runProg
+        -- Pauses after output, so restart
         |> runProg
         |> .log
 ```
