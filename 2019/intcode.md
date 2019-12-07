@@ -20,14 +20,15 @@ The computer also has some other states such as the input and output values used
 type alias Computer =
     { mem : Dict Int Int
     , outputStore : List Int
-    , inputStore : Int
+    , inputStore : List Int
     , log : List String
+    , out : Int
     }
 
 
-initComputer : Int -> List Int -> Computer
-initComputer inp instrs =
-    Computer (List.indexedMap Tuple.pair instrs |> Dict.fromList) [] inp []
+initComputer : List Int -> List Int -> Computer
+initComputer inputs instrs =
+    Computer (List.indexedMap Tuple.pair instrs |> Dict.fromList) [] inputs [] -9999
 ```
 
 ## Memory
@@ -182,7 +183,12 @@ writeOp opCode address comp =
             { comp | mem = Dict.insert (read Immediate (address + 3) comp) (p1 * p2) comp.mem }
 
         Input p1 ->
-            { comp | mem = Dict.insert p1 comp.inputStore comp.mem }
+            case comp.inputStore of
+                inp :: tl ->
+                    { comp | mem = Dict.insert p1 inp comp.mem, inputStore = tl }
+
+                _ ->
+                    comp |> Debug.log "ERROR: No input available"
 
         Output p1 ->
             { comp | outputStore = comp.outputStore ++ [ read Immediate (address + 1) comp ] }
@@ -256,8 +262,11 @@ runProg =
 
                 Input p1 ->
                     let
+                        inp =
+                            List.head comp.inputStore |> Maybe.withDefault -999
+
                         log =
-                            (addrStr address ++ ": " ++ numStr comp.inputStore ++ "→ Input → " ++ addrStr p1 ++ "\n") :: comp.log
+                            (addrStr address ++ ": " ++ numStr inp ++ "→ Input → " ++ addrStr p1 ++ "\n") :: comp.log
                     in
                     run (address + 2) (writeOp op address { comp | log = log })
 
@@ -266,7 +275,7 @@ runProg =
                         log =
                             (addrStr address ++ ": **OUT →** " ++ numStr p1 ++ "\n") :: comp.log
                     in
-                    run (address + 2) (writeOp op address { comp | log = log })
+                    run (address + 2) (writeOp op address { comp | log = log, out = p1 })
 
                 JmpIfTrue p1 p2 ->
                     let
@@ -319,8 +328,6 @@ runProg =
     run 0
 ```
 
----
-
 ### Examples
 
 First example from [day 2](d02_2019.md), should generate output of 3500 after setting the 'noun' to 9 and 'verb' to 10.
@@ -331,7 +338,7 @@ test1 =
     let
         comp =
             [ 1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50 ]
-                |> initComputer 0
+                |> initComputer [ 0 ]
     in
     { comp
         | mem =
@@ -349,7 +356,7 @@ This should place 123 in input, store it at address 50 and then send the value a
 test4 : List String
 test4 =
     [ 3, 50, 4, 50, 99 ]
-        |> initComputer 123
+        |> initComputer [ 123 ]
         |> runProg
         |> .log
 ```
@@ -360,7 +367,7 @@ Multiply value at address 4 (33) by the immediate value 3 and place result (99) 
 test5 : List String
 test5 =
     [ 1002, 4, 3, 4, 33 ]
-        |> initComputer 0
+        |> initComputer [ 0 ]
         |> runProg
         |> .log
 ```
@@ -371,7 +378,7 @@ If input is equal to 8, output a 1, otherwise output a 0
 test6 : List String
 test6 =
     [ 3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8 ]
-        |> initComputer 8
+        |> initComputer [ 8 ]
         |> runProg
         |> .log
 ```
@@ -382,7 +389,7 @@ If input is less than 8, output a 1, otherwise output a 0
 test7 : List String
 test7 =
     [ 3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8 ]
-        |> initComputer 8
+        |> initComputer [ 8 ]
         |> runProg
         |> .log
 ```
@@ -393,7 +400,7 @@ If the input is less than 8, output should be 999, if equal to 9 it should be 10
 test8 : List String
 test8 =
     [ 3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99 ]
-        |> initComputer 9
+        |> initComputer [ 9 ]
         |> runProg
         |> .log
 ```
