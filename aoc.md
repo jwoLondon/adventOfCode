@@ -194,9 +194,7 @@ splitAt n xs =
     ( List.take n xs, List.drop n xs )
 ```
 
-Set the value of a list item at the given position. If the position is larger than the list length, the value is appended to the end of the list.
-
-Note, for algorithms that do a lot of setting values at arbitrary positions, consider the more efficient `Array` or `Deque` structures.
+Set the value of a list item at the given position. If the position is larger than the list length, the value is appended to the end of the list. But note, for algorithms that do a lot of setting values at arbitrary positions, consider the more efficient `Array` or `Deque` structures.
 
 ```elm {l}
 setListAt : Int -> a -> List a -> List a
@@ -262,6 +260,26 @@ unique list =
                         uniqueHelp f (Set.insert computedFirst existing) rest (first :: accumulator)
     in
     uniqueHelp identity Set.empty list []
+```
+
+Create a list of adjacent neighbour tuples from a list. Will be one shorter than the original list.
+
+`neighbours [1,2,3,4] == [(1,2), (2,3), (3,4)]`
+
+```elm {l}
+neighbours : List a -> List ( a, a )
+neighbours items =
+    List.map2 Tuple.pair items (List.tail items |> Maybe.withDefault [])
+```
+
+Create a circular list of adjacent neighbour tuples from a list where the first item is the previous (circular) list item.
+
+`circularNeighbours [1,2,3,4] == [(4,1), (1,2), (2,3), (3,4))]`
+
+```elm {l}
+circularNeighbours : List a -> List ( a, a )
+circularNeighbours items =
+    neighbours (List.take 1 (List.reverse items) ++ items)
 ```
 
 ## Deques
