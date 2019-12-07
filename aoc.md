@@ -262,6 +262,16 @@ unique list =
     uniqueHelp identity Set.empty list []
 ```
 
+Take the last item in a list and put it at the front.
+
+`rotateList [1,2,3,4] == [4,1,2,3]`
+
+```elm {l}
+rotateList : List a -> List a
+rotateList xs =
+    List.take 1 (List.reverse xs) ++ List.take (List.length xs - 1) xs
+```
+
 Create a list of adjacent neighbour tuples from a list. Will be one shorter than the original list.
 
 `neighbours [1,2,3,4] == [(1,2), (2,3), (3,4)]`
