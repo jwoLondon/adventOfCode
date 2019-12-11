@@ -165,6 +165,29 @@ takeWhile predicate =
     takeWhileHelper []
 ```
 
+```elm {l}
+groupsOf : Int -> List a -> List (List a)
+groupsOf size xs =
+    let
+        thisGroup =
+            List.take size xs
+
+        xs_ =
+            List.drop size xs
+
+        okayArgs =
+            size > 0
+
+        okayLength =
+            size == List.length thisGroup
+    in
+    if okayArgs && okayLength then
+        thisGroup :: groupsOf size xs_
+
+    else
+        []
+```
+
 Find the index of the first occurrence of a value in a list:
 
 ```elm {l}
@@ -532,9 +555,31 @@ factors num =
                 fac n (i - 1) facs
 
         upper =
-            round (sqrt (toFloat num))
+            round (sqrt (toFloat (abs num)))
     in
-    fac num upper []
+    fac (abs num) upper []
+```
+
+Highest common factor of two integers. Note that for convenience, this also returns a value when both numbers are 0 (1), when one is zero (the non-zero number) and when values are negative.
+
+```elm {l}
+highestCommonFactor : Int -> Int -> Int
+highestCommonFactor a b =
+    case ( a, b ) of
+        ( 0, 0 ) ->
+            1
+
+        ( n, 0 ) ->
+            abs n
+
+        ( 0, n ) ->
+            abs n
+
+        _ ->
+            Set.intersect (Set.fromList (factors a)) (Set.fromList (factors b))
+                |> Set.toList
+                |> List.maximum
+                |> Maybe.withDefault -1
 ```
 
 ## Number Conversion
@@ -624,9 +669,20 @@ gToList =
     Matrix.flatten
 
 
+gFromList : Int -> List a -> Grid a
+gFromList numCols =
+    groupsOf numCols
+        >> Matrix.fromList
+
+
 gToLists : Grid a -> List (List a)
 gToLists =
     Matrix.toList
+
+
+gFromLists : List (List a) -> Grid a
+gFromLists =
+    Matrix.fromList
 
 
 gGet : GridLocation -> Grid a -> Maybe a
