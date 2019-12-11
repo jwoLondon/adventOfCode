@@ -22,6 +22,7 @@ type alias Computer =
     , outputStore : List Int
     , inputStore : List Int
     , startPointer : Int
+    , relativeBase : Int
     , log : List String
     , out : Int
     , status : Status
@@ -42,7 +43,7 @@ We can create a new computer by supplying optional inputs and a program.
 ```elm {l}
 initComputer : List Int -> List Int -> Computer
 initComputer inputs instrs =
-    Computer (List.indexedMap Tuple.pair instrs |> Dict.fromList) [] inputs 0 [] -9999 Running
+    Computer (List.indexedMap Tuple.pair instrs |> Dict.fromList) [] inputs 0 0 [] -9999 Running
 ```
 
 ## Memory
@@ -53,6 +54,7 @@ How memory addresses are read depends on the _parameter mode_ (introduced on Day
 type ParameterMode
     = Position
     | Immediate
+    | Relative
 ```
 
 ```elm {l}
@@ -62,10 +64,14 @@ read md addr comp =
         Immediate ->
             comp.mem
                 |> Dict.get addr
-                |> Maybe.withDefault -999
+                |> Maybe.withDefault 0
 
+        -- TODO: XXX Check -999 Also replace two maybe 0s below with -999?
         Position ->
-            read Immediate (Dict.get addr comp.mem |> Maybe.withDefault -999) comp
+            read Immediate (Dict.get addr comp.mem |> Maybe.withDefault 0) comp
+
+        Relative ->
+            read Immediate (comp.relativeBase + (Dict.get addr comp.mem |> Maybe.withDefault 0)) comp
 ```
 
 ## Operations
@@ -74,14 +80,15 @@ The range of op codes representing instructions is stored as a custom type.
 
 ```elm {l}
 type OpCode
-    = Add Int Int
-    | Mult Int Int
+    = Add Int Int Int
+    | Mult Int Int Int
     | Input Int
     | Output Int
     | JmpIfTrue Int Int
     | JmpIfFalse Int Int
     | LessThan Int Int Int
     | Equals Int Int Int
+    | ShiftBase Int
     | Halt
     | NoOp
 ```
@@ -96,6 +103,9 @@ readOp address comp =
             case chr of
                 '1' ->
                     Immediate
+
+                '2' ->
+                    Relative
 
                 _ ->
                     Position
@@ -112,70 +122,95 @@ readOp address comp =
             in
             read md1 (address + 1) comp
 
-        read2Params =
+        readAddressParam a =
+            let
+                md1 =
+                    modes |> List.head |> Maybe.withDefault Position
+
+                offset =
+                    if md1 == Relative then
+                        comp.relativeBase
+
+                    else
+                        0
+            in
+            offset + read Immediate (address + a) comp
+
+        readAddressModeParam md a =
+            let
+                offset =
+                    if md == Relative then
+                        comp.relativeBase
+
+                    else
+                        0
+            in
+            offset + read Immediate (address + a) comp
+
+        read3Params =
             let
                 md1 =
                     modes |> List.head |> Maybe.withDefault Position
 
                 md2 =
                     modes |> List.drop 1 |> List.head |> Maybe.withDefault Position
+
+                md3 =
+                    modes |> List.drop 2 |> List.head |> Maybe.withDefault Position
             in
-            ( read md1 (address + 1) comp, read md2 (address + 2) comp )
+            ( read md1 (address + 1) comp, read md2 (address + 2) comp, readAddressModeParam md3 3 )
     in
     case opcode of
         1 ->
             let
-                ( p1, p2 ) =
-                    read2Params
+                ( p1, p2, p3 ) =
+                    read3Params
             in
-            Add p1 p2
+            Add p1 p2 p3
 
         2 ->
             let
-                ( p1, p2 ) =
-                    read2Params
+                ( p1, p2, p3 ) =
+                    read3Params
             in
-            Mult p1 p2
+            Mult p1 p2 p3
 
         3 ->
-            Input (read Immediate (address + 1) comp)
+            Input (readAddressParam 1)
 
         4 ->
             Output readParam
 
         5 ->
             let
-                ( p1, p2 ) =
-                    read2Params
+                ( p1, p2, p3 ) =
+                    read3Params
             in
             JmpIfTrue p1 p2
 
         6 ->
             let
-                ( p1, p2 ) =
-                    read2Params
+                ( p1, p2, p3 ) =
+                    read3Params
             in
             JmpIfFalse p1 p2
 
         7 ->
             let
-                ( p1, p2 ) =
-                    read2Params
-
-                p3 =
-                    read Immediate (address + 3) comp
+                ( p1, p2, p3 ) =
+                    read3Params
             in
             LessThan p1 p2 p3
 
         8 ->
             let
-                ( p1, p2 ) =
-                    read2Params
-
-                p3 =
-                    read Immediate (address + 3) comp
+                ( p1, p2, p3 ) =
+                    read3Params
             in
             Equals p1 p2 p3
+
+        9 ->
+            ShiftBase readParam
 
         99 ->
             Halt
@@ -190,11 +225,11 @@ We can provide an equivalent function for applying the operation and if relevant
 applyOp : OpCode -> Int -> Computer -> Computer
 applyOp opCode address comp =
     case opCode of
-        Add p1 p2 ->
-            { comp | mem = Dict.insert (read Immediate (address + 3) comp) (p1 + p2) comp.mem }
+        Add p1 p2 p3 ->
+            { comp | mem = Dict.insert p3 (p1 + p2) comp.mem }
 
-        Mult p1 p2 ->
-            { comp | mem = Dict.insert (read Immediate (address + 3) comp) (p1 * p2) comp.mem }
+        Mult p1 p2 p3 ->
+            { comp | mem = Dict.insert p3 (p1 * p2) comp.mem }
 
         Input p1 ->
             case comp.inputStore of
@@ -209,7 +244,7 @@ applyOp opCode address comp =
                     { comp | status = AwaitingInput }
 
         Output p1 ->
-            { comp | outputStore = comp.outputStore ++ [ read Immediate (address + 1) comp ] }
+            comp
 
         JmpIfTrue p1 p2 ->
             comp
@@ -238,6 +273,9 @@ applyOp opCode address comp =
                         0
             in
             { comp | mem = Dict.insert p3 bool comp.mem }
+
+        ShiftBase p1 ->
+            { comp | relativeBase = comp.relativeBase + p1 }
 
         Halt ->
             comp
@@ -268,17 +306,17 @@ runProg computer =
                         String.fromInt n ++ " "
                 in
                 case op of
-                    Add p1 p2 ->
+                    Add p1 p2 p3 ->
                         let
                             log =
-                                (addrStr address ++ ": Add " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr (address + 3) ++ "\n") :: comp.log
+                                (addrStr address ++ ": Add " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr p3 ++ "\n") :: comp.log
                         in
                         run (address + 4) (applyOp op address { comp | log = log })
 
-                    Mult p1 p2 ->
+                    Mult p1 p2 p3 ->
                         let
                             log =
-                                (addrStr address ++ ": Mult " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr (address + 3) ++ "\n") :: comp.log
+                                (addrStr address ++ ": Mult " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr p3 ++ "\n") :: comp.log
                         in
                         run (address + 4) (applyOp op address { comp | log = log })
 
@@ -299,7 +337,16 @@ runProg computer =
                             log =
                                 (addrStr address ++ ": **OUT →** " ++ numStr p1 ++ "\n") :: comp.log
                         in
-                        run (address + 2) (applyOp op address { comp | log = log, out = p1, startPointer = address + 2 })
+                        run (address + 2)
+                            (applyOp op
+                                address
+                                { comp
+                                    | log = log
+                                    , out = p1
+                                    , outputStore = comp.outputStore ++ [ p1 ]
+                                    , startPointer = address + 2
+                                }
+                            )
 
                     JmpIfTrue p1 p2 ->
                         let
@@ -332,16 +379,23 @@ runProg computer =
                     LessThan p1 p2 p3 ->
                         let
                             log =
-                                (addrStr address ++ ": Less " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr p3 ++ "\n") :: comp.log
+                                (addrStr address ++ ": Less " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr (address + 3) ++ "\n") :: comp.log
                         in
                         run (address + 4) (applyOp op address { comp | log = log })
 
                     Equals p1 p2 p3 ->
                         let
                             log =
-                                (addrStr address ++ ": Equal " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr p3 ++ "\n") :: comp.log
+                                (addrStr address ++ ": Equal " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr (address + 3) ++ "\n") :: comp.log
                         in
                         run (address + 4) (applyOp op address { comp | log = log })
+
+                    ShiftBase p1 ->
+                        let
+                            log =
+                                (addrStr address ++ ": ShiftBase " ++ numStr p1 ++ "\n") :: comp.log
+                        in
+                        run (address + 2) (applyOp op address { comp | log = log, startPointer = address + 2 })
 
                     Halt ->
                         { comp
@@ -355,13 +409,23 @@ runProg computer =
     run computer.startPointer computer
 ```
 
-Execution will pause on input if there are no values in the input queue. New input values can be added to the queue with `addInput`. This doesn't automatically start a paused execution, but a subsequent call to `runProg`.
+Execution will pause on input if there are no values in the input queue. New input values can be added to the queue with `addInput`. This doesn't automatically start a paused execution, requiring a further call to `runProg` to resume.
 
 ```elm {l}
 addInput : Int -> Computer -> Computer
 addInput input comp =
     { comp | inputStore = input :: comp.inputStore }
 ```
+
+The state of the computer includes a list of its output instructions. Sometimes we may need to clear the output list.
+
+```elm {l}
+clearOutput : Computer -> Computer
+clearOutput comp =
+    { comp | outputStore = [] }
+```
+
+---
 
 ### Examples
 
@@ -461,6 +525,169 @@ test8 =
         |> initComputer [ 13 ]
         |> runProg
         |> addInput 25
+        |> runProg
+        |> .log
+```
+
+Set the relative base to 50, make all operations relative and output the input value.
+
+```elm {l m}
+test9 : List String
+test9 =
+    [ 109, 50, 203, 0, 204, 0, 99 ]
+        |> initComputer [ 13 ]
+        |> runProg
+        |> .log
+```
+
+Set the relative base to 50, make all operations relative and apply the test 5 (if input is less than 8, output 1, else output 0)
+
+```elm {l m}
+test10 : List String
+test10 =
+    [ 109, 50, 203, 11, 207, 11, 12, 11, 204, 11, 99, -1, 8 ]
+        |> initComputer [ 5 ]
+        |> runProg
+        |> .log
+```
+
+Shift base to 500, then output the input value using relative mode..
+
+```elm {l m}
+test11 : List String
+test11 =
+    [ 109, 500, 203, 50, 204, 50, 99 ]
+        |> initComputer [ 123 ]
+        |> runProg
+        |> .log
+```
+
+Should produce a copy of itself as output:
+
+```elm {l m}
+test12 : List String
+test12 =
+    [ 109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99 ]
+        |> initComputer []
+        |> runProg
+        |> .log
+        |> List.filter (\l -> String.contains "OUT" l)
+```
+
+Should output a 16 digit number.
+
+```elm {l m}
+test13 : List String
+test13 =
+    [ 1102, 34915192, 34915192, 7, 4, 7, 99, 0 ]
+        |> initComputer []
+        |> runProg
+        |> .log
+```
+
+Should output the large number in the middle
+
+```elm {l m}
+test14 : List String
+test14 =
+    [ 104, 1125899906842624, 99 ]
+        |> initComputer []
+        |> runProg
+        |> .log
+```
+
+### Relative Mode Tests
+
+#### Add
+
+```elm {l m}
+rmAdd : List String
+rmAdd =
+    [ 109, 500, 203, 50, 2201, 50, 50, 60, 4, 60, 99 ]
+        |> initComputer [ 13 ]
+        |> runProg
+        |> .log
+```
+
+#### Multiply
+
+```elm {l m}
+rmMult : List String
+rmMult =
+    [ 109, 500, 203, 50, 2202, 50, 50, 60, 4, 60, 99 ]
+        |> initComputer [ 13 ]
+        |> runProg
+        |> .log
+```
+
+#### Jump If True
+
+```elm {l m}
+rmJit : List String
+rmJit =
+    [ 109, 500, 203, 50, 1205, 50, 10, 104, -1, 99, 104, 1, 99 ]
+        |> initComputer [ 0 ]
+        |> runProg
+        |> .log
+```
+
+#### Jump If False
+
+```elm {l m}
+rmJif : List String
+rmJif =
+    [ 109, 500, 203, 50, 1206, 50, 10, 104, 1, 99, 104, -1, 99 ]
+        |> initComputer [ 0 ]
+        |> runProg
+        |> .log
+```
+
+#### Less than
+
+Is input negative?
+
+```elm {l m}
+rmLess : List String
+rmLess =
+    [ 109, 500, 203, 50, 1207, 50, 0, 7, 4, 7, 99 ]
+        |> initComputer [ 1 ]
+        |> runProg
+        |> .log
+```
+
+Is is 77 less than 88 (always outputs a 1)?
+
+```elm {l m}
+rmLess2 : List String
+rmLess2 =
+    [ 109, 500, 21107, 77, 88, 50, 204, 50, 99 ]
+        |> initComputer []
+        |> runProg
+        |> .log
+```
+
+#### Equal to
+
+Is input 0?
+
+```elm {l m}
+rmEqual : List String
+rmEqual =
+    [ 109, 500, 203, 50, 1208, 50, 0, 7, 4, 7, 99 ]
+        |> initComputer [ 0 ]
+        |> runProg
+        |> .log
+```
+
+#### Shift Base
+
+Should show input three times: 1 in position mode, 2, after in relative mode and 3 in immediate mode
+
+```elm {l m}
+rmShiftBase : List String
+rmShiftBase =
+    [ 103, 50, 9, 50, 4, 50, 209, -450, 204, -950, 109, -1000, 204, 50, 99 ]
+        |> initComputer [ 500 ]
         |> runProg
         |> .log
 ```
