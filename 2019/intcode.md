@@ -66,7 +66,6 @@ read md addr comp =
                 |> Dict.get addr
                 |> Maybe.withDefault 0
 
-        -- TODO: XXX Check -999 Also replace two maybe 0s below with -999?
         Position ->
             read Immediate (Dict.get addr comp.mem |> Maybe.withDefault 0) comp
 
@@ -74,11 +73,19 @@ read md addr comp =
             read Immediate (comp.relativeBase + (Dict.get addr comp.mem |> Maybe.withDefault 0)) comp
 ```
 
+To manipulate memory contents directly we can poke a value at a given address:
+
+```elm {l}
+poke : Int -> Int -> Computer -> Computer
+poke addr val comp =
+    { comp | mem = comp.mem |> Dict.insert addr val }
+```
+
 ## Operations
 
 The range of op codes representing instructions is stored as a custom type.
 
-```elm {l}
+```elm {l=hidden}
 type OpCode
     = Add Int Int Int
     | Mult Int Int Int
@@ -95,7 +102,7 @@ type OpCode
 
 As the computer reads an instruction it finds the opcode and its parameters (if it has any) based in the integers read from memory. Which addresses these are read from will depend on the parameter mode, which itself is determined by the digits prior to the final two.
 
-```elm {l}
+```elm {l=hidden}
 readOp : Int -> Computer -> OpCode
 readOp address comp =
     let
@@ -219,9 +226,9 @@ readOp address comp =
             NoOp |> Debug.log "Unknown opcode read"
 ```
 
-We can provide an equivalent function for applying the operation and if relevant, writing the result to memory:
+We can provide an equivalent function for applying the operation and if relevant, writing the result to memory.
 
-```elm {l}
+```elm {l=hidden}
 applyOp : OpCode -> Int -> Computer -> Computer
 applyOp opCode address comp =
     case opCode of
@@ -286,7 +293,7 @@ applyOp opCode address comp =
 
 We can run a program by starting at the opcode at position 0 and recursively processing opcodes until awaiting input or reading a halting opcode. To support debugging, we can also keep track in a log of mnemonics describing each operation (`&` indicates an address pointer).
 
-```elm {l}
+```elm {l=hidden}
 runProg : Computer -> Computer
 runProg computer =
     let
@@ -417,7 +424,7 @@ addInput input comp =
     { comp | inputStore = input :: comp.inputStore }
 ```
 
-The state of the computer includes a list of its output instructions. Sometimes we may need to clear the output list.
+The state of the computer includes a list of its output instructions and a log of all proceessed commands. Sometimes we may need to clear the these.
 
 ```elm {l}
 clearOutput : Computer -> Computer
@@ -425,9 +432,15 @@ clearOutput comp =
     { comp | outputStore = [] }
 ```
 
+```elm {l}
+clearLog : Computer -> Computer
+clearLog comp =
+    { comp | log = [] }
+```
+
 ---
 
-### Examples
+## Tests
 
 First example from [day 2](d02_2019.md), should generate output of 3500 after setting the 'noun' (address 1) to 9 and 'verb' (address 2) to 10 within the program instructions.
 
