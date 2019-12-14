@@ -824,6 +824,14 @@ unzip3 triplets =
     List.foldr addTriplet ( [], [], [] ) triplets
 ```
 
+Zip a 3-tuple of lists into a list of 3-tuples:
+
+```elm {l}
+zip3 : ( List a, List b, List c ) -> List ( a, b, c )
+zip3 ( xs, ys, zs ) =
+    List.map3 (\x y z -> ( x, y, z )) xs ys zs
+```
+
 ## Functional Utilities
 
 Reverse the order of parameters in a two-parameter function (was removed in Elm 0.19).
