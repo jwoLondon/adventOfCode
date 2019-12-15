@@ -8,6 +8,7 @@ elm:
     gicentre/elm-vegalite: latest
     avh4/elm-fifo: latest
     drathier/elm-graph: latest
+    the-sett/lazy-list: latest
 
   source-directories:
     - src
@@ -35,6 +36,7 @@ import Json.Decode as JD
 import MD5Fast as MD5
 import Matrix
 import Regex
+import Seq exposing (Seq)
 import Set exposing (Set)
 import VegaLite as VL
 ```
@@ -535,6 +537,46 @@ updateInsert key val dict =
         Dict.insert key val dict
 ```
 
+## Cycle Detection
+
+Several puzzles ask us to detect infinite repeated sequences (cycles) of items in sequence. The repeated sequence may not start from the beginning of the list. This uses [Brent's algorithm](https://en.wikipedia.org/wiki/Cycle_detection#Brent's_algorithm) with the option of specifying a maximum cycle size for cases where there is the possibility of no repeated sequence in an infinite list.
+
+Given a start value and a function that generates the next value in a sequence, return the position in the sequence of the first element in the cycle and its length. If there is no cycle detected less than the given `maxCycleLength`, will return `Nothing`.
+
+For example, suppose we have the function `\x -> x^2 + 1 |> modBy 255` (generating the sequence `[3, 10, 101, 2, 5, 26, 167, 95, 101, 2, 5, 26, 167, 95, 101...]`). Calling `sequenceCycle 10 3 (\x -> x ^ 2 + 1 |> modBy 255)`, will return `Just (6,2)` indicating the cycle is 6 items long starting at position 2 (zero-based) in the sequence. Calling `sequenceCycle 100 3 ((+) 1)` returns `Nothing`.
+
+```elm {l}
+sequenceCycle : Int -> a -> (a -> a) -> Maybe ( Int, Int )
+sequenceCycle maxCycleLength x0 f =
+    let
+        findLambda tortoise hare lam power =
+            if maxCycleLength > 0 && lam > maxCycleLength then
+                Nothing
+
+            else if tortoise == hare then
+                Just lam
+
+            else if power == lam then
+                findLambda hare (f hare) 1 (power * 2)
+
+            else
+                findLambda tortoise (f hare) (lam + 1) power
+
+        findMu tortoise hare mu =
+            if tortoise == hare then
+                mu
+
+            else
+                findMu (f tortoise) (f hare) (mu + 1)
+    in
+    case findLambda x0 (f x0) 1 1 of
+        Just lambda ->
+            Just ( lambda, findMu x0 (iterate lambda x0 f) 0 )
+
+        Nothing ->
+            Nothing
+```
+
 ## Number Theory
 
 Provides a list of all the factors of a given number.
@@ -840,6 +882,24 @@ Reverse the order of parameters in a two-parameter function (was removed in Elm 
 flip : (a -> b -> c) -> b -> a -> c
 flip fn argB argA =
     fn argA argB
+```
+
+Built-in curry/uncurry function were dropped in an earler version of Elm, so are provided here for convenience.
+
+Split paired arguments into two separate ones:
+
+```elm {l}
+curry : (( a, b ) -> c) -> a -> b -> c
+curry f a b =
+    f ( a, b )
+```
+
+Combine two arguments into a single pair:
+
+```elm {l}
+uncurry : (a -> b -> c) -> ( a, b ) -> c
+uncurry f ( a, b ) =
+    f a b
 ```
 
 Sometimes, puzzles ask us to iterate something _n_ times This can be achieved by folding, supplying a list from 1..n, so this convenience function just makes that clearer:
