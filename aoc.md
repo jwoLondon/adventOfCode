@@ -602,7 +602,7 @@ factors num =
     fac (abs num) upper []
 ```
 
-Highest common factor of two integers. Note that for convenience, this also returns a value when both numbers are 0 (1), when one is zero (the non-zero number) and when values are negative.
+Highest common factor (HCF) of two integers. Note that for convenience, this also returns a value when both numbers are 0 (1), when one is zero (the non-zero number) and when values are negative.
 
 ```elm {l}
 highestCommonFactor : Int -> Int -> Int
@@ -623,6 +623,16 @@ highestCommonFactor a b =
                 |> List.maximum
                 |> Maybe.withDefault -1
 ```
+
+Lowest common multiple (LCM) of a pair of numbers. For example `lowestCommonMultiple 4 6 == 12`
+
+```elm {l}
+lowestCommonMultiple : Int -> Int -> Int
+lowestCommonMultiple a b =
+    (abs a // highestCommonFactor a b) * abs b
+```
+
+To find the LCM of a list of numbers, just sequentially calculate the LCM of pairs from the list. For example, to find the LCM of 4 6 and 25 (300), use `List.foldl lowestCommonMultiple 1 [4, 6, 25]`
 
 ## Number Conversion
 
