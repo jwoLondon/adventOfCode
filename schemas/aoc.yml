@@ -5,12 +5,14 @@ labels:
   - name: part2
     paired:
       htmlTemplate: <div class="part2"><fieldset><legend>Part Two</legend>{{children}}</fieldset></div>
-      
+  - name: fixed
+    paired:
+      htmlTemplate: <div class="fixed">{{children}}</div>
+
 rules:
-  
 
 styling:
-   css: |
+  css: |
     fieldset {
       border: 1px solid #ccc;
       border-radius: 8px;
@@ -21,7 +23,7 @@ styling:
 
     .part1 fieldset, .part2 fieldset {
       background: #f3f3f3;
-      font-family: iosevka, monotone;
+      font-family: iosevka, monospace;
       font-size:0.9em;
     }
 
@@ -29,8 +31,13 @@ styling:
       margin-top: 1em;
       margin-bottom: 2em;
     }
-    
-     .part2 {
+
+    .part2 {
       margin-top: 2em;
     }
 
+
+    .fixed {
+       font-family: monospace;
+       font-weight: bold;
+    }
