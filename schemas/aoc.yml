@@ -40,4 +40,6 @@ styling:
     .fixed {
        font-family: monospace;
        font-weight: bold;
+       line-height: 1.1em;
+       letter-spacing: 1px;
     }
