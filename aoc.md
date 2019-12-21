@@ -754,7 +754,8 @@ gRowCount =
 
 gColCount : Grid a -> Int
 gColCount =
-    Matrix.colCount
+    -- Matrix.colCount
+    gToLists >> List.map List.length >> List.maximum >> Maybe.withDefault 0
 
 
 gGetRow : Int -> Grid a -> Maybe (List a)
