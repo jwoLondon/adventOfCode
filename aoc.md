@@ -539,7 +539,7 @@ updateInsert key val dict =
 
 ## Cycle Detection
 
-Several puzzles ask us to detect infinite repeated sequences (cycles) of items in sequence. The repeated sequence may not start from the beginning of the list. This uses [Brent's algorithm](https://en.wikipedia.org/wiki/Cycle_detection#Brent's_algorithm) with the option of specifying a maximum cycle size for cases where there is the possibility of no repeated sequence in an infinite list.
+Several puzzles ask us to detect infinite repeated sequences (cycles) of items in sequence. The repeated sequence may not start from the beginning of the list. This uses [Brent's algorithm](https://en.wikipedia.org/wiki/Cycle_detection#Brent's_algorithm) with the option of specifying a maximum cycle size for cases where there is the possibility of no repeats in an infinite sequence.
 
 Given a start value and a function that generates the next value in a sequence, return the position in the sequence of the first element in the cycle and its length. If there is no cycle detected less than the given `maxCycleLength`, will return `Nothing`.
 
