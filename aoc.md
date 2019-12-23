@@ -167,7 +167,7 @@ takeWhile predicate =
     takeWhileHelper []
 ```
 
-From [List.extra](https://package.elm-lang.org/packages/elm-community/list-extra/latest/List-Extra#groupsOf), split list into groups of a given size. If there are not enough elements to completely fill the last group, it will not be included.
+From [List.Extra](https://package.elm-lang.org/packages/elm-community/list-extra/latest/List-Extra#groupsOf), split list into groups of a given size. If there are not enough elements to completely fill the last group, it will not be included.
 
 ```elm {l}
 groupsOf : Int -> List a -> List (List a)
