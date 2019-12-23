@@ -167,24 +167,17 @@ takeWhile predicate =
     takeWhileHelper []
 ```
 
+From [List.extra](https://package.elm-lang.org/packages/elm-community/list-extra/latest/List-Extra#groupsOf), split list into groups of a given size. If there are not enough elements to completely fill the last group, it will not be included.
+
 ```elm {l}
 groupsOf : Int -> List a -> List (List a)
 groupsOf size xs =
     let
         thisGroup =
             List.take size xs
-
-        xs_ =
-            List.drop size xs
-
-        okayArgs =
-            size > 0
-
-        okayLength =
-            size == List.length thisGroup
     in
-    if okayArgs && okayLength then
-        thisGroup :: groupsOf size xs_
+    if size > 0 && size == List.length thisGroup then
+        thisGroup :: groupsOf size (List.drop size xs)
 
     else
         []
