@@ -607,14 +607,18 @@ test11 =
 
 Should produce a copy of itself as output:
 
-```elm {l m}
-test12 : List String
+```elm {l r}
+test12 : Bool
 test12 =
-    [ 109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99 ]
+    let
+        prog =
+            [ 109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99 ]
+    in
+    prog
         |> initComputer []
         |> runProg
-        |> commandLog
-        |> List.filter (\l -> String.contains "OUT" l)
+        |> .outputStore
+        |> (==) prog
 ```
 
 Should output a 16 digit number.
@@ -643,6 +647,8 @@ test14 =
 
 #### Add
 
+Should output double the input number by adding it to itself.
+
 ```elm {l m}
 rmAdd : List String
 rmAdd =
@@ -653,6 +659,8 @@ rmAdd =
 ```
 
 #### Multiply
+
+Should output the square of the input number by multiplying it by itself.
 
 ```elm {l m}
 rmMult : List String
@@ -724,7 +732,7 @@ rmEqual =
 
 #### Shift Base
 
-Should show input three times: 1 in position mode, 2, after in relative mode and 3 in immediate mode
+Should show input three times: first in position mode, then in relative mode and finally in immediate mode.
 
 ```elm {l m}
 rmShiftBase : List String
