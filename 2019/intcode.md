@@ -10,11 +10,9 @@ id: "litvis"
 
 _Collection of types and functions for representing an IntCode computer. Can be used with any puzzles that require it._
 
-We need to be able to store the entire program, read values at given addresses and write to them. Although this could be stored in an array, for greater flexibility such as the use of non consecutive memory addresses, we will use a dictionary where the keys are addresses and the values the content at each address.
+We need to be able to store an intcode program, read values at given addresses and write to them. We also need to be able to receive input and generate output.
 
-The computer also has some other states such as the input and output values used and produced by a program. To keep the design open to further enhancement, we can represent the state of the computer as a record (refactored from an earlier stage on where just the memory was stored).
-
-## Computer Data Structure
+## Data Structure
 
 ```elm {l}
 type alias Computer =
@@ -23,13 +21,23 @@ type alias Computer =
     , inputStore : List Int
     , startPointer : Int
     , relativeBase : Int
-    , log : List String
+    , log : BoundedDeque String
     , out : Int
     , status : Status
     }
 ```
 
-The computer can be running a program, or paused while it awaits some external input (introduced on Day 7), or it may have halted after completing all instructions.
+## Initialising
+
+We can create a new computer by supplying optional inputs and a program.
+
+```elm {l}
+initComputer : List Int -> List Int -> Computer
+initComputer inputs instrs =
+    Computer (List.indexedMap Tuple.pair instrs |> Dict.fromList) [] inputs 0 0 (BoundedDeque.empty 100) -9999 Running
+```
+
+The computer can be running a program, or paused while it awaits some external input, or it may have halted after completing all instructions.
 
 ```elm {l}
 type Status
@@ -38,17 +46,35 @@ type Status
     | Halted
 ```
 
-We can create a new computer by supplying optional inputs and a program.
+## Debugging
+
+For debugging, running the computer generates a log of instructions as it runs. To view the log:
 
 ```elm {l}
-initComputer : List Int -> List Int -> Computer
-initComputer inputs instrs =
-    Computer (List.indexedMap Tuple.pair instrs |> Dict.fromList) [] inputs 0 0 [] -9999 Running
+commandLog : Computer -> List String
+commandLog comp =
+    BoundedDeque.toList comp.log
+```
+
+To preserve resources, this log has a maximum buffer size. To change from the default buffer size of 100 instructions:
+
+```elm {l}
+resizeLogBuffer : Int -> Computer -> Computer
+resizeLogBuffer bSize computer =
+    let
+        logBuffer =
+            computer.log
+                |> BoundedDeque.toList
+                |> List.reverse
+                |> List.take bSize
+                |> List.reverse
+    in
+    { computer | log = BoundedDeque.fromList bSize logBuffer }
 ```
 
 ## Memory
 
-How memory addresses are read depends on the _parameter mode_ (introduced on Day 5). _Position mode_ reads the value stored at a given address while _immediate mode_ reads a given value directly.
+How memory addresses are read depends on the _parameter mode_ (introduced on Day 5). _Immediate mode_ reads a given value directly while _Position mode_ reads a value stored at a given address. _Relative mode_ also reads from addresses, but offset by whatever the current _relativeBase_ is (changed with the `ShiftBase` (9) command).
 
 ```elm {l}
 type ParameterMode
@@ -67,10 +93,16 @@ read md addr comp =
                 |> Maybe.withDefault 0
 
         Position ->
-            read Immediate (Dict.get addr comp.mem |> Maybe.withDefault 0) comp
+            read Immediate
+                (Dict.get addr comp.mem |> Maybe.withDefault 0)
+                comp
 
         Relative ->
-            read Immediate (comp.relativeBase + (Dict.get addr comp.mem |> Maybe.withDefault 0)) comp
+            read Immediate
+                (comp.relativeBase
+                    + (Dict.get addr comp.mem |> Maybe.withDefault 0)
+                )
+                comp
 ```
 
 To manipulate memory contents directly we can poke a value at a given address:
@@ -85,7 +117,7 @@ poke addr val comp =
 
 The range of op codes representing instructions is stored as a custom type.
 
-```elm {l=hidden}
+```elm {l}
 type OpCode
     = Add Int Int Int
     | Mult Int Int Int
@@ -100,7 +132,7 @@ type OpCode
     | NoOp
 ```
 
-As the computer reads an instruction it finds the opcode and its parameters (if it has any) based in the integers read from memory. Which addresses these are read from will depend on the parameter mode, which itself is determined by the digits prior to the final two.
+As the computer reads an instruction it finds the opcode and its parameters (if it has any) based in the values read from memory. Which addresses these are read from will depend on the _parameter mode_, which itself is determined by the digits prior to the final two.
 
 ```elm {l=hidden}
 readOp : Int -> Computer -> OpCode
@@ -291,7 +323,7 @@ applyOp opCode address comp =
             comp
 ```
 
-We can run a program by starting at the opcode at position 0 and recursively processing opcodes until awaiting input or reading a halting opcode. To support debugging, we can also keep track in a log of mnemonics describing each operation (`&` indicates an address pointer).
+We can run a program by starting at the opcode at position 0 and recursively processing opcodes until awaiting input or reading a halting opcode.
 
 ```elm {l=hidden}
 runProg : Computer -> Computer
@@ -316,14 +348,14 @@ runProg computer =
                     Add p1 p2 p3 ->
                         let
                             log =
-                                (addrStr address ++ ": Add " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr p3 ++ "\n") :: comp.log
+                                BoundedDeque.pushBack (addrStr address ++ ": Add " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr p3 ++ "\n") comp.log
                         in
                         run (address + 4) (applyOp op address { comp | log = log })
 
                     Mult p1 p2 p3 ->
                         let
                             log =
-                                (addrStr address ++ ": Mult " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr p3 ++ "\n") :: comp.log
+                                BoundedDeque.pushBack (addrStr address ++ ": Mult " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr p3 ++ "\n") comp.log
                         in
                         run (address + 4) (applyOp op address { comp | log = log })
 
@@ -332,7 +364,7 @@ runProg computer =
                             log =
                                 case List.head comp.inputStore of
                                     Just inp ->
-                                        (addrStr address ++ ": " ++ numStr inp ++ "→ Input → " ++ addrStr p1 ++ "\n") :: comp.log
+                                        BoundedDeque.pushBack (addrStr address ++ ": " ++ numStr inp ++ "→ Input → " ++ addrStr p1 ++ "\n") comp.log
 
                                     Nothing ->
                                         comp.log
@@ -342,7 +374,7 @@ runProg computer =
                     Output p1 ->
                         let
                             log =
-                                (addrStr address ++ ": **OUT →** " ++ numStr p1 ++ "\n") :: comp.log
+                                BoundedDeque.pushBack (addrStr address ++ ": **OUT →** " ++ numStr p1 ++ "\n") comp.log
                         in
                         run (address + 2)
                             (applyOp op
@@ -365,7 +397,7 @@ runProg computer =
                                     p2
 
                             log =
-                                (addrStr address ++ ": JmpTru " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr newAddress ++ "\n") :: comp.log
+                                BoundedDeque.pushBack (addrStr address ++ ": JmpTru " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr newAddress ++ "\n") comp.log
                         in
                         run newAddress (applyOp op newAddress { comp | log = log })
 
@@ -379,63 +411,62 @@ runProg computer =
                                     address + 3
 
                             log =
-                                (addrStr address ++ ": JmpFls " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr newAddress ++ "\n") :: comp.log
+                                BoundedDeque.pushBack (addrStr address ++ ": JmpFls " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr newAddress ++ "\n") comp.log
                         in
                         run newAddress (applyOp op newAddress { comp | log = log })
 
                     LessThan p1 p2 p3 ->
                         let
                             log =
-                                (addrStr address ++ ": Less " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr (address + 3) ++ "\n") :: comp.log
+                                BoundedDeque.pushBack (addrStr address ++ ": Less " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr (address + 3) ++ "\n") comp.log
                         in
                         run (address + 4) (applyOp op address { comp | log = log })
 
                     Equals p1 p2 p3 ->
                         let
                             log =
-                                (addrStr address ++ ": Equal " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr (address + 3) ++ "\n") :: comp.log
+                                BoundedDeque.pushBack (addrStr address ++ ": Equal " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr (address + 3) ++ "\n") comp.log
                         in
                         run (address + 4) (applyOp op address { comp | log = log })
 
                     ShiftBase p1 ->
                         let
                             log =
-                                (addrStr address ++ ": ShiftBase " ++ numStr p1 ++ "\n") :: comp.log
+                                BoundedDeque.pushBack (addrStr address ++ ": ShiftBase " ++ numStr p1 ++ "\n") comp.log
                         in
                         run (address + 2) (applyOp op address { comp | log = log, startPointer = address + 2 })
 
                     Halt ->
                         { comp
                             | status = Halted
-                            , log = (addrStr address ++ ": HALT\n") :: comp.log |> List.reverse
+                            , log = BoundedDeque.pushBack (addrStr address ++ ": HALT\n") comp.log
                         }
 
                     NoOp ->
-                        { comp | log = (addrStr address ++ ": **Bad Exit**\n") :: comp.log |> List.reverse }
+                        { comp | log = BoundedDeque.pushBack (addrStr address ++ ": **Bad Exit**\n") comp.log }
     in
     run computer.startPointer computer
 ```
 
-Execution will pause on input if there are no values in the input queue. New input values can be added to the queue with `addInput`. This doesn't automatically start a paused execution, requiring a further call to `runProg` to resume.
+Execution will pause on input if there are no values in the input queue. New input values can be added to the queue with `addInput` or in batches via `addInputs`. This doesn't automatically start a paused execution, requiring a further call to `runProg` to resume.
 
 ```elm {l}
 addInput : Int -> Computer -> Computer
 addInput input comp =
     { comp | inputStore = input :: comp.inputStore }
+
+
+addInputs : List Int -> Computer -> Computer
+addInputs inputs comp =
+    { comp | inputStore = List.reverse inputs ++ comp.inputStore }
 ```
 
-The state of the computer includes a list of its output instructions and a log of all proceessed commands. Sometimes we may need to clear the these.
+The state of the computer includes a list of its output instructions. Sometimes we may need to clear it.
 
 ```elm {l}
 clearOutput : Computer -> Computer
 clearOutput comp =
     { comp | outputStore = [] }
-```
-
-```elm {l}
-clearLog : Computer -> Computer
-clearLog comp =
-    { comp | log = [] }
 ```
 
 ---
@@ -470,7 +501,7 @@ test2 =
     [ 3, 50, 4, 50, 99 ]
         |> initComputer [ 123 ]
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 Multiply value at address 4 (33) by the immediate value 3 and place result (99) at address 4 and therefore halt.
@@ -481,7 +512,7 @@ test3 =
     [ 1002, 4, 3, 4, 33 ]
         |> initComputer [ 0 ]
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 If input is equal to 8, output a 1, otherwise output a 0
@@ -492,7 +523,7 @@ test4 =
     [ 3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8 ]
         |> initComputer [ 8 ]
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 If input is less than 8, output a 1, otherwise output a 0
@@ -503,7 +534,7 @@ test5 =
     [ 3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8 ]
         |> initComputer [ 8 ]
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 If the input is less than 8, output should be 999, if equal to 9 it should be 1000 and if greater than 8, it should be 1001.
@@ -514,7 +545,7 @@ test6 =
     [ 3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99 ]
         |> initComputer [ 9 ]
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 Should output the first input (13) and then pause awaiting second input. Note to reverse the log list when in a paused state.
@@ -525,8 +556,7 @@ test7 =
     [ 3, 10, 4, 10, 3, 11, 4, 11, 99 ]
         |> initComputer [ 13 ]
         |> runProg
-        |> .log
-        |> List.reverse
+        |> commandLog
 ```
 
 As with the previous test, but should resume after receiving a second input (25) before halting.
@@ -539,7 +569,7 @@ test8 =
         |> runProg
         |> addInput 25
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 Set the relative base to 50, make all operations relative and output the input value.
@@ -550,7 +580,7 @@ test9 =
     [ 109, 50, 203, 0, 204, 0, 99 ]
         |> initComputer [ 13 ]
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 Set the relative base to 50, make all operations relative and apply the test 5 (if input is less than 8, output 1, else output 0)
@@ -561,7 +591,7 @@ test10 =
     [ 109, 50, 203, 11, 207, 11, 12, 11, 204, 11, 99, -1, 8 ]
         |> initComputer [ 5 ]
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 Shift base to 500, then output the input value using relative mode..
@@ -572,7 +602,7 @@ test11 =
     [ 109, 500, 203, 50, 204, 50, 99 ]
         |> initComputer [ 123 ]
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 Should produce a copy of itself as output:
@@ -583,7 +613,7 @@ test12 =
     [ 109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99 ]
         |> initComputer []
         |> runProg
-        |> .log
+        |> commandLog
         |> List.filter (\l -> String.contains "OUT" l)
 ```
 
@@ -595,7 +625,7 @@ test13 =
     [ 1102, 34915192, 34915192, 7, 4, 7, 99, 0 ]
         |> initComputer []
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 Should output the large number in the middle
@@ -606,7 +636,7 @@ test14 =
     [ 104, 1125899906842624, 99 ]
         |> initComputer []
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 ### Relative Mode Tests
@@ -619,7 +649,7 @@ rmAdd =
     [ 109, 500, 203, 50, 2201, 50, 50, 60, 4, 60, 99 ]
         |> initComputer [ 13 ]
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 #### Multiply
@@ -630,7 +660,7 @@ rmMult =
     [ 109, 500, 203, 50, 2202, 50, 50, 60, 4, 60, 99 ]
         |> initComputer [ 13 ]
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 #### Jump If True
@@ -641,7 +671,7 @@ rmJit =
     [ 109, 500, 203, 50, 1205, 50, 10, 104, -1, 99, 104, 1, 99 ]
         |> initComputer [ 0 ]
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 #### Jump If False
@@ -652,7 +682,7 @@ rmJif =
     [ 109, 500, 203, 50, 1206, 50, 10, 104, 1, 99, 104, -1, 99 ]
         |> initComputer [ 0 ]
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 #### Less than
@@ -665,7 +695,7 @@ rmLess =
     [ 109, 500, 203, 50, 1207, 50, 0, 7, 4, 7, 99 ]
         |> initComputer [ 1 ]
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 Is is 77 less than 88 (always outputs a 1)?
@@ -676,7 +706,7 @@ rmLess2 =
     [ 109, 500, 21107, 77, 88, 50, 204, 50, 99 ]
         |> initComputer []
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 #### Equal to
@@ -689,7 +719,7 @@ rmEqual =
     [ 109, 500, 203, 50, 1208, 50, 0, 7, 4, 7, 99 ]
         |> initComputer [ 0 ]
         |> runProg
-        |> .log
+        |> commandLog
 ```
 
 #### Shift Base
@@ -702,5 +732,5 @@ rmShiftBase =
     [ 103, 50, 9, 50, 4, 50, 209, -450, 204, -950, 109, -1000, 204, 50, 99 ]
         |> initComputer [ 500 ]
         |> runProg
-        |> .log
+        |> commandLog
 ```
