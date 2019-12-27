@@ -52,8 +52,17 @@ For debugging, running the computer generates a log of instructions as it runs. 
 
 ```elm {l}
 commandLog : Computer -> List String
-commandLog comp =
-    BoundedDeque.toList comp.log
+commandLog computer =
+    "|Address|Command|Code|\n|-:|-|-|\n"
+        :: BoundedDeque.toList computer.log
+```
+
+And to clear it (logs can become very long during iterative processes):
+
+```elm {l}
+clearLog : Computer -> Computer
+clearLog computer =
+    { computer | log = BoundedDeque.empty (BoundedDeque.length computer.log) }
 ```
 
 To preserve resources, this log has a maximum buffer size. To change from the default buffer size of 100 instructions:
@@ -85,24 +94,24 @@ type ParameterMode
 
 ```elm {l}
 read : ParameterMode -> Int -> Computer -> Int
-read md addr comp =
+read md addr computer =
     case md of
         Immediate ->
-            comp.mem
+            computer.mem
                 |> Dict.get addr
                 |> Maybe.withDefault 0
 
         Position ->
             read Immediate
-                (Dict.get addr comp.mem |> Maybe.withDefault 0)
-                comp
+                (Dict.get addr computer.mem |> Maybe.withDefault 0)
+                computer
 
         Relative ->
             read Immediate
-                (comp.relativeBase
-                    + (Dict.get addr comp.mem |> Maybe.withDefault 0)
+                (computer.relativeBase
+                    + (Dict.get addr computer.mem |> Maybe.withDefault 0)
                 )
-                comp
+                computer
 ```
 
 To manipulate memory contents directly we can poke a value at a given address:
@@ -222,14 +231,14 @@ readOp address comp =
 
         5 ->
             let
-                ( p1, p2, p3 ) =
+                ( p1, p2, _ ) =
                     read3Params
             in
             JmpIfTrue p1 p2
 
         6 ->
             let
-                ( p1, p2, p3 ) =
+                ( p1, p2, _ ) =
                     read3Params
             in
             JmpIfFalse p1 p2
@@ -338,6 +347,20 @@ runProg computer =
                     op =
                         readOp address comp
 
+                    raw addr numParams =
+                        List.foldl
+                            (\n str ->
+                                str
+                                    ++ String.fromInt
+                                        (Dict.get (addr + n) computer.mem
+                                            |> Maybe.withDefault 0
+                                        )
+                                    ++ " "
+                            )
+                            "|"
+                            (List.range 0 numParams)
+                            ++ "|\n"
+
                     addrStr addr =
                         "&" ++ String.fromInt addr ++ " "
 
@@ -348,14 +371,26 @@ runProg computer =
                     Add p1 p2 p3 ->
                         let
                             log =
-                                BoundedDeque.pushBack (addrStr address ++ ": Add " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr p3 ++ "\n") comp.log
+                                BoundedDeque.pushBack
+                                    ("|"
+                                        ++ addrStr address
+                                        ++ ("|Add " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr p3)
+                                        ++ raw address 3
+                                    )
+                                    comp.log
                         in
                         run (address + 4) (applyOp op address { comp | log = log })
 
                     Mult p1 p2 p3 ->
                         let
                             log =
-                                BoundedDeque.pushBack (addrStr address ++ ": Mult " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr p3 ++ "\n") comp.log
+                                BoundedDeque.pushBack
+                                    ("|"
+                                        ++ addrStr address
+                                        ++ ("|Mult " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr p3)
+                                        ++ raw address 3
+                                    )
+                                    comp.log
                         in
                         run (address + 4) (applyOp op address { comp | log = log })
 
@@ -364,7 +399,13 @@ runProg computer =
                             log =
                                 case List.head comp.inputStore of
                                     Just inp ->
-                                        BoundedDeque.pushBack (addrStr address ++ ": " ++ numStr inp ++ "→ Input → " ++ addrStr p1 ++ "\n") comp.log
+                                        BoundedDeque.pushBack
+                                            ("|"
+                                                ++ addrStr address
+                                                ++ ("|" ++ numStr inp ++ "→ Input → " ++ addrStr p1)
+                                                ++ raw address 1
+                                            )
+                                            comp.log
 
                                     Nothing ->
                                         comp.log
@@ -374,7 +415,13 @@ runProg computer =
                     Output p1 ->
                         let
                             log =
-                                BoundedDeque.pushBack (addrStr address ++ ": **OUT →** " ++ numStr p1 ++ "\n") comp.log
+                                BoundedDeque.pushBack
+                                    ("|"
+                                        ++ addrStr address
+                                        ++ ("|**OUT →** " ++ numStr p1)
+                                        ++ raw address 1
+                                    )
+                                    comp.log
                         in
                         run (address + 2)
                             (applyOp op
@@ -397,7 +444,13 @@ runProg computer =
                                     p2
 
                             log =
-                                BoundedDeque.pushBack (addrStr address ++ ": JmpTru " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr newAddress ++ "\n") comp.log
+                                BoundedDeque.pushBack
+                                    ("|"
+                                        ++ addrStr address
+                                        ++ ("|JmpTru " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr newAddress)
+                                        ++ raw address 2
+                                    )
+                                    comp.log
                         in
                         run newAddress (applyOp op newAddress { comp | log = log })
 
@@ -411,35 +464,66 @@ runProg computer =
                                     address + 3
 
                             log =
-                                BoundedDeque.pushBack (addrStr address ++ ": JmpFls " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr newAddress ++ "\n") comp.log
+                                BoundedDeque.pushBack
+                                    ("|"
+                                        ++ addrStr address
+                                        ++ ("|JmpFls " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr newAddress)
+                                        ++ raw address 2
+                                    )
+                                    comp.log
                         in
                         run newAddress (applyOp op newAddress { comp | log = log })
 
                     LessThan p1 p2 p3 ->
                         let
                             log =
-                                BoundedDeque.pushBack (addrStr address ++ ": Less " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr (address + 3) ++ "\n") comp.log
+                                BoundedDeque.pushBack
+                                    ("|"
+                                        ++ addrStr address
+                                        ++ ("|Less " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr (address + 3))
+                                        ++ raw address 3
+                                    )
+                                    comp.log
                         in
                         run (address + 4) (applyOp op address { comp | log = log })
 
                     Equals p1 p2 p3 ->
                         let
                             log =
-                                BoundedDeque.pushBack (addrStr address ++ ": Equal " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr (address + 3) ++ "\n") comp.log
+                                BoundedDeque.pushBack
+                                    ("|"
+                                        ++ addrStr address
+                                        ++ ("|Equal " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr (address + 3))
+                                        ++ raw address 3
+                                    )
+                                    comp.log
                         in
                         run (address + 4) (applyOp op address { comp | log = log })
 
                     ShiftBase p1 ->
                         let
                             log =
-                                BoundedDeque.pushBack (addrStr address ++ ": ShiftBase " ++ numStr p1 ++ "\n") comp.log
+                                BoundedDeque.pushBack
+                                    ("|"
+                                        ++ addrStr address
+                                        ++ ("|ShiftBase " ++ numStr p1)
+                                        ++ raw address 1
+                                    )
+                                    comp.log
                         in
                         run (address + 2) (applyOp op address { comp | log = log, startPointer = address + 2 })
 
                     Halt ->
                         { comp
                             | status = Halted
-                            , log = BoundedDeque.pushBack (addrStr address ++ ": HALT\n") comp.log
+                            , log =
+                                BoundedDeque.pushBack
+                                    ("|"
+                                        ++ addrStr address
+                                        ++ "|HALT"
+                                        ++ raw address 0
+                                    )
+                                    comp.log
                         }
 
                     NoOp ->
