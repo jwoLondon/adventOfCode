@@ -19,7 +19,7 @@ type alias Computer =
     { mem : Dict Int Int
     , outputStore : List Int
     , inputStore : List Int
-    , startPointer : Int
+    , instrPointer : Int
     , relativeBase : Int
     , log : BoundedDeque String
     , out : Int
@@ -53,8 +53,26 @@ For debugging, running the computer generates a log of instructions as it runs. 
 ```elm {l}
 commandLog : Computer -> List String
 commandLog computer =
+    let
+        statusMessage status =
+            case status of
+                Running ->
+                    "_Running_"
+
+                AwaitingInput ->
+                    "_Awaiting input_"
+
+                Halted ->
+                    "_Halted_"
+    in
     "|Address|Command|Code|\n|-:|-|-|\n"
         :: BoundedDeque.toList computer.log
+        ++ [ "|&"
+                ++ String.fromInt computer.instrPointer
+                ++ "|"
+                ++ statusMessage computer.status
+                ++ "|"
+           ]
 ```
 
 And to clear it (logs can become very long during iterative processes):
@@ -379,7 +397,11 @@ runProg computer =
                                     )
                                     comp.log
                         in
-                        run (address + 4) (applyOp op address { comp | log = log })
+                        run (address + 4)
+                            (applyOp op
+                                address
+                                { comp | log = log, instrPointer = address + 4 }
+                            )
 
                     Mult p1 p2 p3 ->
                         let
@@ -392,7 +414,11 @@ runProg computer =
                                     )
                                     comp.log
                         in
-                        run (address + 4) (applyOp op address { comp | log = log })
+                        run (address + 4)
+                            (applyOp op
+                                address
+                                { comp | log = log, instrPointer = address + 4 }
+                            )
 
                     Input p1 ->
                         let
@@ -430,7 +456,7 @@ runProg computer =
                                     | log = log
                                     , out = p1
                                     , outputStore = comp.outputStore ++ [ p1 ]
-                                    , startPointer = address + 2
+                                    , instrPointer = address + 2
                                 }
                             )
 
@@ -452,7 +478,7 @@ runProg computer =
                                     )
                                     comp.log
                         in
-                        run newAddress (applyOp op newAddress { comp | log = log })
+                        run newAddress (applyOp op newAddress { comp | log = log, instrPointer = newAddress })
 
                     JmpIfFalse p1 p2 ->
                         let
@@ -472,7 +498,7 @@ runProg computer =
                                     )
                                     comp.log
                         in
-                        run newAddress (applyOp op newAddress { comp | log = log })
+                        run newAddress (applyOp op newAddress { comp | log = log, instrPointer = newAddress })
 
                     LessThan p1 p2 p3 ->
                         let
@@ -485,7 +511,7 @@ runProg computer =
                                     )
                                     comp.log
                         in
-                        run (address + 4) (applyOp op address { comp | log = log })
+                        run (address + 4) (applyOp op address { comp | log = log, instrPointer = address + 4 })
 
                     Equals p1 p2 p3 ->
                         let
@@ -498,7 +524,7 @@ runProg computer =
                                     )
                                     comp.log
                         in
-                        run (address + 4) (applyOp op address { comp | log = log })
+                        run (address + 4) (applyOp op address { comp | log = log, instrPointer = address + 4 })
 
                     ShiftBase p1 ->
                         let
@@ -511,7 +537,7 @@ runProg computer =
                                     )
                                     comp.log
                         in
-                        run (address + 2) (applyOp op address { comp | log = log, startPointer = address + 2 })
+                        run (address + 2) (applyOp op address { comp | log = log, instrPointer = address + 2 })
 
                     Halt ->
                         { comp
@@ -529,7 +555,7 @@ runProg computer =
                     NoOp ->
                         { comp | log = BoundedDeque.pushBack (addrStr address ++ ": **Bad Exit**\n") comp.log }
     in
-    run computer.startPointer computer
+    run computer.instrPointer computer
 ```
 
 Execution will pause on input if there are no values in the input queue. New input values can be added to the queue with `addInput` or in batches via `addInputs`. This doesn't automatically start a paused execution, requiring a further call to `runProg` to resume.
@@ -632,7 +658,7 @@ test6 =
         |> commandLog
 ```
 
-Should output the first input (13) and then pause awaiting second input. Note to reverse the log list when in a paused state.
+Should output the first input (13) and then pause awaiting second input.
 
 ```elm {l m}
 test7 : List String
