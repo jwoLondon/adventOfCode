@@ -402,7 +402,7 @@ runProg computer =
                                         BoundedDeque.pushBack
                                             ("|"
                                                 ++ addrStr address
-                                                ++ ("|" ++ numStr inp ++ "→ Input → " ++ addrStr p1)
+                                                ++ ("|" ++ numStr inp ++ "→ **Input** → " ++ addrStr p1)
                                                 ++ raw address 1
                                             )
                                             comp.log
@@ -480,7 +480,7 @@ runProg computer =
                                 BoundedDeque.pushBack
                                     ("|"
                                         ++ addrStr address
-                                        ++ ("|Less " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr (address + 3))
+                                        ++ ("|Less " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr p3)
                                         ++ raw address 3
                                     )
                                     comp.log
@@ -493,7 +493,7 @@ runProg computer =
                                 BoundedDeque.pushBack
                                     ("|"
                                         ++ addrStr address
-                                        ++ ("|Equal " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr (address + 3))
+                                        ++ ("|Equal " ++ numStr p1 ++ numStr p2 ++ " → " ++ addrStr p3)
                                         ++ raw address 3
                                     )
                                     comp.log
