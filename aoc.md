@@ -487,16 +487,24 @@ selectSplit list =
 
 ## Frequency Distributions
 
-Building a frequency distribution is a common task:
+Building frequency distributions is a common task.
+
+```elm {l}
+addNToFreqTable : comparable -> Int -> Dict comparable Int -> Dict comparable Int
+addNToFreqTable item n freqTable =
+    if Dict.member item freqTable then
+        Dict.update item (Maybe.map ((+) n)) freqTable
+
+    else
+        Dict.insert item n freqTable
+```
+
+And for convenience when we accumulate frequencies in increments of 1:
 
 ```elm {l}
 addToFreqTable : comparable -> Dict comparable Int -> Dict comparable Int
 addToFreqTable item freqTable =
-    if Dict.member item freqTable then
-        Dict.update item (Maybe.map ((+) 1)) freqTable
-
-    else
-        Dict.insert item 1 freqTable
+    addNToFreqTable item 1 freqTable
 ```
 
 Find the commonest value (mode) and its frequency in a list:
