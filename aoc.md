@@ -554,18 +554,18 @@ For example, suppose we have the function `\x -> x^2 + 1 |> modBy 255` (generati
 sequenceCycle : Int -> a -> (a -> a) -> Maybe ( Int, Int )
 sequenceCycle maxCycleLength x0 f =
     let
-        findLambda tortoise hare lam power =
+        findLambda tortoise hare lam p =
             if maxCycleLength > 0 && lam > maxCycleLength then
                 Nothing
 
             else if tortoise == hare then
                 Just lam
 
-            else if power == lam then
-                findLambda hare (f hare) 1 (power * 2)
+            else if p == lam then
+                findLambda hare (f hare) 1 (p * 2)
 
             else
-                findLambda tortoise (f hare) (lam + 1) power
+                findLambda tortoise (f hare) (lam + 1) p
 
         findMu tortoise hare mu =
             if tortoise == hare then
@@ -859,8 +859,6 @@ tripletThird ( _, _, c ) =
 ```
 
 Transform all three values of a 3-tuple:
-
-`( "Lovelace", 1851, False ) |> mapTriplet String.toUpper ((+) 1) not`
 
 ```elm {l}
 mapTriplet : (a -> x) -> (b -> y) -> (c -> z) -> ( a, b, c ) -> ( x, y, z )
