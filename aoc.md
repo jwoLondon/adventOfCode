@@ -23,9 +23,13 @@ This document does nothing more than set up the various package dependencies use
 
 ```elm {l=hidden}
 import Aoc as AOC
+import Array exposing (Array)
+import Bitwise
 import BoundedDeque exposing (BoundedDeque)
 import Deque exposing (Deque)
 import Dict exposing (Dict)
+import Json.Decode as JD
+import MD5Fast as MD5
 import PriorityQueue
 import Regex
 ```
