@@ -32,4 +32,5 @@ import Json.Decode as JD
 import MD5Fast as MD5
 import PriorityQueue
 import Regex
+import Set exposing (Set)
 ```
