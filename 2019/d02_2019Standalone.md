@@ -192,7 +192,7 @@ part2 =
         mem =
             puzzleInput |> toMemory
     in
-    gridLocations ( 0, 0 ) ( 99, 99 )
+    AOC.gridLocations ( 0, 0 ) ( 99, 99 )
         |> List.map
             (\( n, v ) ->
                 if runProg n v mem == 19690720 then
@@ -204,6 +204,8 @@ part2 =
         |> List.filterMap identity
 ```
 
-### Reflection
+---
+
+## Reflection
 
 I do like this kind of puzzle, and great to see hints that _Intcode_ will be developed in later puzzles. I don't know if using a dictionary rather than a random access array is preferable. For this puzzle, a dictionary isn't necessary given that all memory locations are sequentially adjacent. But who knows how it might develop in later puzzles. There is scope for abstracting the system further, but I will wait to see how future puzzles develop before doing so.
