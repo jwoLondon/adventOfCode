@@ -29,6 +29,7 @@ import BoundedDeque exposing (BoundedDeque)
 import Deque exposing (Deque)
 import Dict exposing (Dict)
 import Json.Decode as JD
+import KnotHash as KH
 import MD5Fast as MD5
 import PriorityQueue
 import Regex
