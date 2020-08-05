@@ -921,7 +921,3 @@ example : Int
 example =
     AOC.curry Tuple.first 3 4
 ```
-
-### ifelse
-
-Compact ternary function.
