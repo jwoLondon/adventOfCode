@@ -2,10 +2,12 @@ module KnotHash exposing
     ( OffsetList
     , knot
     , knotHash
+    , knotHashBinary
     , rotateByN
     )
 
 import Bitwise
+import Dict
 
 
 {-| Represent state of a knothash twist.
@@ -100,3 +102,45 @@ knotHash inStr =
     in
     rotateByN -ol.position ol.data
         |> kHash ""
+
+
+{-| Generate a list of binary digits representing the knot hash of the given string.
+-}
+knotHashBinary : String -> List Int
+knotHashBinary =
+    let
+        decToBinary padding dec =
+            let
+                d2b pad bin d =
+                    if d == 0 then
+                        List.repeat (max 0 (padding - List.length bin)) 0 ++ bin
+
+                    else
+                        let
+                            bit =
+                                if modBy 2 d == 0 then
+                                    0
+
+                                else
+                                    1
+                        in
+                        d2b pad (bit :: bin) (d // 2)
+            in
+            d2b padding [] dec
+
+        hexToBinary hexStr =
+            let
+                hexLookup =
+                    List.map2 (\a b -> ( a, b ))
+                        ("0123456789abcdef" |> String.toList)
+                        (List.map (decToBinary 4) (List.range 0 15))
+                        |> Dict.fromList
+
+                toBits hexChr =
+                    Dict.get hexChr hexLookup |> Maybe.withDefault []
+            in
+            hexStr
+                |> String.toList
+                |> List.foldl (\c digits -> digits ++ toBits c) []
+    in
+    knotHash >> hexToBinary
