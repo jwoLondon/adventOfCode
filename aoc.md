@@ -8,6 +8,7 @@ elm:
     avh4/elm-fifo: latest
     elm/regex: latest
     gicentre/elm-vegalite: latest
+    drathier/elm-graph: latest
 
   source-directories:
     - src
@@ -31,6 +32,8 @@ import BoundedDeque exposing (BoundedDeque)
 import Deque exposing (Deque)
 import Dict exposing (Dict)
 import Fifo exposing (Fifo)
+import Graph exposing (Graph)
+import Graph.Pair
 import Json.Decode as JD
 import KnotHash as KH
 import MD5Fast as MD5
