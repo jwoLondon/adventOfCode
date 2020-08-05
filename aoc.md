@@ -5,7 +5,9 @@ elm:
   dependencies:
     folkertdev/elm-deque: latest
     fifth-postulate/priority-queue: latest
+    avh4/elm-fifo: latest
     elm/regex: latest
+    gicentre/elm-vegalite: latest
 
   source-directories:
     - src
@@ -28,10 +30,12 @@ import Bitwise
 import BoundedDeque exposing (BoundedDeque)
 import Deque exposing (Deque)
 import Dict exposing (Dict)
+import Fifo exposing (Fifo)
 import Json.Decode as JD
 import KnotHash as KH
 import MD5Fast as MD5
 import PriorityQueue
 import Regex
 import Set exposing (Set)
+import VegaLite as VL
 ```
