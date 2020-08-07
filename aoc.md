@@ -9,6 +9,7 @@ elm:
     elm/regex: latest
     gicentre/elm-vegalite: latest
     drathier/elm-graph: latest
+    krisajenkins/elm-astar: latest
 
   source-directories:
     - src
