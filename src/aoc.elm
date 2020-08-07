@@ -147,9 +147,9 @@ addDirectedEdge =
 with an associated traversal cost. If any of the nodes do not already exist, they
 will be added to the graph.
 -}
-addDirectedEdges : SPFGraph -> List ( String, String, Float ) -> SPFGraph
+addDirectedEdges : List ( String, String, Float ) -> SPFGraph -> SPFGraph
 addDirectedEdges =
-    List.foldl (\( n1, n2, w ) -> addDirectedEdge n1 n2 w)
+    flip (List.foldl (\( n1, n2, w ) -> addDirectedEdge n1 n2 w))
 
 
 {-| Accumulate frequencies in a frequency table.
@@ -184,9 +184,9 @@ addUndirectedEdge n1 n2 traversalCost =
 between two nodes with an associated traversal cost. If any of the nodes do not
 already exist, they will be added to the graph.
 -}
-addUndirectedEdges : SPFGraph -> List ( String, String, Float ) -> SPFGraph
+addUndirectedEdges : List ( String, String, Float ) -> SPFGraph -> SPFGraph
 addUndirectedEdges =
-    List.foldl (\( n1, n2, w ) -> addUndirectedEdge n1 n2 w)
+    flip (List.foldl (\( n1, n2, w ) -> addUndirectedEdge n1 n2 w))
 
 
 {-| Create a circular list of adjacent neighbour tuples from a list where the
