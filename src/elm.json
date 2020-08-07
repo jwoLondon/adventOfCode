@@ -13,7 +13,8 @@
             "elm/html": "1.0.0",
             "elm/regex": "1.0.0",
             "fifth-postulate/priority-queue": "1.0.0",
-            "folkertdev/elm-deque": "3.0.1"
+            "folkertdev/elm-deque": "3.0.1",
+            "krisajenkins/elm-astar": "2.1.3"
         },
         "indirect": {
             "elm/json": "1.1.3",
