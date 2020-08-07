@@ -1,8 +1,15 @@
 module Aoc exposing
     ( Grid
     , GridLocation
+    , SPFGraph
+    , addCostToGoal
+    , addCostsToGoal
+    , addDirectedEdge
+    , addDirectedEdges
     , addNToFreqTable
     , addToFreqTable
+    , addUndirectedEdge
+    , addUndirectedEdges
     , circularNeighbours
     , combinations
     , contains
@@ -10,6 +17,7 @@ module Aoc exposing
     , decToBinary
     , decToHex
     , dropWhile
+    , edges
     , factors
     , flip
     , gColCount
@@ -42,6 +50,7 @@ module Aoc exposing
     , mode
     , modeCount
     , neighbours
+    , nodes
     , pairwiseCombinations
     , permutations
     , replace
@@ -54,6 +63,7 @@ module Aoc exposing
     , selectSplit
     , sequenceCycle
     , setListAt
+    , shortestPath
     , split
     , splitAt
     , submatches
@@ -73,22 +83,73 @@ module Aoc exposing
     , zip3
     )
 
+import AStar.Generalised
 import Array
 import Bitwise
 import BoundedDeque exposing (BoundedDeque)
 import Deque exposing (Deque)
 import Dict exposing (Dict)
+import Graph exposing (Graph)
 import Matrix
 import Regex
 import Set exposing (Set)
+
+
+type alias Grid a =
+    Matrix.Matrix a
 
 
 type alias GridLocation =
     Matrix.Location
 
 
-type alias Grid a =
-    Matrix.Matrix a
+{-| A graph structure amenable to shortest path first (SPF) searches (Dijkstra
+and A\*). Nodes should be identified with unique `String` ids and edge traversal
+costs as `Floats`. May optionally contain a cost to goal value for each node in
+order to facilitate A\* searches (if not provided, will use Dijkstra).
+-}
+type alias SPFGraph =
+    Graph String Float Float
+
+
+{-| Add the cost of getting from the given node to the goal in an SPF graph. This
+can be an underestimate of the actual cost (i.e. sum of the shortest path edge
+traversal), but should not overestimate. This is the 'heuristic' used in the A\*
+search. If not provided, a simpler, but potentially less efficient Dijkstra search
+will be used when calling [shortestPath](#shortestPath).
+-}
+addCostToGoal : String -> Float -> SPFGraph -> SPFGraph
+addCostToGoal =
+    Graph.insertData
+
+
+{-| Add the costs of getting from the given nodes to the goal in an SPF graph.
+These can be underestimates of the actual cost (i.e. sum of the shortest path edge
+traversal), but should not overestimate. These provide the 'heuristic' used in the
+A\* search. If not provided, a simpler, but potentially less efficient Dijkstra
+search will be used when calling [shortestPath](#shortestPath).
+-}
+addCostsToGoal : List ( String, Float ) -> SPFGraph -> SPFGraph
+addCostsToGoal =
+    List.foldl (\( n, d ) -> addCostToGoal n d) |> flip
+
+
+{-| Add a directed edge between two nodes in an SPF graph along with its
+associated traversal cost. If the nodes do not already exist, they will be added
+to the graph.
+-}
+addDirectedEdge : String -> String -> Float -> SPFGraph -> SPFGraph
+addDirectedEdge =
+    Graph.insertEdgeData
+
+
+{-| Add a list of directed edges, each of which is between between two nodes
+with an associated traversal cost. If any of the nodes do not already exist, they
+will be added to the graph.
+-}
+addDirectedEdges : SPFGraph -> List ( String, String, Float ) -> SPFGraph
+addDirectedEdges =
+    List.foldl (\( n1, n2, w ) -> addDirectedEdge n1 n2 w)
 
 
 {-| Accumulate frequencies in a frequency table.
@@ -107,6 +168,25 @@ addNToFreqTable item n freqTable =
 addToFreqTable : comparable -> Dict comparable Int -> Dict comparable Int
 addToFreqTable item freqTable =
     addNToFreqTable item 1 freqTable
+
+
+{-| Add an undirected edge between two nodes in an SPF graph along with its
+associated traversal cost. If the nodes do not already exist, they will be added
+to the graph.
+-}
+addUndirectedEdge : String -> String -> Float -> SPFGraph -> SPFGraph
+addUndirectedEdge n1 n2 traversalCost =
+    Graph.insertEdgeData n1 n2 traversalCost
+        >> Graph.insertEdgeData n2 n1 traversalCost
+
+
+{-| Add a list of undirected edges to an SPF graph, each of which is between
+between two nodes with an associated traversal cost. If any of the nodes do not
+already exist, they will be added to the graph.
+-}
+addUndirectedEdges : SPFGraph -> List ( String, String, Float ) -> SPFGraph
+addUndirectedEdges =
+    List.foldl (\( n1, n2, w ) -> addUndirectedEdge n1 n2 w)
 
 
 {-| Create a circular list of adjacent neighbour tuples from a list where the
@@ -217,6 +297,13 @@ dropWhile predicate list =
 
             else
                 list
+
+
+{-| A list of all the edges in an SPF graph and associated traversal costs.
+-}
+edges : SPFGraph -> List ( String, String, Float )
+edges =
+    Graph.edgesWithData >> List.map (\( a, b, c ) -> ( a, b, c |> Maybe.withDefault 0 ))
 
 
 {-| List of all the factors of a given number.
@@ -578,6 +665,14 @@ neighbours items =
     List.map2 Tuple.pair items (List.tail items |> Maybe.withDefault [])
 
 
+{-| A list of all the nodes in an SPF graph and associated costs to goal. If costs
+to goal have not been provided in the graph, costs are assumed to be 0.
+-}
+nodes : SPFGraph -> List ( String, Float )
+nodes =
+    Graph.nodes >> List.map (Tuple.mapSecond (Maybe.withDefault 0))
+
+
 {-| Convenience function for choosing pairwise combinations and returning the
 results as a list of tuples
 -}
@@ -822,6 +917,35 @@ setListAt pos x xs =
             splitAt pos xs
     in
     l ++ x :: (List.tail r |> Maybe.withDefault [])
+
+
+{-| Calculate the shortest path between the two given nodes in an SPF graph. Result
+is a list of node ids, inclusive of srart and end nodes or an empty list if no
+path found.
+-}
+shortestPath : String -> String -> SPFGraph -> List String
+shortestPath start end graph =
+    let
+        cost g n1 n2 =
+            case ( Graph.getEdgeData n1 n2 g, Graph.getData n2 g ) of
+                ( Just c, Nothing ) ->
+                    -- With no cost to goal, this is just a Dijkstra search
+                    c
+
+                ( Just c, Just cToGoal ) ->
+                    -- With a cost to goal value we can do an A* search.
+                    c + cToGoal
+
+                ( Nothing, _ ) ->
+                    -- No connection, so make cost very high
+                    2 ^ 51 - 1
+    in
+    case AStar.Generalised.findPath (cost graph) (flip Graph.outgoing graph) start end of
+        Just ns ->
+            start :: ns
+
+        Nothing ->
+            []
 
 
 {-| Split a string (second parameter) by patterns identified by a regex (first parameter).
