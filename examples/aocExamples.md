@@ -4,6 +4,8 @@ elm:
     folkertdev/elm-deque: latest
     fifth-postulate/priority-queue: latest
     elm/regex: latest
+    krisajenkins/elm-astar: latest
+    drathier/elm-graph: latest
 
   source-directories:
     - ../src
@@ -19,6 +21,7 @@ import Aoc as AOC
 import BoundedDeque exposing (BoundedDeque)
 import Deque exposing (Deque)
 import Dict exposing (Dict)
+import Graph exposing (Graph)
 import PriorityQueue
 import Regex
 ```
@@ -45,35 +48,39 @@ Functions available in the Aoc module with simple working examples.
 
 [mapHeadDeque](#mapheaddeque), [rotatedeque](#rotatedeque).
 
-### 5. Combinatorics
+### 5. Shortest Path First (SPF) Graphs
+
+[addDirectedEdge](#adddirectededge), [addDirectedEdges](#adddirectededges), [addUnDirectedEdge](#addundirectededge), [addUnDirectedEdges](#addundirectededges), [addCostToGoal](#addcosttogoal), [addCostsToGoal](#addcoststogoal), [shortestPath](#shortestPath), [edges](#edges), [nodes](#nodes).
+
+### 6. Combinatorics
 
 [combinations](#combinations), [pairwiseCombinations](#pairwisecombinations), [gridLocations](#gridlocations), [permutations](#permutations), [select](#select), [selectLargest](#selectlargest), [selectSplit](#selectsplit).
 
-### 6. Number Theory
+### 7. Number Theory
 
 [lowestCommonMultiple](#lowestcommonmultiple), [factors](#factors), [highestCommonFactor](#highestcommonfactor)
 
-### 7. Number Conversion
+### 8. Number Conversion
 
 [decToBinary](#dectobinary), [decToHex](#dectohex), [hexToBinary](#hextobinary)
 
-### 8. Frequency Distributions
+### 9. Frequency Distributions
 
 [addToFreqTable](#addtofreqtable), [addNToFreqTable](#addntofreqtable), [updateInsert](#updateinsert), [mode](#mode), [modeCount](#modecount)
 
-### 9. Cycle Detection
+### 10. Cycle Detection
 
 [sequenceCycle](#sequencecycle).
 
-### 10. Grid.
+### 11. Grid.
 
 [gInit](#ginit), [gFromList](#gfromlist), [gFromLists](#gfromlists), [gColCount](#gcolcount), [gRowCount](#growcount), [gGet](#gget), [gGetCol](#ggetcol), [gGetRow](#ggetrow), [gSet](#gset), [gSetCol](#gsetcol), [gSetRow](#gsetrow), [gMap](#gmap), [gMapWithLocation](#gmapwithlocation), [gTranspose](#gtranspose), [gToList](#gtolist), [gToLists](#gtolists).
 
-### 11. 3-tuples
+### 12. 3-tuples
 
 [triplet](#triplet), [tripletFromList](#tripletfromlist), [tripletFirst](#tripletfirst), [tripletSecond](#tripletsecond), [tripletThird](#trioletthird), [mapTriplet](#maptriplet), [zip3](#zip3), [unzip3](#unzip3)
 
-### 12. Functional Utilities
+### 13. Functional Utilities
 
 [flip](#flip), [iterate](#iterate), [uncurry](#uncurry), [curry](#curry).
 
@@ -375,7 +382,165 @@ example =
 
 ---
 
-## 5. Combinatorics
+## 5. Shortest Path First (SPF) Graphs
+
+### 5.1 Build
+
+Edges and nodes can be added to an SPF graph either individually or from lists.
+
+### addDirectedEdge
+
+```elm {l r siding}
+example : List ( String, String, Float )
+example =
+    Graph.empty
+        |> AOC.addDirectedEdge "S" "A" 7
+        |> AOC.edges
+```
+
+### addDirectedEdges
+
+```elm {l r siding}
+example : List ( String, String, Float )
+example =
+    Graph.empty
+        |> AOC.addDirectedEdges
+            [ ( "S", "A", 7 )
+            , ( "S", "A", 7 )
+            , ( "S", "B", 2 )
+            , ( "S", "C", 3 )
+            , ( "A", "B", 3 )
+            , ( "A", "D", 4 )
+            , ( "B", "D", 4 )
+            ]
+        |> AOC.edges
+```
+
+### addUndirectedEdge
+
+```elm {l r siding}
+example : List ( String, String, Float )
+example =
+    Graph.empty
+        |> AOC.addUndirectedEdge "S" "A" 7
+        |> AOC.edges
+```
+
+### addUndirectedEdges
+
+```elm {l r siding}
+example : List ( String, String, Float )
+example =
+    Graph.empty
+        |> AOC.addUndirectedEdges
+            [ ( "S", "A", 7 )
+            , ( "S", "A", 7 )
+            , ( "S", "B", 2 )
+            , ( "S", "C", 3 )
+            , ( "A", "B", 3 )
+            , ( "A", "D", 4 )
+            , ( "B", "D", 4 )
+            ]
+        |> AOC.edges
+```
+
+### addCostToGoal
+
+To perform A\* we need to provide an estimated cost of each node to the goal. This can underestimate the true cost, but should never overestimate it. If the node does not exist in the graph it will be added.
+
+```elm {l r siding}
+example : List ( String, Float )
+example =
+    Graph.empty
+        |> AOC.addCostToGoal "A" 99
+        |> AOC.nodes
+```
+
+### addCostsToGoal
+
+```elm {l r siding}
+example : List ( String, Float )
+example =
+    Graph.empty
+        |> AOC.addCostsToGoal [ ( "A", 99 ), ( "B", 25 ), ( "C", 0 ) ]
+        |> AOC.nodes
+```
+
+### 5.2 Calculating shortest path
+
+Here is where the work is done using either Dijkstra or A\* depending on whether goal distances have been provided to the SPF graph.
+
+```elm {l=hidden}
+spfGraph : AOC.SPFGraph
+spfGraph =
+    Graph.empty
+        |> AOC.addUndirectedEdges
+            [ ( "S", "A", 7 )
+            , ( "S", "A", 7 )
+            , ( "S", "B", 2 )
+            , ( "S", "C", 3 )
+            , ( "A", "B", 3 )
+            , ( "A", "D", 4 )
+            , ( "B", "D", 4 )
+            , ( "B", "H", 1 )
+            , ( "C", "L", 2 )
+            , ( "D", "F", 5 )
+            , ( "E", "G", 2 )
+            , ( "E", "K", 5 )
+            , ( "F", "H", 3 )
+            , ( "G", "H", 2 )
+            , ( "I", "J", 6 )
+            , ( "I", "K", 4 )
+            , ( "I", "L", 4 )
+            , ( "J", "K", 4 )
+            , ( "J", "L", 4 )
+            ]
+        |> AOC.addCostsToGoal
+            [ ( "S", 10 )
+            , ( "A", 9 )
+            , ( "B", 7 )
+            , ( "C", 8 )
+            , ( "D", 8 )
+            , ( "F", 6 )
+            , ( "G", 3 )
+            , ( "H", 6 )
+            , ( "I", 4 )
+            , ( "J", 4 )
+            , ( "K", 3 )
+            , ( "L", 6 )
+            , ( "E", 0 )
+            ]
+```
+
+### shortestPath
+
+```elm {l r siding}
+example : List String
+example =
+    AOC.shortestPath "S" "E" spfGraph
+```
+
+### 5.3 Output
+
+### nodes
+
+```elm {l r siding}
+example : List ( String, Float )
+example =
+    AOC.nodes spfGraph
+```
+
+### edges
+
+```elm {l r siding}
+example : List ( String, String, Float )
+example =
+    AOC.edges spfGraph
+```
+
+---
+
+## 6. Combinatorics
 
 Functions for combining and selecting combinations and permutations of list elements.
 
@@ -451,7 +616,7 @@ example =
 
 ---
 
-## 6. Number Theory
+## 7. Number Theory
 
 Factors and multiples.
 
@@ -487,7 +652,7 @@ example =
 
 ---
 
-## 7. Number Conversion
+## 8. Number Conversion
 
 ### decToBinary
 
@@ -525,7 +690,7 @@ example =
 
 ---
 
-## 8. Frequency Distributions
+## 9. Frequency Distributions
 
 ### addToFreqTable
 
@@ -587,7 +752,7 @@ example =
 
 ---
 
-## 9. Cycle Detection
+## 10. Cycle Detection
 
 Given a maximum sequence length, a start value and a function that generates the next value in a sequence, return the length of the cycle and the zero-indexed position in the sequence of the first element of the cycle. If there is no cycle
 detected less than the maximum sequence length, will return `Nothing`.
@@ -605,11 +770,11 @@ example =
 
 ---
 
-## 10. Grid Manipulation
+## 11. Grid Manipulation
 
 Functions for manipulating fixed size 2d grids of items.
 
-### 10.1 Building
+### 11.1 Building
 
 ### gInit
 
@@ -644,7 +809,7 @@ example =
         |> AOC.gToLists
 ```
 
-### 10.2 Query
+### 11.2 Query
 
 ```elm {l=hidden}
 g : AOC.Grid String
@@ -702,7 +867,7 @@ example =
     AOC.gGetRow 2 g
 ```
 
-### 10.3 Editing
+### 11.3 Editing
 
 ### gGet
 
@@ -770,7 +935,7 @@ example =
         |> AOC.gToLists
 ```
 
-### 10.4 Output
+### 11.4 Output
 
 ### gToList
 
@@ -794,7 +959,7 @@ example =
 
 ---
 
-## 11. 3-Tuples
+## 12. 3-Tuples
 
 Elm has functions for creating and transforming tuples with two parameters, but not for three. These functions provide the extra support for 3-tuples:
 
@@ -880,7 +1045,7 @@ example =
 
 ---
 
-## 12. Functional Utilities
+## 13. Functional Utilities
 
 ### flip
 
