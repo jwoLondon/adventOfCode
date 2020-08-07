@@ -50,7 +50,6 @@ module Matrix exposing
 
 import Array
 import List
-import Maybe exposing (..)
 
 
 {-| An ordered collection of elements, all of a particular type, arranged into `m` rows and `n` columns.
@@ -230,7 +229,7 @@ flatten m =
 -}
 get : Location -> Matrix a -> Maybe a
 get location m =
-    Array.get (row location) m |> andThen (Array.get (col location))
+    Array.get (row location) m |> Maybe.andThen (Array.get (col location))
 
 
 {-| Set the element at a particular location
