@@ -112,22 +112,19 @@ type alias SPFGraph comparable =
     Graph comparable Float Float
 
 
-{-| Add the cost of getting from the given node to the goal in an SPF graph. This
-can be an underestimate of the actual cost (i.e. sum of the shortest path edge
-traversal), but should not overestimate. This is the 'heuristic' used in the A\*
-search. If not provided, a simpler, but potentially less efficient Dijkstra search
-will be used when calling [shortestPath](#shortestPath).
+{-| Add the cost of getting from the given node to the goal in an SPF graph building
+an [admissible heuristic](https://en.wikipedia.org/wiki/Admissible_heuristic). That
+is, it can be an underestimate of the actual cost, for example, the Euclidean distance
+to the goal, but should never overestimate. It is used by the A\* search to prioritise
+the most likely search candidates. If not provided, a simpler, but potentially less
+efficient Dijkstra search will be used when calling [shortestPath](#shortestPath).
 -}
 addCostToGoal : comparable -> Float -> SPFGraph comparable -> SPFGraph comparable
 addCostToGoal =
     Graph.insertData
 
 
-{-| Add the costs of getting from the given nodes to the goal in an SPF graph.
-These can be underestimates of the actual cost (i.e. sum of the shortest path edge
-traversal), but should not overestimate. These provide the 'heuristic' used in the
-A\* search. If not provided, a simpler, but potentially less efficient Dijkstra
-search will be used when calling [shortestPath](#shortestPath).
+{-| Convenience function for adding goal heuristics as a single list.
 -}
 addCostsToGoal : List ( comparable, Float ) -> SPFGraph comparable -> SPFGraph comparable
 addCostsToGoal =
