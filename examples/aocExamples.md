@@ -471,7 +471,7 @@ example =
 Here is where the work is done using either Dijkstra or A\* depending on whether goal distances have been provided to the SPF graph.
 
 ```elm {l=hidden}
-spfGraph : AOC.SPFGraph
+spfGraph : AOC.SPFGraph String
 spfGraph =
     Graph.empty
         |> AOC.addUndirectedEdges

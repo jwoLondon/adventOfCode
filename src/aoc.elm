@@ -104,12 +104,12 @@ type alias GridLocation =
 
 
 {-| A graph structure amenable to shortest path first (SPF) searches (Dijkstra
-and A\*). Nodes should be identified with unique `String` ids and edge traversal
+and A\*). Nodes should be identified with unique comparable ids and edge traversal
 costs as `Floats`. May optionally contain a cost to goal value for each node in
 order to facilitate A\* searches (if not provided, will use Dijkstra).
 -}
-type alias SPFGraph =
-    Graph String Float Float
+type alias SPFGraph comparable =
+    Graph comparable Float Float
 
 
 {-| Add the cost of getting from the given node to the goal in an SPF graph. This
@@ -118,7 +118,7 @@ traversal), but should not overestimate. This is the 'heuristic' used in the A\*
 search. If not provided, a simpler, but potentially less efficient Dijkstra search
 will be used when calling [shortestPath](#shortestPath).
 -}
-addCostToGoal : String -> Float -> SPFGraph -> SPFGraph
+addCostToGoal : comparable -> Float -> SPFGraph comparable -> SPFGraph comparable
 addCostToGoal =
     Graph.insertData
 
@@ -129,7 +129,7 @@ traversal), but should not overestimate. These provide the 'heuristic' used in t
 A\* search. If not provided, a simpler, but potentially less efficient Dijkstra
 search will be used when calling [shortestPath](#shortestPath).
 -}
-addCostsToGoal : List ( String, Float ) -> SPFGraph -> SPFGraph
+addCostsToGoal : List ( comparable, Float ) -> SPFGraph comparable -> SPFGraph comparable
 addCostsToGoal =
     List.foldl (\( n, d ) -> addCostToGoal n d) |> flip
 
@@ -138,7 +138,7 @@ addCostsToGoal =
 associated traversal cost. If the nodes do not already exist, they will be added
 to the graph.
 -}
-addDirectedEdge : String -> String -> Float -> SPFGraph -> SPFGraph
+addDirectedEdge : comparable -> comparable -> Float -> SPFGraph comparable -> SPFGraph comparable
 addDirectedEdge =
     Graph.insertEdgeData
 
@@ -147,7 +147,7 @@ addDirectedEdge =
 with an associated traversal cost. If any of the nodes do not already exist, they
 will be added to the graph.
 -}
-addDirectedEdges : List ( String, String, Float ) -> SPFGraph -> SPFGraph
+addDirectedEdges : List ( comparable, comparable, Float ) -> SPFGraph comparable -> SPFGraph comparable
 addDirectedEdges =
     flip (List.foldl (\( n1, n2, w ) -> addDirectedEdge n1 n2 w))
 
@@ -174,7 +174,7 @@ addToFreqTable item freqTable =
 associated traversal cost. If the nodes do not already exist, they will be added
 to the graph.
 -}
-addUndirectedEdge : String -> String -> Float -> SPFGraph -> SPFGraph
+addUndirectedEdge : comparable -> comparable -> Float -> SPFGraph comparable -> SPFGraph comparable
 addUndirectedEdge n1 n2 traversalCost =
     Graph.insertEdgeData n1 n2 traversalCost
         >> Graph.insertEdgeData n2 n1 traversalCost
@@ -184,7 +184,7 @@ addUndirectedEdge n1 n2 traversalCost =
 between two nodes with an associated traversal cost. If any of the nodes do not
 already exist, they will be added to the graph.
 -}
-addUndirectedEdges : List ( String, String, Float ) -> SPFGraph -> SPFGraph
+addUndirectedEdges : List ( comparable, comparable, Float ) -> SPFGraph comparable -> SPFGraph comparable
 addUndirectedEdges =
     flip (List.foldl (\( n1, n2, w ) -> addUndirectedEdge n1 n2 w))
 
@@ -301,7 +301,7 @@ dropWhile predicate list =
 
 {-| A list of all the edges in an SPF graph and associated traversal costs.
 -}
-edges : SPFGraph -> List ( String, String, Float )
+edges : SPFGraph comparable -> List ( comparable, comparable, Float )
 edges =
     Graph.edgesWithData >> List.map (\( a, b, c ) -> ( a, b, c |> Maybe.withDefault 0 ))
 
@@ -668,7 +668,7 @@ neighbours items =
 {-| A list of all the nodes in an SPF graph and associated costs to goal. If costs
 to goal have not been provided in the graph, costs are assumed to be 0.
 -}
-nodes : SPFGraph -> List ( String, Float )
+nodes : SPFGraph comparable -> List ( comparable, Float )
 nodes =
     Graph.nodes >> List.map (Tuple.mapSecond (Maybe.withDefault 0))
 
@@ -923,7 +923,7 @@ setListAt pos x xs =
 is a list of node ids, inclusive of srart and end nodes or an empty list if no
 path found.
 -}
-shortestPath : String -> String -> SPFGraph -> List String
+shortestPath : comparable -> comparable -> SPFGraph comparable -> List comparable
 shortestPath start end graph =
     let
         cost g n1 n2 =
