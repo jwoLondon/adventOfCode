@@ -32,55 +32,55 @@ Functions available in the Aoc module with simple working examples.
 
 ## Table of Contents
 
-### 1. List Processing.
+### List Processing
 
 [scanl](#scanl), [neighbours](#neighbours), [circularNeighbours](#circularneighbours), [rotateList](#rotatelist), [makeCycle](#makecycle), [groupsOf](#groupsof), [dropWhile](#dropwhile), [takeWhile](#takewhile), [indexOf](#indexof), [setListAt](#setlistat), [splitAt](#splitat), [zip](#zip), [transpose](#transpose), [unique](#unique).
 
-### 2. Parsing
+### Parsing
 
 [contains](#contains), [match](#match), [submatches](#submatches), [split](#split), [replace](#replace), [replaceFn](#replacefn), [toInt](#toint).
 
-### 3. Priority Queue.
+### Priority Queue
 
 [creating a priority queue](#creating-a-priority-queue)
 
-### 4. Double Ended Queue (Deque).
+### Double Ended Queue (Deque)
 
 [mapHeadDeque](#mapheaddeque), [rotatedeque](#rotatedeque).
 
-### 5. Shortest Path First (SPF) Graphs
+### Shortest Path First (SPF) Graphs
 
 [addDirectedEdge](#adddirectededge), [addDirectedEdges](#adddirectededges), [addUnDirectedEdge](#addundirectededge), [addUnDirectedEdges](#addundirectededges), [addCostToGoal](#addcosttogoal), [addCostsToGoal](#addcoststogoal), [shortestPath](#shortestPath), [edges](#edges), [nodes](#nodes).
 
-### 6. Combinatorics
+### Combinatorics
 
 [combinations](#combinations), [pairwiseCombinations](#pairwisecombinations), [gridLocations](#gridlocations), [permutations](#permutations), [select](#select), [selectLargest](#selectlargest), [selectSplit](#selectsplit).
 
-### 7. Number Theory
+### Number Theory
 
 [lowestCommonMultiple](#lowestcommonmultiple), [factors](#factors), [highestCommonFactor](#highestcommonfactor)
 
-### 8. Number Conversion
+### Number Conversion
 
 [decToBinary](#dectobinary), [decToHex](#dectohex), [hexToBinary](#hextobinary)
 
-### 9. Frequency Distributions
+### Frequency Distributions
 
 [addToFreqTable](#addtofreqtable), [addNToFreqTable](#addntofreqtable), [updateInsert](#updateinsert), [mode](#mode), [modeCount](#modecount)
 
-### 10. Cycle Detection
+### Cycle Detection
 
 [sequenceCycle](#sequencecycle).
 
-### 11. Grid.
+### Grid
 
 [gInit](#ginit), [gFromList](#gfromlist), [gFromLists](#gfromlists), [gColCount](#gcolcount), [gRowCount](#growcount), [gGet](#gget), [gGetCol](#ggetcol), [gGetRow](#ggetrow), [gSet](#gset), [gSetCol](#gsetcol), [gSetRow](#gsetrow), [gMap](#gmap), [gMapWithLocation](#gmapwithlocation), [gTranspose](#gtranspose), [gToList](#gtolist), [gToLists](#gtolists).
 
-### 12. 3-tuples
+### 3-tuples
 
 [triplet](#triplet), [tripletFromList](#tripletfromlist), [tripletFirst](#tripletfirst), [tripletSecond](#tripletsecond), [tripletThird](#trioletthird), [mapTriplet](#maptriplet), [zip3](#zip3), [unzip3](#unzip3)
 
-### 13. Functional Utilities
+### Functional Utilities
 
 [flip](#flip), [iterate](#iterate), [uncurry](#uncurry), [curry](#curry).
 
@@ -335,7 +335,7 @@ example =
 
 ---
 
-## 4. Double Ended Queue (Deque).
+## 4. Double Ended Queue (Deque)
 
 Functions for manipulating double-ended queues. Useful for efficient shifting of circular lists.
 
@@ -869,7 +869,7 @@ example =
 
 ### 11.3 Editing
 
-### gGet
+### gSet
 
 Set grid value at a given position.
 
