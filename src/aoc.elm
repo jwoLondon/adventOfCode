@@ -17,6 +17,7 @@ module Aoc exposing
     , decToBinary
     , decToHex
     , dropWhile
+    , edgeCost
     , edges
     , factors
     , flip
@@ -294,6 +295,15 @@ dropWhile predicate list =
 
             else
                 list
+
+
+{-| Cost of traversing edge between the given nodes in an SPF graph.
+to the graph. If there is no edge between the given nodes, a very high cost
+(2^51 - 1) is returned.
+-}
+edgeCost : comparable -> comparable -> SPFGraph comparable -> Float
+edgeCost n1 n2 =
+    Graph.getEdgeData n1 n2 >> Maybe.withDefault (2 ^ 51 - 1)
 
 
 {-| A list of all the edges in an SPF graph and associated traversal costs.

@@ -50,7 +50,7 @@ Functions available in the Aoc module with simple working examples.
 
 ### Shortest Path First (SPF) Graphs
 
-[addDirectedEdge](#adddirectededge), [addDirectedEdges](#adddirectededges), [addUnDirectedEdge](#addundirectededge), [addUnDirectedEdges](#addundirectededges), [addCostToGoal](#addcosttogoal), [addCostsToGoal](#addcoststogoal), [shortestPath](#shortestPath), [edges](#edges), [nodes](#nodes).
+[addDirectedEdge](#adddirectededge), [addDirectedEdges](#adddirectededges), [addUnDirectedEdge](#addundirectededge), [addUnDirectedEdges](#addundirectededges), [addCostToGoal](#addcosttogoal), [addCostsToGoal](#addcoststogoal), [shortestPath](#shortestpath), [edgeCost](#edgecost), [edges](#edges), [nodes](#nodes).
 
 ### Combinatorics
 
@@ -466,7 +466,7 @@ example =
         |> AOC.nodes
 ```
 
-### 5.2 Calculating shortest path
+### 5.2 Path Traversal
 
 Here is where the work is done using either Dijkstra or A\* depending on whether goal distances have been provided to the SPF graph.
 
@@ -512,12 +512,31 @@ spfGraph =
             ]
 ```
 
+### edgeCost
+
+```elm {l r siding}
+example : Float
+example =
+    AOC.edgeCost "F" "D" spfGraph
+```
+
 ### shortestPath
 
 ```elm {l r siding}
 example : List String
 example =
     AOC.shortestPath "S" "E" spfGraph
+```
+
+We can combine `shortestPath` with `edgeCost` and [neighbours](#neighbours) to calculate the cost of the shortest path.
+
+```elm {l r siding}
+example : Float
+example =
+    spfGraph
+        |> AOC.shortestPath "S" "E"
+        |> AOC.neighbours
+        |> List.foldl (\( a, b ) -> (+) (AOC.edgeCost a b spfGraph)) 0
 ```
 
 ### 5.3 Output
