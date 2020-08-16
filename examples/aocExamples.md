@@ -50,7 +50,7 @@ Functions available in the Aoc module with simple working examples.
 
 ### Shortest Path First (SPF) Graphs
 
-[addDirectedEdge](#adddirectededge), [addDirectedEdges](#adddirectededges), [addUnDirectedEdge](#addundirectededge), [addUnDirectedEdges](#addundirectededges), [addCostToGoal](#addcosttogoal), [addCostsToGoal](#addcoststogoal), [shortestPath](#shortestpath), [edgeCost](#edgecost), [edges](#edges), [nodes](#nodes).
+[addDirectedEdge](#adddirectededge), [addDirectedEdges](#adddirectededges), [addUnDirectedEdge](#addundirectededge), [addUnDirectedEdges](#addundirectededges), [addCostToGoal](#addcosttogoal), [addCostsToGoal](#addcoststogoal), [shortestPath](#shortestpath), [shortestPathCost](#shortestpathcost), [edgeCost](#edgecost), [edges](#edges), [nodes](#nodes).
 
 ### Combinatorics
 
@@ -528,15 +528,12 @@ example =
     AOC.shortestPath "S" "E" spfGraph
 ```
 
-We can combine `shortestPath` with `edgeCost` and [neighbours](#neighbours) to calculate the cost of the shortest path.
+### shortestPathCost
 
 ```elm {l r siding}
-example : Float
+example : Maybe Float
 example =
-    spfGraph
-        |> AOC.shortestPath "S" "E"
-        |> AOC.neighbours
-        |> List.foldl (\( a, b ) -> (+) (AOC.edgeCost a b spfGraph)) 0
+    AOC.shortestPathCost "S" "E" spfGraph
 ```
 
 ### 5.3 Output

@@ -65,6 +65,7 @@ module Aoc exposing
     , sequenceCycle
     , setListAt
     , shortestPath
+    , shortestPathCost
     , split
     , splitAt
     , submatches
@@ -953,6 +954,25 @@ shortestPath start end graph =
 
         Nothing ->
             []
+
+
+{-| Calculate the total traversal cost of the shortest path between the two given
+nodes in an SPF graph.
+-}
+shortestPathCost : comparable -> comparable -> SPFGraph comparable -> Maybe Float
+shortestPathCost start end graph =
+    let
+        sp =
+            shortestPath start end graph
+    in
+    if sp == [] then
+        Nothing
+
+    else
+        sp
+            |> neighbours
+            |> List.foldl (\( n1, n2 ) -> (+) (edgeCost n1 n2 graph)) 0
+            |> Just
 
 
 {-| Split a string (second parameter) by patterns identified by a regex (first parameter).
