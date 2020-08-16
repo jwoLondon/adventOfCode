@@ -8,6 +8,7 @@ elm:
     avh4/elm-fifo: latest
     elm/regex: latest
     gicentre/elm-vegalite: latest
+    gicentre/elm-vega: latest
     drathier/elm-graph: latest
     krisajenkins/elm-astar: latest
 
@@ -41,5 +42,6 @@ import MD5Fast as MD5
 import PriorityQueue
 import Regex
 import Set exposing (Set)
+import Vega as V
 import VegaLite as VL
 ```
