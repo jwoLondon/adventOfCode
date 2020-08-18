@@ -1,3 +1,5 @@
-# Advent of Code: Supporting Packages
+# Advent of Code: Supporting Module
 
-Additional supporting Elm packages for use with Advent of Code.
+Supporting Elm module for use with Advent of Code.
+
+See `../examples/AocExample.md` for examples of each in action.
