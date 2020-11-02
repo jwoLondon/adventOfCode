@@ -54,6 +54,7 @@ module Aoc exposing
     , nodes
     , pairwiseCombinations
     , permutations
+    , powerMod
     , replace
     , replaceFn
     , rotateDeque
@@ -717,7 +718,28 @@ permutations xs_ =
             in
             List.concatMap f (select xs)
 
+{-| Calculate x raised to the power y modulus m. Can be useful for handling large values in cyclical data.
+-}
+powerMod : Int -> Int -> Int -> Int
+powerMod x y m =
+    if y == 0 then
+        1
 
+    else
+        let
+            p0 =
+                modBy m (powerMod x (y // 2) m)
+
+            p =
+                modBy m (p0 * p0)
+        in
+        if modBy 2 y == 0 then
+            p
+
+        else
+            modBy m (x * p)
+
+            
 {-| Search using a given regex (first parameter) replacing matches with the second
 parameter applying it to the text of the third parameter.
 -}

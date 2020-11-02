@@ -666,6 +666,16 @@ example =
     AOC.highestCommonFactor 12 16
 ```
 
+### Modulus Power
+
+Calculate x raised to the power y modulus m. Useful when using large values in cyclical contexts.
+
+```elm {l r siding}
+example : Int
+example =
+    AOC.powerMod 12345 6789 10
+```
+
 ---
 
 ## 8. Number Conversion
