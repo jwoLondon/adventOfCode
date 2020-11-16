@@ -11,6 +11,8 @@ elm:
     gicentre/elm-vega: latest
     drathier/elm-graph: latest
     krisajenkins/elm-astar: latest
+    lynn/elm-arithmetic: latest
+    cmditch/elm-bigint: latest
 
   source-directories:
     - src
@@ -28,7 +30,9 @@ This document does nothing more than set up the various package dependencies use
 
 ```elm {l=hidden}
 import Aoc as AOC
+import Arithmetic
 import Array exposing (Array)
+import BigInt exposing (BigInt)
 import Bitwise
 import BoundedDeque exposing (BoundedDeque)
 import Deque exposing (Deque)

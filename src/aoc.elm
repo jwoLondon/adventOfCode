@@ -88,6 +88,7 @@ module Aoc exposing
 
 import AStar.Generalised
 import Array
+import BigInt exposing (BigInt)
 import Bitwise
 import BoundedDeque exposing (BoundedDeque)
 import Deque exposing (Deque)
@@ -718,28 +719,40 @@ permutations xs_ =
             in
             List.concatMap f (select xs)
 
+
 {-| Calculate x raised to the power y modulus m. Can be useful for handling large values in cyclical data.
 -}
 powerMod : Int -> Int -> Int -> Int
-powerMod x y m =
-    if y == 0 then
-        1
+powerMod x y modulus =
+    let
+        bi0 =
+            BigInt.fromInt 0
 
-    else
-        let
-            p0 =
-                modBy m (powerMod x (y // 2) m)
+        bi1 =
+            BigInt.fromInt 1
 
-            p =
-                modBy m (p0 * p0)
-        in
-        if modBy 2 y == 0 then
-            p
+        bi2 =
+            BigInt.fromInt 2
 
-        else
-            modBy m (x * p)
+        powm b e m acc =
+            if e == bi0 then
+                acc
 
-            
+            else if BigInt.modBy bi2 e == Just bi1 then
+                powm (BigInt.modBy m (BigInt.mul b b) |> Maybe.withDefault bi0)
+                    (BigInt.div e bi2)
+                    m
+                    (BigInt.modBy m (BigInt.mul acc b) |> Maybe.withDefault bi0)
+
+            else
+                powm (BigInt.modBy m (BigInt.mul b b) |> Maybe.withDefault bi0) (BigInt.div e bi2) m acc
+    in
+    powm (BigInt.fromInt x) (BigInt.fromInt y) (BigInt.fromInt modulus) bi1
+        |> BigInt.toString
+        |> String.toInt
+        |> Maybe.withDefault 0
+
+
 {-| Search using a given regex (first parameter) replacing matches with the second
 parameter applying it to the text of the third parameter.
 -}

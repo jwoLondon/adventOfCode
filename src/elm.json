@@ -7,6 +7,7 @@
     "dependencies": {
         "direct": {
             "avh4/elm-fifo": "1.0.4",
+            "cmditch/elm-bigint": "2.0.1",
             "drathier/elm-graph": "4.0.0",
             "elm/browser": "1.0.2",
             "elm/core": "1.0.5",
@@ -26,7 +27,8 @@
             "elm-community/maybe-extra": "5.2.0",
             "elm-community/random-extra": "3.1.0",
             "elm-explorations/test": "1.2.2",
-            "owanturist/elm-union-find": "1.0.0"
+            "owanturist/elm-union-find": "1.0.0",
+            "rtfeldman/elm-hex": "1.0.0"
         }
     },
     "test-dependencies": {

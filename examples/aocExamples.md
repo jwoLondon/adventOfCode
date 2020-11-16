@@ -6,6 +6,7 @@ elm:
     elm/regex: latest
     krisajenkins/elm-astar: latest
     drathier/elm-graph: latest
+    cmditch/elm-bigint: latest
 
   source-directories:
     - ../src
@@ -58,7 +59,7 @@ Functions available in the Aoc module with simple working examples.
 
 ### Number Theory
 
-[lowestCommonMultiple](#lowestcommonmultiple), [factors](#factors), [highestCommonFactor](#highestcommonfactor)
+[lowestCommonMultiple](#lowestcommonmultiple), [factors](#factors), [highestCommonFactor](#highestcommonfactor), [powerMod](#powermod).
 
 ### Number Conversion
 
@@ -666,7 +667,7 @@ example =
     AOC.highestCommonFactor 12 16
 ```
 
-### Modulus Power
+### powerMod
 
 Calculate x raised to the power y modulus m. Useful when using large values in cyclical contexts.
 
