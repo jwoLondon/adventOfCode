@@ -65,7 +65,7 @@ Functions available in the Aoc module with simple working examples.
 
 [decToBinary](#dectobinary), [decToHex](#dectohex), [hexToBinary](#hextobinary)
 
-### Frequency Distributions
+### Frequency Distributions and Dictionaries
 
 [addToFreqTable](#addtofreqtable), [addNToFreqTable](#addntofreqtable), [updateInsert](#updateinsert), [mode](#mode), [modeCount](#modecount)
 
@@ -731,7 +731,7 @@ example =
 
 ### addNToFreqTable
 
-Accumulate frequencies in a frequency table.
+Accumulate frequencies in a frequency table. This is a more general version of `addToFreqTable` allowing arbitrary frequency counts to be accumulated.
 
 ```elm {l r siding}
 example : Dict String Int
@@ -745,16 +745,16 @@ example =
 
 ### updateInsert
 
-Add an item to a dictionary if it does not exist, but replace an existing one if it does.
+Add an item to a dictionary if it does not exist, but modify an existing one with a given function if it does. This is a more general version of `addNToFreqTable` allowing any combining function to be provided.
 
 ```elm {l r siding}
-example : Dict String Int
+example : Dict String (List Int)
 example =
     Dict.empty
-        |> AOC.updateInsert "cat" 49
-        |> AOC.updateInsert "fish" 10
-        |> AOC.updateInsert "dog" 50
-        |> AOC.updateInsert "cat" 50
+        |> Dict.insert "cat" [ 49 ]
+        |> AOC.updateInsert "fish" [ 10 ] ((::) 10)
+        |> AOC.updateInsert "dog" [ 50 ] ((::) 50)
+        |> AOC.updateInsert "cat" [ 50 ] ((::) 50)
 ```
 
 ### mode

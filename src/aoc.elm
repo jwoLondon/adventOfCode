@@ -1170,16 +1170,17 @@ unzip3 triplets =
     List.foldr addTriplet ( [], [], [] ) triplets
 
 
-{-| Add an item to a dictionary if it does not exist, but replace an existing one
-if it does.
+{-| Add an item to a dictionary if it does not exist, but update an existing one
+via the given function if it does.
 -}
-updateInsert : comparable -> a -> Dict comparable a -> Dict comparable a
-updateInsert key val dict =
-    if Dict.member key dict then
-        Dict.update key (\v -> Just val) dict
+updateInsert : comparable -> a -> (a -> a) -> Dict comparable a -> Dict comparable a
+updateInsert key val fn dict =
+    case Dict.get key dict of
+        Just v ->
+            Dict.insert key (fn v) dict
 
-    else
-        Dict.insert key val dict
+        Nothing ->
+            Dict.insert key val dict
 
 
 {-| Zip two lists together as a list of tuples.
