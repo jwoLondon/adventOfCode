@@ -40,6 +40,7 @@ module Aoc exposing
     , gridLocations
     , groupsOf
     , hexToBinary
+    , hexToDec
     , highestCommonFactor
     , indexOf
     , iterate
@@ -94,6 +95,7 @@ import BoundedDeque exposing (BoundedDeque)
 import Deque exposing (Deque)
 import Dict exposing (Dict)
 import Graph exposing (Graph)
+import Hex
 import Matrix
 import Regex
 import Set exposing (Set)
@@ -521,6 +523,41 @@ hexToBinary hexStr =
     hexStr
         |> String.toList
         |> List.foldl (\c digits -> digits ++ toBits c) []
+
+
+{-| Convert a hex string into a list of integers. The first parameter is the number of number
+of hex digits to form each decimal value. If less than 1, a single group will be created.
+The second parameter is the hex string to convert.
+-}
+hexToDec : Int -> String -> List Int
+hexToDec n hx =
+    let
+        hex =
+            if String.startsWith "#" hx then
+                String.dropLeft 1 hx
+
+            else
+                hx
+
+        dec h =
+            case Hex.fromString h of
+                Ok d ->
+                    d
+
+                Err msg ->
+                    0 |> Debug.log msg
+
+        numPads =
+            modBy n (n - modBy n (String.length hex))
+
+        toStringGroups =
+            groupsOf n (List.repeat numPads '0' ++ String.toList hex) |> List.map String.fromList
+    in
+    if n < 1 then
+        [ dec hex ]
+
+    else
+        List.map dec toStringGroups
 
 
 {-| Highest common factor (HCF) of two integers. Note that for convenience, this
