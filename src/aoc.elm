@@ -548,7 +548,11 @@ hexToDec n hx =
                     0 |> Debug.log msg
 
         numPads =
-            modBy n (n - modBy n (String.length hex))
+            if n < 1 then
+                0
+
+            else
+                modBy n (n - modBy n (String.length hex))
 
         toStringGroups =
             groupsOf n (List.repeat numPads '0' ++ String.toList hex) |> List.map String.fromList

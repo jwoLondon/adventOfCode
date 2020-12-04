@@ -7,6 +7,7 @@ elm:
     krisajenkins/elm-astar: latest
     drathier/elm-graph: latest
     cmditch/elm-bigint: latest
+    rtfeldman/elm-hex: latest
 
   source-directories:
     - ../src
@@ -23,6 +24,7 @@ import BoundedDeque exposing (BoundedDeque)
 import Deque exposing (Deque)
 import Dict exposing (Dict)
 import Graph exposing (Graph)
+import Hex
 import PriorityQueue
 import Regex
 ```
@@ -63,7 +65,7 @@ Functions available in the Aoc module with simple working examples.
 
 ### Number Conversion
 
-[decToBinary](#dectobinary), [decToHex](#dectohex), [hexToBinary](#hextobinary)
+[decToBinary](#dectobinary), [decToHex](#dectohex), [hexToDec](#hextodec), [hexToBinary](#hextobinary)
 
 ### Frequency Distributions and Dictionaries
 
@@ -701,6 +703,26 @@ Provide a hexadecimal representation of the given decimal, where the first param
 example : String
 example =
     AOC.decToHex 4 25
+```
+
+### hexToDec
+
+Provide decimal representations from the given hexadecimal number. Can separate a single hex string into separate integers (e.g. RGB) or with a non-positive parameter, a single number. The hex string can start with a `#` but is not required.
+
+```elm {l r siding}
+example : ( Int, Int, Int )
+example =
+    AOC.hexToDec 2 "#ffaa32"
+        |> AOC.tripletFromList
+        |> Maybe.withDefault ( -1, -1, -1 )
+```
+
+```elm {l r siding}
+example : Int
+example =
+    AOC.hexToDec 0 "0000ffff"
+        |> List.head
+        |> Maybe.withDefault 0
 ```
 
 ### hexToBinary
