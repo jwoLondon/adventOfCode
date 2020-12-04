@@ -13,6 +13,7 @@ elm:
     krisajenkins/elm-astar: latest
     lynn/elm-arithmetic: latest
     cmditch/elm-bigint: latest
+    rtfeldman/elm-hex: latest
 
   source-directories:
     - src
@@ -40,6 +41,7 @@ import Dict exposing (Dict)
 import Fifo exposing (Fifo)
 import Graph exposing (Graph)
 import Graph.Pair
+import Hex
 import Json.Decode as JD
 import KnotHash as KH
 import MD5Fast as MD5
