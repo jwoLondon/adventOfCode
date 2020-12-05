@@ -65,7 +65,7 @@ Functions available in the Aoc module with simple working examples.
 
 ### Number Conversion
 
-[decToBinary](#dectobinary), [decToHex](#dectohex), [hexToDec](#hextodec), [hexToBinary](#hextobinary)
+[decToBinary](#dectobinary), [binaryToDec](#binarytodec), [decToHex](#dectohex), [hexToDec](#hextodec), [hexToBinary](#hextobinary)
 
 ### Frequency Distributions and Dictionaries
 
@@ -693,6 +693,16 @@ example =
     AOC.decToBinary 8 25
         |> List.map String.fromInt
         |> String.concat
+```
+
+### binaryToDec
+
+Convert a string representation of a binary number into decimal. Anything other than 1s in given string will be treated as zeros.
+
+```elm {l r siding}
+example : Int
+example =
+    AOC.binaryToDec "00011001"
 ```
 
 ### decToHex

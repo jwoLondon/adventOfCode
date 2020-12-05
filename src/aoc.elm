@@ -10,6 +10,7 @@ module Aoc exposing
     , addToFreqTable
     , addUndirectedEdge
     , addUndirectedEdges
+    , binaryToDec
     , circularNeighbours
     , combinations
     , contains
@@ -190,6 +191,24 @@ already exist, they will be added to the graph.
 addUndirectedEdges : List ( comparable, comparable, Float ) -> SPFGraph comparable -> SPFGraph comparable
 addUndirectedEdges =
     flip (List.foldl (\( n1, n2, w ) -> addUndirectedEdge n1 n2 w))
+
+
+{-| Convert a string representation of a binary number into decimal. Anything other
+than 1s in given string will be treated as zeros.
+-}
+binaryToDec : String -> Int
+binaryToDec =
+    String.toList
+        >> List.reverse
+        >> List.indexedMap
+            (\pos b ->
+                if b == '1' then
+                    Bitwise.shiftLeftBy pos 1
+
+                else
+                    0
+            )
+        >> List.sum
 
 
 {-| Create a circular list of adjacent neighbour tuples from a list where the
