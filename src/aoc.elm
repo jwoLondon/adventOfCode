@@ -81,6 +81,7 @@ module Aoc exposing
     , tripletSecond
     , tripletThird
     , uncurry
+    , unions
     , unique
     , unzip3
     , updateInsert
@@ -1183,6 +1184,13 @@ tripletThird ( _, _, c ) =
 uncurry : (a -> b -> c) -> ( a, b ) -> c
 uncurry f ( a, b ) =
     f a b
+
+
+{-| Create the union of a list of sets.
+-}
+unions : List (Set comparable) -> Set comparable
+unions =
+    List.foldl Set.union Set.empty
 
 
 {-| From [List.Extra](https://package.elm-lang.org/packages/elm-community/list-extra/latest/List-Extra#unique),

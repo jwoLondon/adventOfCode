@@ -27,6 +27,7 @@ import Graph exposing (Graph)
 import Hex
 import PriorityQueue
 import Regex
+import Set exposing (Set)
 ```
 
 # AoC Module Directory
@@ -37,7 +38,7 @@ Functions available in the Aoc module with simple working examples.
 
 ### List Processing
 
-[scanl](#scanl), [neighbours](#neighbours), [circularNeighbours](#circularneighbours), [rotateList](#rotatelist), [makeCycle](#makecycle), [groupsOf](#groupsof), [dropWhile](#dropwhile), [takeWhile](#takewhile), [indexOf](#indexof), [setListAt](#setlistat), [splitAt](#splitat), [zip](#zip), [transpose](#transpose), [unique](#unique).
+[scanl](#scanl), [neighbours](#neighbours), [circularNeighbours](#circularneighbours), [rotateList](#rotatelist), [makeCycle](#makecycle), [groupsOf](#groupsof), [dropWhile](#dropwhile), [takeWhile](#takewhile), [indexOf](#indexof), [setListAt](#setlistat), [splitAt](#splitat), [zip](#zip), [transpose](#transpose), [unions](#unions), [unique](#unique).
 
 ### Parsing
 
@@ -227,6 +228,16 @@ example =
         [ [ ( 0, "a" ), ( 0, "b" ), ( 0, "c" ) ]
         , [ ( 1, "a" ), ( 1, "b" ), ( 1, "c" ) ]
         ]
+```
+
+### unions
+
+Create the union of a list of sets.
+
+```elm {l r siding}
+example : Set String
+example =
+    AOC.unions [ Set.fromList [ "cat", "dog" ], Set.empty, Set.fromList [ "dog", "fish" ] ]
 ```
 
 ### unique
