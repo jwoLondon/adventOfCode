@@ -44,6 +44,7 @@ module Aoc exposing
     , hexToDec
     , highestCommonFactor
     , indexOf
+    , intersections
     , iterate
     , lowestCommonMultiple
     , makeCycle
@@ -625,6 +626,13 @@ indexOf item list =
                         first (index + 1) tl
     in
     first 0 list
+
+
+{-| Create the intersection of a list of sets.
+-}
+intersections : List (Set comparable) -> Set comparable
+intersections ss =
+    List.foldl Set.intersect (List.head ss |> Maybe.withDefault Set.empty) (List.drop 1 ss)
 
 
 {-| Oterate something _n_ times (convenience function that folds over a counter
