@@ -38,7 +38,7 @@ Functions available in the Aoc module with simple working examples.
 
 ### List Processing
 
-[scanl](#scanl), [neighbours](#neighbours), [circularNeighbours](#circularneighbours), [rotateList](#rotatelist), [makeCycle](#makecycle), [groupsOf](#groupsof), [dropWhile](#dropwhile), [takeWhile](#takewhile), [indexOf](#indexof), [setListAt](#setlistat), [splitAt](#splitat), [zip](#zip), [transpose](#transpose), [unique](#unique), [intersections](#intersections), [unions](#unions).
+[scanl](#scanl), [neighbours](#neighbours), [circularNeighbours](#circularneighbours), [rotateList](#rotatelist), [makeCycle](#makecycle), [group](#group), [groupsOf](#groupsof), [dropWhile](#dropwhile), [takeWhile](#takewhile), [indexOf](#indexof), [setListAt](#setlistat), [splitAt](#splitat), [zip](#zip), [transpose](#transpose), [unique](#unique), [intersections](#intersections), [unions](#unions).
 
 ### Parsing
 
@@ -145,6 +145,16 @@ example =
         [ [ ( 0, "a" ), ( 0, "b" ), ( 0, "c" ) ]
         , [ ( 1, "a" ), ( 1, "b" ), ( 1, "c" ) ]
         ]
+```
+
+### group
+
+Group identical consecutive items into their own list. Similar to Haskell's group function.
+
+```elm {l r siding}
+example : List (List Int)
+example =
+    AOC.group [ 1, 2, 2, 3, 1, 1, 1, 2 ]
 ```
 
 ### groupsOf

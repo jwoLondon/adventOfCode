@@ -39,6 +39,7 @@ module Aoc exposing
     , gToLists
     , gTranspose
     , gridLocations
+    , group
     , groupsOf
     , hexToBinary
     , hexToDec
@@ -446,6 +447,26 @@ gridLocations : ( Int, Int ) -> ( Int, Int ) -> List ( Int, Int )
 gridLocations ( minX, minY ) ( maxX, maxY ) =
     List.range minX maxX
         |> List.concatMap (\x -> List.map (\y -> ( x, y )) (List.range minY maxY))
+
+
+{-| Group identical consecutive items into their own list. Similar to Haskell's group function.
+-}
+group : List a -> List (List a)
+group =
+    List.foldr
+        (\x groups ->
+            case groups of
+                hd :: tl ->
+                    if List.member x hd then
+                        (x :: hd) :: tl
+
+                    else
+                        [ x ] :: groups
+
+                _ ->
+                    [ [ x ] ]
+        )
+        []
 
 
 {-| From [List.Extra](https://package.elm-lang.org/packages/elm-community/list-extra/latest/List-Extra#groupsOf),
