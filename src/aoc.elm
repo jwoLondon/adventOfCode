@@ -38,7 +38,7 @@ module Aoc exposing
     , gToList
     , gToLists
     , gTranspose
-    , getAtWithDefault
+    , getWithDefault
     , gridLocations
     , group
     , groupsOf
@@ -381,8 +381,8 @@ gColCount =
 {-| Retrieve the value of a list item at the given position defaulting to the
 given value if out of bounds.
 -}
-getAtWithDefault : Int -> a -> List a -> a
-getAtWithDefault pos default =
+getWithDefault : a -> Int -> List a -> a
+getWithDefault default pos =
     List.drop pos >> List.head >> Maybe.withDefault default
 
 

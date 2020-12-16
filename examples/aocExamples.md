@@ -38,7 +38,7 @@ Functions available in the Aoc module with simple working examples.
 
 ### List Processing
 
-[scanl](#scanl), [neighbours](#neighbours), [circularNeighbours](#circularneighbours), [rotateList](#rotatelist), [makeCycle](#makecycle), [group](#group), [groupsOf](#groupsof), [dropWhile](#dropwhile), [takeWhile](#takewhile), [indexOf](#indexof), [getAtWithDefault](#getatwithdefault), [setListAt](#setlistat), [splitAt](#splitat), [zip](#zip), [transpose](#transpose), [unique](#unique), [intersections](#intersections), [unions](#unions).
+[scanl](#scanl), [neighbours](#neighbours), [circularNeighbours](#circularneighbours), [rotateList](#rotatelist), [makeCycle](#makecycle), [group](#group), [groupsOf](#groupsof), [dropWhile](#dropwhile), [takeWhile](#takewhile), [indexOf](#indexof), [getWithDefault](#getwithdefault), [setListAt](#setlistat), [splitAt](#splitat), [zip](#zip), [transpose](#transpose), [unique](#unique), [intersections](#intersections), [unions](#unions).
 
 ### Parsing
 
@@ -197,15 +197,15 @@ example =
     AOC.indexOf "c" [ "a", "b", "c", "d", "e", "f" ]
 ```
 
-### getAtWithDefault
+### getWithDefault
 
-Retrieve the value at the given index in a list if it exists.
+Retrieve the value at the given index in a list if it exists or falling back to a given default if not.
 
 ```elm {l r siding}
 example : ( String, String )
 example =
-    ( AOC.getAtWithDefault 4 "not found" [ "a", "b", "c", "d", "e", "f" ]
-    , AOC.getAtWithDefault 6 "not found" [ "a", "b", "c", "d", "e", "f" ]
+    ( AOC.getWithDefault "not found" 4 [ "a", "b", "c", "d", "e", "f" ]
+    , AOC.getWithDefault "not found" 6 [ "a", "b", "c", "d", "e", "f" ]
     )
 ```
 
