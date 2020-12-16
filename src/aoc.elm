@@ -38,6 +38,7 @@ module Aoc exposing
     , gToList
     , gToLists
     , gTranspose
+    , getListAt
     , gridLocations
     , group
     , groupsOf
@@ -375,6 +376,13 @@ returned, otherwise `Just` a list of the grid column values.
 gColCount : Grid a -> Int
 gColCount =
     gToLists >> List.map List.length >> List.maximum >> Maybe.withDefault 0
+
+
+{-| Retrieve the value of a list item at the given position.
+-}
+getListAt : Int -> List a -> Maybe a
+getListAt pos =
+    List.drop pos >> List.head
 
 
 {-| Create a 2d grid with the given number of columns from the given 1d list.

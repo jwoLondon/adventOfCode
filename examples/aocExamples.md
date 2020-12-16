@@ -38,7 +38,7 @@ Functions available in the Aoc module with simple working examples.
 
 ### List Processing
 
-[scanl](#scanl), [neighbours](#neighbours), [circularNeighbours](#circularneighbours), [rotateList](#rotatelist), [makeCycle](#makecycle), [group](#group), [groupsOf](#groupsof), [dropWhile](#dropwhile), [takeWhile](#takewhile), [indexOf](#indexof), [setListAt](#setlistat), [splitAt](#splitat), [zip](#zip), [transpose](#transpose), [unique](#unique), [intersections](#intersections), [unions](#unions).
+[scanl](#scanl), [neighbours](#neighbours), [circularNeighbours](#circularneighbours), [rotateList](#rotatelist), [makeCycle](#makecycle), [group](#group), [groupsOf](#groupsof), [dropWhile](#dropwhile), [takeWhile](#takewhile), [indexOf](#indexof), [getListAt](#getlistat), [setListAt](#setlistat), [splitAt](#splitat), [zip](#zip), [transpose](#transpose), [unique](#unique), [intersections](#intersections), [unions](#unions).
 
 ### Parsing
 
@@ -195,6 +195,16 @@ Find the index of the first occurrence of a value in a list or -1 if not found.
 example : Int
 example =
     AOC.indexOf "c" [ "a", "b", "c", "d", "e", "f" ]
+```
+
+### getListAt
+
+Retrieve the value at the given index in a list if it exists.
+
+```elm {l r siding}
+example : Maybe String
+example =
+    AOC.getListAt 4 [ "a", "b", "c", "d", "e", "f" ]
 ```
 
 ### setListAt
