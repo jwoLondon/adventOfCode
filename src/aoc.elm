@@ -38,7 +38,7 @@ module Aoc exposing
     , gToList
     , gToLists
     , gTranspose
-    , getListAt
+    , getAtWithDefault
     , gridLocations
     , group
     , groupsOf
@@ -378,11 +378,12 @@ gColCount =
     gToLists >> List.map List.length >> List.maximum >> Maybe.withDefault 0
 
 
-{-| Retrieve the value of a list item at the given position.
+{-| Retrieve the value of a list item at the given position defaulting to the
+given value if out of bounds.
 -}
-getListAt : Int -> List a -> Maybe a
-getListAt pos =
-    List.drop pos >> List.head
+getAtWithDefault : Int -> a -> List a -> a
+getAtWithDefault pos default =
+    List.drop pos >> List.head >> Maybe.withDefault default
 
 
 {-| Create a 2d grid with the given number of columns from the given 1d list.
