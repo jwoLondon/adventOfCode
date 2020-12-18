@@ -7,6 +7,7 @@ elm:
     fifth-postulate/priority-queue: latest
     avh4/elm-fifo: latest
     elm/regex: latest
+    elm/parser: latest
     gicentre/elm-vegalite: latest
     gicentre/elm-vega: latest
     drathier/elm-graph: latest
@@ -45,6 +46,7 @@ import Hex
 import Json.Decode as JD
 import KnotHash as KH
 import MD5Fast as MD5
+import Parser exposing ((|.), (|=), Parser)
 import PriorityQueue
 import Regex
 import Set exposing (Set)
