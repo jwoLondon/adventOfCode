@@ -13,6 +13,7 @@ elm:
     drathier/elm-graph: latest
     krisajenkins/elm-astar: latest
     lynn/elm-arithmetic: latest
+    elm-community/list-extra: latest
     cmditch/elm-bigint: latest
     rtfeldman/elm-hex: latest
 
@@ -45,6 +46,7 @@ import Graph.Pair
 import Hex
 import Json.Decode as JD
 import KnotHash as KH
+import List.Extra
 import MD5Fast as MD5
 import Parser exposing ((|.), (|=), Parser)
 import PriorityQueue
