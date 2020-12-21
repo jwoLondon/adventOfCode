@@ -70,7 +70,7 @@ Functions available in the Aoc module with simple working examples.
 
 ### Frequency Distributions and Dictionaries
 
-[addToFreqTable](#addtofreqtable), [addNToFreqTable](#addntofreqtable), [updateInsert](#updateinsert), [mode](#mode), [modeCount](#modecount)
+[addToFreqTable](#addtofreqtable), [addNToFreqTable](#addntofreqtable), [updateInsert](#updateinsert), [mode](#mode), [modeCount](#modecount), [setEliminate](#seteliminate)
 
 ### Cycle Detection
 
@@ -850,6 +850,32 @@ Frequency of the commonest value in a list.
 example : Maybe Int
 example =
     AOC.modeCount [ "cat", "dog", "cat", "fish" ]
+```
+
+### setEliminate
+
+Reduce a dictionary of sets to a dictionary of single values via elimination. Assumes each value in the union of sets can be allocated to only one dictionary key. Requires at least one singleton set on each iteration of elimination to solve. If cannot be solved, an empty dictionary is returned.
+
+```elm {l r siding}
+example : Dict Int String
+example =
+    Dict.fromList
+        [ ( 1, Set.fromList [ "cat", "dog", "fish" ] )
+        , ( 2, Set.fromList [ "dog" ] )
+        , ( 3, Set.fromList [ "fish", "dog" ] )
+        ]
+        |> AOC.setEliminate
+```
+
+### invertDictionary
+
+Swap the keys and values of a dictionary. Assumes both are a unique sets. If values are not unique, later values, as determined by original key order, will replace earlier values when transformed into keys.
+
+```elm {l r siding}
+example2 : Dict Int String
+example2 =
+    Dict.fromList [ ( "cat", 4 ), ( "parrot", 2 ), ( "dog", 4 ), ( "fish", 0 ), ( "spider", 8 ) ]
+        |> AOC.invertDictionary
 ```
 
 ---

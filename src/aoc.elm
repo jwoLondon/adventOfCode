@@ -47,6 +47,7 @@ module Aoc exposing
     , highestCommonFactor
     , indexOf
     , intersections
+    , invertDictionary
     , iterate
     , lowestCommonMultiple
     , makeCycle
@@ -69,6 +70,7 @@ module Aoc exposing
     , selectLargest
     , selectSplit
     , sequenceCycle
+    , setEliminate
     , setListAt
     , shortestPath
     , shortestPathCost
@@ -665,6 +667,15 @@ intersections ss =
     List.foldl Set.intersect (List.head ss |> Maybe.withDefault Set.empty) (List.drop 1 ss)
 
 
+{-| Swap the keys and values of a dictionary. Assumes both are a unique sets.
+If values are not unique, later values, as determined by original key order, will
+replace earlier values when transformed into keys.
+-}
+invertDictionary : Dict comparable comparable2 -> Dict comparable2 comparable
+invertDictionary =
+    Dict.toList >> List.map (\( a, b ) -> ( b, a )) >> Dict.fromList
+
+
 {-| Oterate something _n_ times (convenience function that folds over a counter
 list).
 -}
@@ -1045,6 +1056,59 @@ sequenceCycle maxCycleLength x0 f =
 
         Nothing ->
             Nothing
+
+
+{-| Reduce a dictionary of sets to a dictionary of single values via elimination.
+Assumes each value in the union of sets can be allocated to only one dictionary
+key. Requires at least one singleton set on each iteration of elimination to solve.
+If cannot be solved, an empty dictionary is returned.
+-}
+setEliminate : Dict comparable (Set comparable2) -> Dict comparable comparable2
+setEliminate dict =
+    let
+        maxCandidates =
+            Dict.values dict
+                |> List.map Set.size
+                |> List.maximum
+                |> Maybe.withDefault 0
+    in
+    if maxCandidates <= 1 then
+        dict
+            |> Dict.toList
+            |> List.map (\( alg, ing ) -> ( alg, ing |> Set.toList |> List.head ))
+            |> List.filterMap
+                (\( k, mv ) ->
+                    case mv of
+                        Nothing ->
+                            Nothing
+
+                        Just v ->
+                            Just ( k, v )
+                )
+            |> Dict.fromList
+
+    else
+        let
+            confirmed =
+                Dict.values dict
+                    |> List.filter (\candidates -> Set.size candidates == 1)
+                    |> unions
+        in
+        if confirmed == Set.empty then
+            Dict.empty |> Debug.log "Cannot solve set elimination"
+
+        else
+            setEliminate
+                (Dict.map
+                    (\_ candidates ->
+                        if Set.size candidates == 1 then
+                            candidates
+
+                        else
+                            Set.diff candidates confirmed
+                    )
+                    dict
+                )
 
 
 {-| Set the value of a list item at the given position. If the position is larger
