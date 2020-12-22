@@ -618,7 +618,7 @@ example =
 
 ### pairwiseCombinations
 
-Generate all combinations of size _k_ or smaller of an ordered list.
+Generate all combinations of size 2 of an ordered list.
 
 ```elm {l r siding}
 example : List ( Int, Int )
