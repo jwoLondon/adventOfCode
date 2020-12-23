@@ -885,6 +885,8 @@ example2 =
 Given a maximum sequence length, a start value and a function that generates the next value in a sequence, return the length of the cycle and the zero-indexed position in the sequence of the first element of the cycle. If there is no cycle
 detected less than the maximum sequence length, will return `Nothing`.
 
+### sequenceCycle
+
 ```elm {l r siding}
 mySequence : List Int
 mySequence =
