@@ -608,7 +608,7 @@ Functions for combining and selecting combinations and permutations of list elem
 
 ### combinations
 
-Generate all combinations of size _k_ or smaller of an ordered list.
+Generate all combinations of size _k_ of an ordered list.
 
 ```elm {l r siding}
 example : List (List Int)
