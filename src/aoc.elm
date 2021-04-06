@@ -676,7 +676,7 @@ invertDictionary =
     Dict.toList >> List.map (\( a, b ) -> ( b, a )) >> Dict.fromList
 
 
-{-| Oterate something _n_ times (convenience function that folds over a counter
+{-| Iterate something _n_ times (convenience function that folds over a counter
 list).
 -}
 iterate : Int -> b -> (b -> b) -> b
