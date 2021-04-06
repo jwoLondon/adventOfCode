@@ -1126,7 +1126,7 @@ setListAt pos x xs =
 
 
 {-| Calculate the shortest path between the two given nodes in an SPF graph. Result
-is a list of node ids, inclusive of srart and end nodes or an empty list if no
+is a list of node ids, inclusive of start and end nodes or an empty list if no
 path found.
 -}
 shortestPath : comparable -> comparable -> SPFGraph comparable -> List comparable
