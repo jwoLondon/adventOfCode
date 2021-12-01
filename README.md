@@ -45,13 +45,13 @@ Solutions to the [Advent of Code](http://adventofcode.com) programming challenge
 
 Puzzle difficulty as measured by time taken by the 100th person on the global leader board to complete each puzzle.
 
-<img src="images/completionTimes2021.png" width=49% />
+<img src="images/completionTimes2021.png" width=49% /> <img src="images/completionTimes2020.png" width=49% />
 
-<img src="images/completionTimes2020.png" width=49% /> <img src="images/completionTimes2019.png" width=49% />
+<img src="images/completionTimes2019.png" width=49% /> <img src="images/completionTimes2018.png" width=49% />
 
-<img src="images/completionTimes2018.png" width=49% /> <img src="images/completionTimes2017.png" width=49% />
+<img src="images/completionTimes2017.png" width=49% /> <img src="images/completionTimes2016.png" width=49% />
 
-<img src="images/completionTimes2016.png" width=49% /> <img src="images/completionTimes2015.png" width=49% />˜
+<img src="images/completionTimes2015.png" width=49% />˜
 
 Frequency distributions of times for the first 1000 stars of each colour. Times, on the horizontal axis, are in seconds on a log scale. As a guide, 256s = ~4min; 2048s = ~30mins; 32768s = ~9hrs and the right hand side is ~4 days.
 
