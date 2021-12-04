@@ -11,6 +11,7 @@ module Aoc exposing
     , addUndirectedEdge
     , addUndirectedEdges
     , binaryToDec
+    , chunk
     , circularNeighbours
     , combinations
     , contains
@@ -215,6 +216,23 @@ binaryToDec =
                     0
             )
         >> List.sum
+
+
+{-| Chunk a list into a list of lists of a given size. Note the final element may be
+smaller than the chunk size if number of elements is not a multiple of the chunk size.
+-}
+chunk : Int -> List a -> List (List a)
+chunk size xs =
+    let
+        helper todo xss =
+            case todo of
+                [] ->
+                    xss
+
+                _ ->
+                    helper (List.drop size todo) (List.take size todo :: xss)
+    in
+    helper xs [] |> List.reverse
 
 
 {-| Create a circular list of adjacent neighbour tuples from a list where the

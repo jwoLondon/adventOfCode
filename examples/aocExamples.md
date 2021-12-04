@@ -38,7 +38,7 @@ Functions available in the Aoc module with simple working examples.
 
 ### List Processing
 
-[scanl](#scanl), [neighbours](#neighbours), [circularNeighbours](#circularneighbours), [rotateList](#rotatelist), [makeCycle](#makecycle), [group](#group), [groupsOf](#groupsof), [dropWhile](#dropwhile), [takeWhile](#takewhile), [indexOf](#indexof), [getWithDefault](#getwithdefault), [setListAt](#setlistat), [splitAt](#splitat), [zip](#zip), [transpose](#transpose), [unique](#unique), [intersections](#intersections), [unions](#unions).
+[scanl](#scanl), [neighbours](#neighbours), [circularNeighbours](#circularneighbours), [rotateList](#rotatelist), [makeCycle](#makecycle), [chunk](#chunk), [groupsOf](#groupsof), [dropWhile](#dropwhile), [takeWhile](#takewhile), [indexOf](#indexof), [getWithDefault](#getwithdefault), [setListAt](#setlistat), [splitAt](#splitat), [zip](#zip), [transpose](#transpose), [unique](#unique), [intersections](#intersections), [unions](#unions).
 
 ### Parsing
 
@@ -145,6 +145,16 @@ example =
         [ [ ( 0, "a" ), ( 0, "b" ), ( 0, "c" ) ]
         , [ ( 1, "a" ), ( 1, "b" ), ( 1, "c" ) ]
         ]
+```
+
+### chunk
+
+Chunk a list into a list of lists of a given size.
+
+```elm {l r siding}
+example : List (List Int)
+example =
+    AOC.chunk 5 (List.range 1 25)
 ```
 
 ### group
