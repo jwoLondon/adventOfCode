@@ -75,6 +75,7 @@ module Aoc exposing
     , setListAt
     , shortestPath
     , shortestPathCost
+    , sign
     , split
     , splitAt
     , submatches
@@ -1189,6 +1190,20 @@ shortestPathCost start end graph =
             |> neighbours
             |> List.foldl (\( n1, n2 ) -> (+) (edgeCost n1 n2 graph)) 0
             |> Just
+
+
+{-| The sign of a number: -1 if negative, 1 if positive, otherwise 0
+-}
+sign : number -> Int
+sign n =
+    if n < 0 then
+        -1
+
+    else if n > 0 then
+        1
+
+    else
+        0
 
 
 {-| Split a string (second parameter) by patterns identified by a regex (first parameter).

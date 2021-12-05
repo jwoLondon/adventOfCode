@@ -66,7 +66,7 @@ Functions available in the Aoc module with simple working examples.
 
 ### Number Conversion
 
-[decToBinary](#dectobinary), [binaryToDec](#binarytodec), [decToHex](#dectohex), [hexToDec](#hextodec), [hexToBinary](#hextobinary)
+[decToBinary](#dectobinary), [binaryToDec](#binarytodec), [decToHex](#dectohex), [hexToDec](#hextodec), [hexToBinary](#hextobinary), [sign](#sign).
 
 ### Frequency Distributions and Dictionaries
 
@@ -798,6 +798,16 @@ example =
     AOC.hexToBinary "e3d7"
         |> List.map String.fromInt
         |> String.concat
+```
+
+### sign
+
+Convert a number into its sign (-1, 0 or 1).
+
+```elm {l r siding}
+example : List Int
+example =
+    List.range -3 3 |> List.map AOC.sign
 ```
 
 ---
