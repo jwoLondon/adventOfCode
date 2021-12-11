@@ -55,6 +55,8 @@ module Aoc exposing
     , mapHeadDeque
     , mapTriplet
     , match
+    , mean
+    , median
     , mode
     , modeCount
     , neighbours
@@ -767,6 +769,32 @@ match : String -> String -> List String
 match regex =
     Regex.find (Regex.fromString regex |> Maybe.withDefault Regex.never)
         >> List.map .match
+
+
+{-| Mean of a list of integers.
+-}
+mean : List Int -> Float
+mean xs =
+    let
+        total =
+            List.sum xs
+    in
+    if total == 0 then
+        0
+
+    else
+        toFloat total / toFloat (List.length xs)
+
+
+{-| Median of a list of comparable items. If the list has an even number of items,
+will return the smaller of the two middle ones.
+-}
+median : List comparable -> Maybe comparable
+median xs =
+    xs
+        |> List.sort
+        |> List.drop (List.length xs // 2)
+        |> List.head
 
 
 {-| Commonest value (mode) in a list. If item not present in list, returns `Nothing`.

@@ -70,7 +70,7 @@ Functions available in the Aoc module with simple working examples.
 
 ### Frequency Distributions and Dictionaries
 
-[addToFreqTable](#addtofreqtable), [addNToFreqTable](#addntofreqtable), [updateInsert](#updateinsert), [mode](#mode), [modeCount](#modecount), [setEliminate](#seteliminate)
+[addToFreqTable](#addtofreqtable), [addNToFreqTable](#addntofreqtable), [updateInsert](#updateinsert), [mean](#mean), [median](#median), [mode](#mode), [modeCount](#modecount), [setEliminate](#seteliminate)
 
 ### Cycle Detection
 
@@ -850,6 +850,22 @@ example =
         |> AOC.updateInsert "fish" [ 10 ] ((::) 10)
         |> AOC.updateInsert "dog" [ 50 ] ((::) 50)
         |> AOC.updateInsert "cat" [ 50 ] ((::) 50)
+```
+
+### mean
+
+```elm {l r siding}
+example : Float
+example =
+    AOC.mean [ 1, 90, 2, 4, 3 ]
+```
+
+### median
+
+```elm {l r siding}
+example : Int
+example =
+    AOC.median [ 1, 90, 2, 4, 3 ] |> Maybe.withDefault 0
 ```
 
 ### mode
