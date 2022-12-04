@@ -42,7 +42,7 @@ Functions available in the Aoc module with simple working examples.
 
 ### Parsing
 
-[contains](#contains), [match](#match), [submatches](#submatches), [split](#split), [replace](#replace), [replaceFn](#replacefn), [toInt](#toint).
+[contains](#contains), [match](#match), [submatches](#submatches), [split](#split), [replace](#replace), [replaceFn](#replacefn), [toInt](#toint), [toTuple](#totuple), [toTuple3](#totuple3).
 
 ### Priority Queue
 
@@ -370,6 +370,28 @@ Unsafe, but compact string to integer conversion for more readable code.
 example : Int
 example =
     AOC.toInt "345"
+```
+
+### toTuple
+
+Convert the first two elements of a list, if they exist, into a tuple.
+
+```elm {l r siding}
+example : List (Maybe ( Int, Int ))
+example =
+    [ [], [ 1 ], [ 1, 2 ], [ 1, 2, 3 ] ]
+        |> List.map AOC.toTuple
+```
+
+### toTuple3
+
+Convert the first three elements of a list, if they exist, into a tuple.
+
+```elm {l r siding}
+example : List (Maybe ( Int, Int, Int ))
+example =
+    [ [], [ 1 ], [ 1, 2 ], [ 1, 2, 3 ], [ 1, 2, 3, 4 ] ]
+        |> List.map AOC.toTuple3
 ```
 
 ---

@@ -83,6 +83,8 @@ module Aoc exposing
     , submatches
     , takeWhile
     , toInt
+    , toTuple
+    , toTuple3
     , transpose
     , triplet
     , tripletFirst
@@ -841,19 +843,10 @@ nodes =
 
 
 {-| Convenience function for choosing pairwise combinations and returning the
-results as a list of tuples
+results as a list of tuples.
 -}
 pairwiseCombinations : List a -> List ( a, a )
 pairwiseCombinations =
-    let
-        toTuple list =
-            case list of
-                [ s1, s2 ] ->
-                    Just ( s1, s2 )
-
-                _ ->
-                    Nothing
-    in
     combinations 2 >> List.filterMap toTuple
 
 
@@ -1266,6 +1259,30 @@ submatches regex =
 toInt : String -> Int
 toInt =
     String.toInt >> Maybe.withDefault 0
+
+
+{-| Convert the first two elements of a list, if they exist, into a tuple
+-}
+toTuple : List a -> Maybe ( a, a )
+toTuple xs =
+    case xs of
+        x1 :: x2 :: tl ->
+            Just ( x1, x2 )
+
+        _ ->
+            Nothing
+
+
+{-| Convert the first three elements of a list, if they exist, into a 3-tuple
+-}
+toTuple3 : List a -> Maybe ( a, a, a )
+toTuple3 xs =
+    case xs of
+        x1 :: x2 :: x3 :: tl ->
+            Just ( x1, x2, x3 )
+
+        _ ->
+            Nothing
 
 
 {-| From [List.Extra](http://package.elm-lang.org/packages/elm-community/list-extra/latest),
