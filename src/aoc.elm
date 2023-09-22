@@ -1013,14 +1013,9 @@ all items in the rest of list.
 
 -}
 selectLargest : List comparable -> List ( comparable, List comparable )
-selectLargest xs =
-    case xs of
-        [] ->
-            []
-
-        x :: xTail ->
-            ( x, List.filter (\y -> y < x) xTail )
-                :: List.map (\( y, ys ) -> ( y, x :: ys )) (selectLargest xTail)
+selectLargest =
+    select
+        >> List.map (\( x, xTail ) -> ( x, List.filter (\y -> y < x) xTail ))
 
 
 {-| From [List.Extra](https://package.elm-lang.org/packages/elm-community/list-extra/latest/List-Extra#selectSplit),
