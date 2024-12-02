@@ -45,7 +45,7 @@ Solutions to the [Advent of Code](http://adventofcode.com) programming challenge
 
 Puzzle difficulty as measured by time taken by the 100th person on the global leader board to complete each puzzle.
 
-<img src="images/completionTimes2023.png" width=49% />
+<img src="images/completionTimes2024.png" width=49% /> <img src="images/completionTimes2023.png" width=49% />
 
 <img src="images/completionTimes2022.png" width=49% /> <img src="images/completionTimes2021.png" width=49% />
 
